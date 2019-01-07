@@ -18,7 +18,7 @@
   top: 0px;
 }
 
-.container .btn {
+.container .unit-widget {
   position: absolute;
   color: white;
   background-color: orange;
@@ -34,7 +34,7 @@
   background-color: transparent;
 }
 
-.container .btn:hover {
+.container .unit-widget:hover {
   border: 3px;
   color: black;
 }
@@ -139,6 +139,7 @@ var turnInfo =
 }
 
 
+
 function drawBoard ()
 {
   document.getElementById ("turnIndicator").innerHTML = turnInfo.turnNumber;
@@ -167,11 +168,12 @@ function createUnit ()
 
 function createUnitWidget(aUnit)
 {
-  var unitWidget = document.createElement ("BUTTON");
+  var unitWidget = document.createElement ("IMG");
   
   unitWidget.id = aUnit.commander;
-  unitWidget.setAttribute ("class", "btn");
+  unitWidget.setAttribute ("class", "unit-widget");
   unitWidget.innerHTML = aUnit.commander;
+  unitWidget.draggable = true;
   
   document.getElementById("mapContainer").appendChild(unitWidget);
 }
@@ -430,7 +432,7 @@ function showUnitContextMenu (aUnit)
 
 </head>
 
-<body>
+<body onload="drawBoard()">
 
 <div style="position: static">
 <h2>Administrative Board</h2>
@@ -456,7 +458,6 @@ function showUnitContextMenu (aUnit)
 </table>
 
 <button type="button" onclick="drawBoard()">Test</button>
-<button type="button" onclick="rotateUnit()">Rotate</button>
 
 </div>
 
