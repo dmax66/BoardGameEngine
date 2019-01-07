@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<style>
+.container {
+  max-width: 4474px;
+  max-height: 2791px;
+  position: relative;
+  left: 0px;
+  top: 0px;
+}
+
+.container img {
+  height: auto;
+  position: relative;
+  left: 0px;
+  top: 0px;
+}
+
+.container .btn {
+  position: absolute;
+  color: white;
+  background-color: orange;
+  width: 60px;
+  height: 30px;
+  font-size: 12px;
+  padding: 1px 1px;
+  border: none;
+  cursor: pointer;
+  border-radius: 1px;
+  text-align: center;
+  background-repeat: no-repeat;
+  background-color: transparent;
+
+}
+
+.container .btn:hover {
+  background-color: black;
+}
+</style>
+
+<script>
+
+
+var alliedMilitaryUnit = {
+  commander: "",
+  type: "",    // "Infantry", "Cavalry", "Artillery", "COP"
+  strength: 0,
+  attackValue: 0,
+  defenseValue: 0,
+  movAllowance: 0,
+  formation: "", // either "column" or "line"
+  facing: "N", // N, NW, SW, S, SE, NE
+  x: 0, 
+  y: 0, // position
+  commandingUnit: undefined,
+  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.pgn", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
+ }
+
+
+var turnInfo = 
+{
+  turnNumber: 0,
+  phasingPlayer: "French",
+  phase: "",
+  segment: "",  
+  weather: "",
+
+  
+  frenchInfo : 
+  {
+    moraleLevel: 0,
+    accumulatedAdminPoints: 0,
+    accumulatedReplacements: 0,
+    minMoraleLevel: -1,
+    maxMoraleLevel: 2 },
+  
+  alliedInfo: 
+  { 
+    moraleLevel: -1,
+    accumulatedAdminPoints: 0,
+    accumulatedReplacements: 0,
+    minMoraleLevel: -2,
+    maxMoraleLevel: 1
+  }
+}
+
+
+function drawBoard ()
+{
+  document.getElementById ("turnIndicator").innerHTML = turnInfo.turnNumber;
+  document.getElementById ("weatherIndicator").innerHTML = turnInfo.weather;  
+  document.getElementById ("playerIndicator").innerHTML = turnInfo.phasingPlayer;  
+  document.getElementById ("phaseIndicator").innerHTML = turnInfo.phase + " Segment: " + turnInfo.segment;
+
+  
+  createUnit();
+  createUnitWidget(alliedMilitaryUnit);
+  drawUnit(alliedMilitaryUnit);
+}
+
+
+function createUnit ()
+{
+  alliedMilitaryUnit.x = 5;
+  alliedMilitaryUnit.y = 2;
+  alliedMilitaryUnit.commander = "Bluecher";
+  alliedMilitaryUnit.facing = "N";
+  
+}
+
+function createUnitWidget(aUnit)
+{
+  var unitWidget = document.createElement ("BUTTON");
+  
+  unitWidget.id = aUnit.commander;
+  unitWidget.setAttribute ("class", "btn");
+  unitWidget.innerHTML = aUnit.commander;
+  
+  document.getElementById("mapContainer").appendChild(unitWidget);
+}
+
+
+function drawUnit (aUnit)
+{
+  xOffset = 0;
+  yOffset = 0;
+  
+  var unitWidget = document.getElementById (aUnit.commander);
+  
+  switch (aUnit.facing) 
+  {
+    case "N": // North
+      unitWidget.style.width = "60px";
+      unitWidget.style.height = "30px";
+      unitWidget.style.backgroundImage = "url('images/allied-MGen-N.png')";
+      unitWidget.style.paddingTop = "8px";
+      unitWidget.style.paddingBottom = "0px";
+      xOffset = -13; // 21-34
+      break;
+      
+    case "NW":
+      unitWidget.style.width = "54px";
+      unitWidget.style.height = "64px";
+      unitWidget.style.backgroundImage = "url('images/allied-MGen-NW.png')";
+      xOffset = 4;
+      break;
+      
+    case "SW":
+      unitWidget.style.width = "54px";
+      unitWidget.style.height = "64px";
+      unitWidget.style.backgroundImage = "url('images/allied-MGen-SW.png')";
+      xOffset = 17;   
+      break;
+
+    case "S":
+      unitWidget.style.width = "60px";
+      unitWidget.style.height = "30px";
+      unitWidget.style.backgroundImage = "url('images/allied-MGen-S.png')";
+      unitWidget.style.paddingTop = "0px";
+      unitWidget.style.paddingBottom = "8px";
+      xOffset = -13+34;  
+      break;
+      
+    case "SE":
+      unitWidget.style.width = "54px";
+      unitWidget.style.height = "64px";
+      unitWidget.style.backgroundImage = "url('images/allied-MGen-SE.png')";
+      xOffset = -13+30; 
+      yOffset = -30;
+      break;
+      
+    case "NE":
+      unitWidget.style.width = "54px";
+      unitWidget.style.height = "64px";
+      unitWidget.style.backgroundImage = "url('images/allied-MGen-NE.png')";
+      yOffset = -30;
+      break;      
+  } 
+
+  unitWidget.style.top= (35 + 30*(aUnit.y) + yOffset) + "px";
+
+  if ((aUnit.y % 2) == 1) xOffset += 17;
+    
+  unitWidget.style.left = (xOffset + 34*aUnit.x) + "px";   
+
+//  newUnit.addEventListener("mouseover", xyxy, false);
+
+  
+}
+
+function rotateUnit()
+{
+  switch (alliedMilitaryUnit.facing)
+  {
+    case "N":
+      alliedMilitaryUnit.facing="NW";
+      break;
+      
+    case "NW":
+      alliedMilitaryUnit.facing="SW";
+      break;
+
+    case "SW":
+      alliedMilitaryUnit.facing="S";
+      break;
+      
+    case "S":
+      alliedMilitaryUnit.facing="SE";
+      break;
+
+    case "SE":
+      alliedMilitaryUnit.facing="NE";
+      break;
+
+    case "NE":
+      alliedMilitaryUnit.facing="N";
+      break;
+
+  }
+  
+  drawUnit (alliedMilitaryUnit);
+}
+
+
+</script>
+
+</head>
+
+<body>
+
+<div style="position: static">
+<h2>Administrative Board</h2>
+
+<table>
+<tr>
+  <td width="25%">Turn: <input id="turnIndicator" type="text" readonly="true" size="1"></td>
+  <td width="25%">Weather: <input id="weatherIndicator" type="text" readonly="true" size="1"></td>
+  <td width="25%">Player: <input id="playerIndicator" type="text" readonly="true" size="1"></td>
+  <td width="25%">Phase: <input id="phaseIndicator" type="text" readonly="true" size="1"></td>
+</tr>
+</table>
+
+<table>
+  <tr>
+    <td>Administrative Points</td>
+    <td><input id="adminPointsText"type="text" readonly="true" size="1"><meter id="adminPointsMeter" value="0" min="0" max="20" width="200"></meter>  </td>
+    <td>Morale Level</td>
+    <td><input id="moraleLevelText"type="text" readonly="true" size="1"><meter id="moraleLevelMeter" value="0" min="-1" max="2" width="100"></meter>  </td>
+    <td>Reinforcement Points</td>
+    <td><input id="reinforcementPointsText"type="text" readonly="true" size="1"><meter id="reinforcementPointsMeter" value="0" min="0" max="30" width="200"></meter>  </td>
+  </tr>
+</table>
+
+<button type="button" onclick="drawBoard()">Test</button>
+<button type="button" onclick="rotateUnit()">Rotate</button>
+
+</div>
+
+
+<div class="container" id="mapContainer">
+  <img id="gameMapImg" src="images/SoN_Map_New-2011_0521.png" style="top: 0px, left: 0px">
+
+</div>
+
+</body>
+</html> 
+
