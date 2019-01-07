@@ -11,7 +11,7 @@
   top: 0px;
 }
 
-.container img {
+.container .img {
   height: auto;
   position: relative;
   left: 0px;
@@ -32,13 +32,35 @@
   text-align: center;
   background-repeat: no-repeat;
   background-color: transparent;
+}
 
+.container .btn:hover {
+  border: 3px;
+  color: black;
 }
 
 .unit-info {
   position: absolute;
+  display: inline-block;
   color: black;
-  background-color: yellow;
+  background-color: #efdf88;
+  min-width: 200px;
+  min-height: 200px;
+  font-size: 14px;
+  padding: 1px 1px;
+  border: 1px;
+  cursor: pointer;
+  border-radius: 1px;
+  text-align: left;
+  background-repeat: no-repeat;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+  
+.context-menu {
+  position: absolute;
+  color: rgb(200,200,200);
+  background-color: black;
   min-width: 200px;
   height: 200px;
   font-size: 10px;
@@ -52,6 +74,7 @@
   z-index: 1;
 }
 
+
 /* Dropdown Content (Hidden by Default) */
 .unitInfoWidget-content {
   display: none;
@@ -63,9 +86,6 @@
 }
 
 
-.container .btn:hover {
-  background-color: black;
-}
 </style>
 
 <script>
@@ -132,7 +152,6 @@ function drawBoard ()
   drawUnit(alliedMilitaryUnit);
 }
 
-
 function createUnit ()
 {
   alliedMilitaryUnit.x = 5;
@@ -156,8 +175,6 @@ function createUnitWidget(aUnit)
   
   document.getElementById("mapContainer").appendChild(unitWidget);
 }
-
-
 
 function xMapCoordFromUnitCoord (unitX, unitY)
 {
@@ -246,51 +263,97 @@ function drawUnit(aUnit)
     } 
 
 
-  unitWidget.style.top= yMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + y/34) + "px";
-  unitWidget.style.left = xMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + y/34) + "px";   
+  unitWidget.style.top = yMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + y/34) + "px";
+  unitWidget.style.left = xMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + y/34) + "px";  
+  unitWidget.draggable = true;
   unitWidget.onclick = function() { showUnitInfoWidget (aUnit); }
+  unitWidget.onmousedown =  function(event) { if (event.button==2) showUnitContextMenu (aUnit); }
 
 }
 
-function rotateUnit()
+function rotateUnit(aUnit, direction)
 {
-  switch (alliedMilitaryUnit.facing)
+  switch (direction)
   {
-    case "N":
-      alliedMilitaryUnit.facing="NW";
+    case "anti-clockwise":
+      switch (aUnit.facing)
+      {
+        case "N":
+          aUnit.facing="NW";
+          break;
+
+        case "NW":
+          aUnit.facing="SW";
+          break;
+
+        case "SW":
+          aUnit.facing="S";
+          break;
+
+        case "S":
+          aUnit.facing="SE";
+          break;
+
+        case "SE":
+          aUnit.facing="NE";
+          break;
+
+        case "NE":
+          aUnit.facing="N";
+          break;
+      }
       break;
-      
-    case "NW":
-      alliedMilitaryUnit.facing="SW";
+  
+  case "clockwise":
+      switch (aUnit.facing)
+      {
+        case "N":
+          aUnit.facing="NE";
+          break;
+
+        case "NE":
+          aUnit.facing="SE";
+          break;
+
+        case "SE":
+          aUnit.facing="S";
+          break;
+
+        case "S":
+          aUnit.facing="SW";
+          break;
+
+        case "SW":
+          aUnit.facing="NW";
+          break;
+
+        case "NW":
+          aUnit.facing="N";
+          break;
+      }
       break;
 
-    case "SW":
-      alliedMilitaryUnit.facing="S";
-      break;
-      
-    case "S":
-      alliedMilitaryUnit.facing="SE";
-      break;
-
-    case "SE":
-      alliedMilitaryUnit.facing="NE";
-      break;
-
-    case "NE":
-      alliedMilitaryUnit.facing="N";
-      break;
-
+    default:
+      throw "Unexpected direction";
   }
   
-  drawUnit (alliedMilitaryUnit);
+  drawUnit (aUnit);
 }
 
 
 function showUnitInfoWidget (aUnit)
 {
-  var unitInfoWidget = document.createElement ("DIV");
+  var unitInfoWidget; 
   var unitInfoContent = undefined;
   var parentWidget = document.getElementById("mapContainer");
+  
+  // Check if the info widget already exists - if so, returns
+  unitInfoWidget = document.getElementById (aUnit.commander + "-info");
+  if (unitInfoWidget != null)
+      return;
+  
+  // Widget does not exist - create it!
+  unitInfoWidget= document.createElement ("DIV");
   
   unitInfoWidget.id = aUnit.commander + "-info";
   unitInfoWidget.setAttribute ("class", "unit-info");
@@ -301,11 +364,68 @@ function showUnitInfoWidget (aUnit)
   unitInfoWidget.style.top = (xMapCoordFromUnitCoord (aUnit.y) - 10) + "px";
   unitInfoWidget.onclick = function() { this.remove(); }
 
+  unitInfoContent = document.createElement ("IMG");
+  unitInfoContent.src ="images/" + aUnit.commander + ".png";
+  unitInfoContent.style.width = "100px";
+  unitInfoWidget.appendChild (unitInfoContent);
+  
   unitInfoContent = document.createElement ("P");
   unitInfoContent.innerHTML = "<b>" + aUnit.commander + "&nbsp" + aUnit.initiative + "&nbsp" + aUnit.bonus + "&nbsp" + aUnit.commandCapacity + "&nbsp" + aUnit.subordinationValue + "</b>"
   unitInfoWidget.appendChild (unitInfoContent);
 }
 
+  
+function showUnitContextMenu (aUnit)  
+{
+  var unitContextMenu; 
+  var menuContent = undefined;
+  var parentWidget = document.getElementById("mapContainer");
+  
+  // Check if the info widget already exists - if so, close the previous one
+  unitContextMenu = document.getElementById ("unitContextMenu");
+  if (unitContextMenu != null) 
+    unitContextMenu.remove();
+  
+  // Now the menu does not exist - create it!
+  unitContextMenu= document.createElement ("DIV");
+  unitContextMenu.id = "unitContextMenu";
+  unitContextMenu.setAttribute ("class", "context-menu");
+  
+  parentWidget.appendChild(unitContextMenu);
+  
+  unitContextMenu.style.left = (xMapCoordFromUnitCoord (aUnit.x) + 51) + "px";
+  unitContextMenu.style.top = (xMapCoordFromUnitCoord (aUnit.y) - 10) + "px";
+  unitContextMenu.onclick = function() { this.remove(); }
+
+  menuContent = document.createElement ("P");
+  menuContent.innerHTML = "<b>Context Menu</b>"
+  unitContextMenu.appendChild (menuContent);
+
+  menuContent = document.createElement ("P");
+  menuContent.innerHTML = "Line to Column";
+  unitContextMenu.appendChild (menuContent);
+
+  menuContent = document.createElement ("P");
+  menuContent.innerHTML = "Column to Line";
+  unitContextMenu.appendChild (menuContent);
+  
+  menuContent = document.createElement ("P");
+  menuContent.innerHTML = "Rotate clockwise";
+  menuContent.onclick = function() { rotateUnit (aUnit, "clockwise"); }
+  unitContextMenu.appendChild (menuContent);
+
+  menuContent = document.createElement ("P");
+  menuContent.innerHTML = "Rotate anti-clockwise";
+  menuContent.onclick = function() { rotateUnit (aUnit, "anti-clockwise"); }
+  unitContextMenu.appendChild (menuContent);
+
+  menuContent = document.createElement ("P");
+  menuContent.innerHTML = "Manage unit";
+  unitContextMenu.appendChild (menuContent);
+
+}
+  
+  
 </script>
 
 </head>
