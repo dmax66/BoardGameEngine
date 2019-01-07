@@ -35,6 +35,34 @@
 
 }
 
+.unit-info {
+  position: absolute;
+  color: black;
+  background-color: yellow;
+  min-width: 200px;
+  height: 200px;
+  font-size: 10px;
+  padding: 1px 1px;
+  border: 1px;
+  cursor: pointer;
+  border-radius: 1px;
+  text-align: left;
+  background-repeat: no-repeat;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Dropdown Content (Hidden by Default) */
+.unitInfoWidget-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+
 .container .btn:hover {
   background-color: black;
 }
@@ -50,8 +78,12 @@ var alliedMilitaryUnit = {
   attackValue: 0,
   defenseValue: 0,
   movAllowance: 0,
-  formation: "", // either "column" or "line"
-  facing: "N", // N, NW, SW, S, SE, NE
+  initiative: 0,
+  bonus: 0,
+  commandCapacity: 0,
+  subordinationValue: 0,
+  formation: "line", // either "column" or "line"
+  facing: "N", // N, NW, SW, S, SE, NE, E, W
   x: 0, 
   y: 0, // position
   commandingUnit: undefined,
@@ -104,10 +136,14 @@ function drawBoard ()
 function createUnit ()
 {
   alliedMilitaryUnit.x = 5;
-  alliedMilitaryUnit.y = 2;
+  alliedMilitaryUnit.y = 5;
   alliedMilitaryUnit.commander = "Bluecher";
   alliedMilitaryUnit.facing = "N";
-  
+  alliedMilitaryUnit.formation = "line";
+  alliedMilitaryUnit.initiative = 4;
+  alliedMilitaryUnit.commandCapacity = 10;
+  alliedMilitaryUnit.subordinationValue = 5;
+  alliedMilitaryUnit.bonus = "*";
 }
 
 function createUnitWidget(aUnit)
@@ -122,70 +158,98 @@ function createUnitWidget(aUnit)
 }
 
 
-function drawUnit (aUnit)
+
+function xMapCoordFromUnitCoord (unitX, unitY)
 {
-  xOffset = 0;
-  yOffset = 0;
+  if ((unitY % 2) == 1)
+    return 17+34*unitX;
+  else
+    return 34*unitX;
+}
+
+function yMapCoordFromUnitCoord (unitX, unitY)
+{
+  return 35 + 30*(unitY);
+}
+
+function xUnitCoorfdFromMapCoord (mapX, mapY)
+{
+  y = floor((mapY-35)/30);
+  if ((unitY % 2) == 1)
+    return floor((mapX-17)/34);
+  else
+    return floor (mapX/34);
+}
+
+function yUnitCoorfdFromMapCoord (mapX, mapY)
+{
+  return floor((mapY-35)/30);
+}
+
+
+
+function drawUnit(aUnit)
+{
+  x = 0;
+  y = 0;
   
   var unitWidget = document.getElementById (aUnit.commander);
   
-  switch (aUnit.facing) 
-  {
-    case "N": // North
-      unitWidget.style.width = "60px";
-      unitWidget.style.height = "30px";
-      unitWidget.style.backgroundImage = "url('images/allied-MGen-N.png')";
-      unitWidget.style.paddingTop = "8px";
-      unitWidget.style.paddingBottom = "0px";
-      xOffset = -13; // 21-34
-      break;
-      
-    case "NW":
-      unitWidget.style.width = "54px";
-      unitWidget.style.height = "64px";
-      unitWidget.style.backgroundImage = "url('images/allied-MGen-NW.png')";
-      xOffset = 4;
-      break;
-      
-    case "SW":
-      unitWidget.style.width = "54px";
-      unitWidget.style.height = "64px";
-      unitWidget.style.backgroundImage = "url('images/allied-MGen-SW.png')";
-      xOffset = 17;   
-      break;
+    switch (aUnit.facing) 
+    {
+      case "N": // North
+        unitWidget.style.width = "60px";
+        unitWidget.style.height = "30px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-N.png')";
+        unitWidget.style.paddingTop = "8px";
+        unitWidget.style.paddingBottom = "0px";
+        x = -13; 
+        break;
+        
+      case "NW":
+        unitWidget.style.width = "54px";
+        unitWidget.style.height = "64px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-NW.png')";
+        x = 4;
+        break;
+        
+      case "SW":
+        unitWidget.style.width = "54px";
+        unitWidget.style.height = "64px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-SW.png')";
+        x = 17;   
+        break;
 
-    case "S":
-      unitWidget.style.width = "60px";
-      unitWidget.style.height = "30px";
-      unitWidget.style.backgroundImage = "url('images/allied-MGen-S.png')";
-      unitWidget.style.paddingTop = "0px";
-      unitWidget.style.paddingBottom = "8px";
-      xOffset = -13+34;  
-      break;
-      
-    case "SE":
-      unitWidget.style.width = "54px";
-      unitWidget.style.height = "64px";
-      unitWidget.style.backgroundImage = "url('images/allied-MGen-SE.png')";
-      xOffset = -13+30; 
-      yOffset = -30;
-      break;
-      
-    case "NE":
-      unitWidget.style.width = "54px";
-      unitWidget.style.height = "64px";
-      unitWidget.style.backgroundImage = "url('images/allied-MGen-NE.png')";
-      yOffset = -30;
-      break;      
-  } 
+      case "S":
+        unitWidget.style.width = "60px";
+        unitWidget.style.height = "30px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-S.png')";
+        unitWidget.style.paddingTop = "0px";
+        unitWidget.style.paddingBottom = "8px";
+        x = 21;  
+        break;
+        
+      case "SE":
+        unitWidget.style.width = "54px";
+        unitWidget.style.height = "64px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-SE.png')";
+        x = 17; 
+        y = -33;
+        break;
+        
+      case "NE":
+        unitWidget.style.width = "54px";
+        unitWidget.style.height = "64px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-NE.png')";
+        y = -30;
+        break;      
+    } 
 
-  unitWidget.style.top= (35 + 30*(aUnit.y) + yOffset) + "px";
 
-  if ((aUnit.y % 2) == 1) xOffset += 17;
-    
-  unitWidget.style.left = (xOffset + 34*aUnit.x) + "px";   
+  unitWidget.style.top= yMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + y/34) + "px";
+  unitWidget.style.left = xMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + y/34) + "px";   
 
-//  newUnit.addEventListener("mouseover", xyxy, false);
+//  unitWidget.addEventListener("mouseover", xyxy, false);
 
   
 }
@@ -224,6 +288,26 @@ function rotateUnit()
 }
 
 
+function showUnitInfoWidget ()
+{
+  var unitInfoWidget = document.createElement ("DIV");
+  var unitInfoContent = undefined;
+  var parentWidget = document.getElementById("mapContainer");
+  
+  unitInfoWidget.id = alliedMilitaryUnit.commander + "-info";
+  unitInfoWidget.setAttribute ("class", "unit-info");
+  
+  parentWidget.appendChild(unitInfoWidget);
+  
+  unitInfoWidget.style.left = (xMapCoordFromUnitCoord (alliedMilitaryUnit.x) + 51) + "px";
+  unitInfoWidget.style.top = (xMapCoordFromUnitCoord (alliedMilitaryUnit.y) - 10) + "px";
+  unitInfoWidget.onclick = function() { this.remove(); }
+
+  unitInfoContent = document.createElement ("P");
+  unitInfoContent.innerHTML = "<b>" + alliedMilitaryUnit.commander + "&nbsp" + alliedMilitaryUnit.initiative + "&nbsp" + alliedMilitaryUnit.bonus + "&nbsp" + alliedMilitaryUnit.commandCapacity + "&nbsp" + alliedMilitaryUnit.subordinationValue + "</b>"
+  unitInfoWidget.appendChild (unitInfoContent);
+}
+
 </script>
 
 </head>
@@ -255,12 +339,14 @@ function rotateUnit()
 
 <button type="button" onclick="drawBoard()">Test</button>
 <button type="button" onclick="rotateUnit()">Rotate</button>
+<button type="button" onclick="showUnitInfoWidget()">Info</button>
 
 </div>
 
 
 <div class="container" id="mapContainer">
   <img id="gameMapImg" src="images/SoN_Map_New-2011_0521.png" style="top: 0px, left: 0px">
+  
 
 </div>
 
