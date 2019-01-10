@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 
@@ -74,6 +75,15 @@
   z-index: 1;
 }
 
+hr { 
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-left: auto;
+  margin-right: auto;
+  border-style: inset;
+  border-width: 1px;
+} 
 
 /* Dropdown Content (Hidden by Default) */
 .unitInfoWidget-content {
@@ -90,9 +100,32 @@
 
 <script>
 
+var gameUnits = [];
+  
+  gameUnits[0] = {
+  nationality: "Prussia",
+  commander: "Bluecher",
+  type: "",    // "Infantry", "Cavalry", "Artillery", "COP"
+  strength: 0,
+  attackValue: 0,
+  defenseValue: 0,
+  movAllowance: 0,
+  initiative: 4,
+  bonus: "*",
+  commandCapacity: 0,
+  subordinationValue: 0,
+  formation: "line", // either "column" or "line"
+  facing: "N", // N, NW, SW, S, SE, NE, E, W
+  x: 5, 
+  y: 4, // position
+  commandingUnit: undefined,
+  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.pgn", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
+}
 
-var alliedMilitaryUnit = {
-  commander: "",
+  
+gameUnits[1] = {
+  nationality: "Austria",
+  commander: "Schwarzenberg",
   type: "",    // "Infantry", "Cavalry", "Artillery", "COP"
   strength: 0,
   attackValue: 0,
@@ -103,12 +136,35 @@ var alliedMilitaryUnit = {
   commandCapacity: 0,
   subordinationValue: 0,
   formation: "line", // either "column" or "line"
-  facing: "N", // N, NW, SW, S, SE, NE, E, W
-  x: 0, 
-  y: 0, // position
+  facing: "NE", // N, NW, SW, S, SE, NE, E, W
+  x: 7, 
+  y: 8, // position
   commandingUnit: undefined,
   images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.pgn", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
- }
+}
+  
+function GameUnit (nationality, commander, type, strength, attackValue, defenseValue, movAllowance, initiative, bonus, commandCapacity, subordinationValue, formation, facing, x, y, commandingUnit, images)
+{
+  this.nationality = nationality;
+  this.commander = commander;
+  this.type = type;
+  this.strength = strength;
+  this.attackValue = attackValue;
+  this.defenseValue = defenseValue;
+  this.movAllowance = movAllowance;
+  this.initiative = initiative;
+  this.bonus = bonus;
+  this.commandCapacity = commandCapacity;
+  this.subordinationValue = subordinationValue;
+  this.formation = formation;
+  this.facing = facing;
+  this.x = x;
+  this.y = y;
+  this.commandingUnit = commandingUnit;
+  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.pgn", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
+}   
+  
+  
 
 
 var turnInfo = 
@@ -148,22 +204,27 @@ function drawBoard ()
   document.getElementById ("phaseIndicator").innerHTML = turnInfo.phase + " Segment: " + turnInfo.segment;
 
   
-  createUnit();
-  createUnitWidget(alliedMilitaryUnit);
-  drawUnit(alliedMilitaryUnit);
+//  createUnit();
+  // Draw all the units on the map
+  gameUnits.forEach (createUnitWidget);
+  gameUnits.forEach (drawUnit);
+  
+
+//  createUnitWidget(gameUnit);
+//  drawUnit(gameUnit);
 }
 
 function createUnit ()
 {
-  alliedMilitaryUnit.x = 6;
-  alliedMilitaryUnit.y = 5;
-  alliedMilitaryUnit.commander = "Bluecher";
-  alliedMilitaryUnit.facing = "N";
-  alliedMilitaryUnit.formation = "line";
-  alliedMilitaryUnit.initiative = 4;
-  alliedMilitaryUnit.commandCapacity = 10;
-  alliedMilitaryUnit.subordinationValue = 5;
-  alliedMilitaryUnit.bonus = "*";
+  gameUnit.x = 6;
+  gameUnit.y = 5;
+  gameUnit.commander = "Bluecher";
+  gameUnit.facing = "N";
+  gameUnit.formation = "line";
+  gameUnit.initiative = 4;
+  gameUnit.commandCapacity = 10;
+  gameUnit.subordinationValue = 5;
+  gameUnit.bonus = "*";
 }
 
 function createUnitWidget(aUnit)
@@ -181,10 +242,10 @@ function createUnitWidget(aUnit)
 
 function xMapCoordFromUnitCoord (unitX, unitY)
 {
-  if ((unitY % 2) == 1)
-    return 17+34*unitX;
-  else
+  if ((unitY % 2) == 0)
     return 34*unitX;
+  else
+    return 17+34*unitX;
 }
 
 function yMapCoordFromUnitCoord (unitX, unitY)
@@ -213,8 +274,8 @@ function drawUnit(aUnit)
   
   var unitWidget = document.getElementById (aUnit.commander);
   
-    switch (aUnit.facing) 
-    {
+  switch (aUnit.facing) 
+  {
       case "N": // North
         unitWidget.style.width = "60px";
         unitWidget.style.height = "30px";
@@ -228,6 +289,8 @@ function drawUnit(aUnit)
         unitWidget.style.width = "54px";
         unitWidget.style.height = "64px";
         unitWidget.style.backgroundImage = "url('images/allied-MGen-NW.png')";
+        unitWidget.style.paddingTop = "0px";
+        unitWidget.style.paddingBottom = "0px";
         x = 4;
         break;
         
@@ -235,6 +298,8 @@ function drawUnit(aUnit)
         unitWidget.style.width = "54px";
         unitWidget.style.height = "64px";
         unitWidget.style.backgroundImage = "url('images/allied-MGen-SW.png')";
+        unitWidget.style.paddingTop = "0px";
+        unitWidget.style.paddingBottom = "0px";
         x = 17;   
         break;
 
@@ -251,6 +316,8 @@ function drawUnit(aUnit)
         unitWidget.style.width = "54px";
         unitWidget.style.height = "64px";
         unitWidget.style.backgroundImage = "url('images/allied-MGen-SE.png')";
+        unitWidget.style.paddingTop = "0px";
+        unitWidget.style.paddingBottom = "0px";
         x = 17; 
         y = -33;
         break;
@@ -259,17 +326,19 @@ function drawUnit(aUnit)
         unitWidget.style.width = "54px";
         unitWidget.style.height = "64px";
         unitWidget.style.backgroundImage = "url('images/allied-MGen-NE.png')";
-        y = -30;
+        unitWidget.style.paddingTop = "0px";
+        unitWidget.style.paddingBottom = "0px";
+        x = 17;
+        y = -33;
         break;      
     } 
 
 
-  unitWidget.style.top = yMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + y/34) + "px";
-  unitWidget.style.left = xMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + y/34) + "px";  
+  unitWidget.style.top = yMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + (y/34)) + "px";
+  unitWidget.style.left = xMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + (y/34).toFixed(0)) + "px";  
   unitWidget.draggable = true;
   unitWidget.onclick = function() { showUnitInfoWidget (aUnit); }
   unitWidget.onmousedown =  function(event) { if (event.button==2) showUnitContextMenu (aUnit); }
-
 }
 
 function moveUnit (aUnit, direction)
@@ -277,11 +346,11 @@ function moveUnit (aUnit, direction)
   switch (aUnit.formation)
   {
     case "line":
-      moveUnitInLineFormation (aUnit, direction);
+      moveLine (aUnit, direction);
       break;
       
     case "column":
-      moveUnitInColumnFormation (aUnit, direction);
+      moveColumn (aUnit, direction);
       break;
       
     default:
@@ -290,114 +359,116 @@ function moveUnit (aUnit, direction)
 }
   
   
-function moveUnitInLineFormation (aUnit, direction) {
+function moveLine (aUnit, direction)
+{
   switch (aUnit.facing)
   {
     case "N":
-      switch (direction) {
-        case "NW":
-          if (aUnit.y % 2 == 1)
-            aUnit.x -= 1;
-          aUnit.y -= 1;
+      aUnit.y--;
+      switch (direction) 
+      {
+        case "FL":
+          if (aUnit.y % 2 == 1) aUnit.x -= 1;
           break;
-          
-        case "NE":
-          if (aUnit.y % 2 == 0)
-            aUnit.x += 1;
-          aUnit.y -= 1;
+
+        case "FR":
+          if (aUnit.y % 2 == 0) aUnit.x += 1;
           break;
-          
+
         default:
            throw ("Movement not allowed");
       }
-      
+      break;
+
     case "NE":
       switch (direction)
       {
 
-        case "E":
-          aUnit.x += 1;
+        case "FR":
+          aUnit.x++;
           break;
-          
-        case "NE":
-          if (aUnit.y % 2 == 0)
-            aUnit.x += 1;
-          aUnit.y -= 1;
+
+        case "FL":
+          if (aUnit.y % 2 == 1) aUnit.x++;
+          aUnit.y--;
           break;
-          
+
         default:
            throw ("Movement not allowed");
       }
+      break;
 
     case "SE":
       switch (direction)
       {
-        case "E":
+        case "FL":
           aUnit.x += 1;
           break;
 
-        case "SE":
-          if (aUnit.y % 2 == 1)
-            aUnit.x += 1;
-          aUnit.y += 1;
+        case "FR":
+          if (aUnit.y % 2 == 1) aUnit.x++;
+          aUnit.y++;
           break;
-          
+
         default:
            throw ("Movement not allowed");
       }
-      
+      break;
+
     case "S":
       switch (direction)
       {
-        case "SE":
-          if (aUnit.y % 2 == 1)
-            aUnit.x += 1;
-          aUnit.y += 1;
+        case "FL":
+          if (aUnit.y % 2 == 1) aUnit.x++;
+          aUnit.y++;
           break;
-          
-        case "SW":
-          if (aUnit.y % 2 == 0)
-            aUnit.x -= 1;
-          aUnit.y += 1;
+
+        case "FR":
+          if (aUnit.y % 2 == 0) aUnit.x--;
+          aUnit.y++;
           break;
-       
+
         default:
            throw ("Movement not allowed");
       }
-      
+      break;
+
     case "SW":
       switch (direction)
       {
-        case "W":
-          aUnit.x -= 1;
+        case "FL":
+          if (aUnit.y % 2 == 0) aUnit.x--;
+          aUnit.y++;
           break;
-          
-        case "SW":
-          if (aUnit.y % 2 == 0)
-            aUnit.x += 1;
-          aUnit.y += 1;
+
+        case "FR":
+          aUnit.x--;
           break;
-       
+
         default:
            throw ("Movement not allowed");
       }
-      
+      break;
+
     case "NW":
       switch (direction)
       {
-        case "W":
-          aUnit.x -= 1;
+        case "FL":
+          aUnit.x--;
           break;
-          
-        case "NW":
-          if (aUnit.y % 2 == 0)
-            aUnit.x += 1;
-          aUnit.y -= 1;
+
+        case "FR":
+          if (aUnit.y % 2 == 0) aUnit.x--;
+          aUnit.y--;
           break;
-       
+
         default:
            throw ("Movement not allowed");
       }
+      break;
+      
+    default:
+      throw ("Incorrect unit facing");
   }
   
   drawUnit (aUnit);
@@ -481,9 +552,6 @@ function rotateUnit (aUnit, direction)
   drawUnit (aUnit);
 }
   
-     
-  
-
 function showUnitInfoWidget (aUnit)
 {
   var unitInfoWidget; 
@@ -543,30 +611,99 @@ function showUnitContextMenu (aUnit)
   menuContent.innerHTML = "<b>Context Menu</b>"
   unitContextMenu.appendChild (menuContent);
 
+  menuContent = document.createElement ("HR");
+  unitContextMenu.appendChild (menuContent);
+  
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Line to Column";
+  if (aUnit.formation == "column") menuContent.style.color = "#323232";
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Column to Line";
+  if (aUnit.formation == "line") menuContent.style.color = "#323232";
   unitContextMenu.appendChild (menuContent);
   
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Rotate clockwise";
-  menuContent.onclick = function() { rotateUnit (aUnit, "clockwise"); }
+  if (aUnit.formation == "column") 
+    menuContent.style.color = "#323232";
+  else
+    menuContent.onclick = function() { rotateUnit (aUnit, "clockwise"); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Rotate anti-clockwise";
-  menuContent.onclick = function() { rotateUnit (aUnit, "anti-clockwise"); }
+  if (aUnit.formation == "column") 
+    menuContent.style.color = "#323232";
+  else
+    menuContent.onclick = function() { rotateUnit (aUnit, "anti-clockwise"); }
+  unitContextMenu.appendChild (menuContent);
+
+  menuContent = document.createElement ("P");
+  menuContent.innerHTML = "Move forward-left";
+  menuContent.onclick = function() { moveUnit (aUnit, "FL"); }
+  unitContextMenu.appendChild (menuContent);
+
+  menuContent = document.createElement ("P");
+  menuContent.innerHTML = "Move forward";
+  if (aUnit.formation == "line") 
+    menuContent.style.color = "#323232";
+  else  
+    menuContent.onclick = function() { moveUnit (aUnit, "F"); }
+  unitContextMenu.appendChild (menuContent);
+
+  menuContent = document.createElement ("P");
+  menuContent.innerHTML = "Move forward-right";
+  menuContent.onclick = function() { moveUnit (aUnit, "FR"); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Manage unit";
   unitContextMenu.appendChild (menuContent);
-
 }
+
   
+  
+  function saveData()
+  {
+    var jsonData = JSON.stringify (gameUnits);
+    
+    // Check for the various File API support.
+    if (window.File && window.FileReader && window.FileList && window.Blob) {
+      // Great success! All the File APIs are supported.
+      alert ("File API supported");
+    } else {
+      alert('The File APIs are not fully supported in this browser.');
+    }
+ 
+    
+    
+//    localStorage.setItem("gamedata", jsonData);
+    var textFileAsBlob = new Blob([jsonData], {type:'text/plain'});
+    var fileNameToSaveAs = "test.json";
+    var downloadLink = document.createElement("a");
+    downloadLink.download = fileNameToSaveAs;
+    downloadLink.innerHTML = "Download File";
+    if (window.webkitURL != null)
+    {
+        // Chrome allows the link to be clicked
+        // without actually adding it to the DOM.
+        downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+    }
+    else
+    {
+        // Firefox requires the link to be added to the DOM
+        // before it can be clicked.
+        downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+        // downloadLink.onclick = remove(this);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+    }
+  alert ("Ready to save");
+    downloadLink.click();
+    alert ("Done");
+}
   
 function allowDrop(ev) {
   ev.preventDefault();
@@ -615,6 +752,8 @@ function drop(ev) {
     <td><input id="reinforcementPointsText"type="text" readonly="true" size="1"><meter id="reinforcementPointsMeter" value="0" min="0" max="30" width="200"></meter>  </td>
   </tr>
 </table>
+  <button onclick="saveData()">Save</button>
+  <a download="info.txt" id="downloadlink" style="display: none">Download</a>
 </div>
 
 
