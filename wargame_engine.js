@@ -1,10 +1,10 @@
 
-var gameUnits = [];
+var leaders = [];
   
-  gameUnits[0] = {
+  leaders[0] = {
   nationality: "Prussia",
   commander: "Bluecher",
-  type: "",    // "Infantry", "Cavalry", "Artillery", "COP"
+  type: "Leader",    // "Leader", "Infantry", "Cavalry", "Artillery", "COP"
   strength: 0,
   attackValue: 0,
   defenseValue: 0,
@@ -18,14 +18,14 @@ var gameUnits = [];
   x: 5, 
   y: 4, // position
   commandingUnit: undefined,
-  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.pgn", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
+  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
 }
 
   
-gameUnits[1] = {
+leaders[1] = {
   nationality: "Austria",
   commander: "Schwarzenberg",
-  type: "",    // "Infantry", "Cavalry", "Artillery", "COP"
+  type: "Leader",    // "Infantry", "Cavalry", "Artillery", "COP"
   strength: 0,
   attackValue: 0,
   defenseValue: 0,
@@ -39,7 +39,38 @@ gameUnits[1] = {
   x: 7, 
   y: 8, // position
   commandingUnit: undefined,
-  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.pgn", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
+  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
+}
+
+
+var troops = [];
+
+troops[0] = {
+  nationality: "Prussia",
+  commander: "Losthin",
+  type: "Infantry",    // "Infantry", "Cavalry", "Artillery", "COP"
+  strength: 7,
+  attackValue: 0,
+  defenseValue: 0,
+  movAllowance: 5,
+  initiative: 0,
+  subordinationValue: 1,
+  commandingUnit: "Bluecher",
+  image: "images/Losthin.png"
+}
+
+troops[1] = {
+  nationality: "Prussia",
+  commander: "Warburg",
+  type: "Infantry",    // "Infantry", "Cavalry", "Artillery", "COP"
+  strength: 5,
+  attackValue: 0,
+  defenseValue: 0,
+  movAllowance: 5,
+  initiative: 0,
+  subordinationValue: 1,
+  commandingUnit: "Bluecher",
+  image: "images/Losthin.png"
 }
   
 function GameUnit (nationality, commander, type, strength, attackValue, defenseValue, movAllowance, initiative, bonus, commandCapacity, subordinationValue, formation, facing, x, y, commandingUnit, images)
@@ -105,8 +136,8 @@ function drawBoard ()
   
 //  createUnit();
   // Draw all the units on the map
-  gameUnits.forEach (createUnitWidget);
-  gameUnits.forEach (drawUnit);
+  leaders.forEach (createUnitWidget);
+  leaders.forEach (drawUnit);
   
 
 //  createUnitWidget(gameUnit);
@@ -482,6 +513,38 @@ function showUnitInfoWidget (aUnit)
   unitInfoContent = document.createElement ("P");
   unitInfoContent.innerHTML = "<b>" + aUnit.commander + "&nbsp" + aUnit.initiative + "&nbsp" + aUnit.bonus + "&nbsp" + aUnit.commandCapacity + "&nbsp" + aUnit.subordinationValue + "</b>"
   unitInfoWidget.appendChild (unitInfoContent);
+  
+  var unitTable = document.createElement ("TABLE");
+      unitInfoWidget.appendChild (unitTable);    
+  
+  
+  var i=0;
+  var tableRow;
+  var tableCell;
+  var unitIcon;
+  
+  for (i=0; i<troops.length; i++) {
+    if (troops[i].commandingUnit == aUnit.commander) {
+      tableRow = document.createElement ("tr");
+      unitTable.appendChild (tableRow);
+
+      tableCell = document.createElement ("td");
+      tableRow.appendChild (tableCell);    
+
+      unitIcon = document.createElement ("IMG");
+      unitIcon.src = "images/Infantry.png";
+      tableCell.appendChild (unitIcon);
+      
+      tableCell = document.createElement ("td");
+      tableCell.innerHTML = troops[i].commander;
+      tableRow.appendChild (tableCell);    
+
+      tableCell = document.createElement ("td");
+      tableCell.innerHTML = troops[i].strength;
+      tableRow.appendChild (tableCell);    
+    
+    }
+  }
 }
   
 function showUnitContextMenu (aUnit)  
@@ -566,7 +629,7 @@ function showUnitContextMenu (aUnit)
   
   function saveData()
   {
-    var jsonData = JSON.stringify (gameUnits);
+    var jsonData = JSON.stringify (leaders);
     
     // Check for the various File API support.
     if (window.File && window.FileReader && window.FileList && window.Blob) {
