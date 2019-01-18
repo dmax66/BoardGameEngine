@@ -1,7 +1,7 @@
 
 var leaders = [];
   
-  leaders[0] = {
+leaders[0] = {
   nationality: "Prussia",
   commander: "Bluecher",
   type: "Leader",    // "Leader", "Infantry", "Cavalry", "Artillery", "COP"
@@ -15,8 +15,6 @@ var leaders = [];
   subordinationValue: 0,
   formation: "line", // either "column" or "line"
   facing: "N", // N, NW, SW, S, SE, NE, E, W
-  x: 5, 
-  y: 4, // position
   commandingUnit: undefined,
   images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
 }
@@ -31,17 +29,32 @@ leaders[1] = {
   defenseValue: 0,
   movAllowance: 0,
   initiative: 0,
-  bonus: 0,
+  bonus: "",
   commandCapacity: 0,
   subordinationValue: 0,
   formation: "line", // either "column" or "line"
   facing: "NE", // N, NW, SW, S, SE, NE, E, W
-  x: 7, 
-  y: 8, // position
   commandingUnit: undefined,
   images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
 }
 
+leaders[2] = {
+  nationality: "Prussia",
+  commander: "Yorck",
+  type: "Leader",    // "Infantry", "Cavalry", "Artillery", "COP"
+  strength: 0,
+  attackValue: 0,
+  defenseValue: 0,
+  movAllowance: 0,
+  initiative: 3,
+  bonus: "",
+  commandCapacity: 6,
+  subordinationValue: 1,
+  formation: "line", // either "column" or "line"
+  facing: "NE", // N, NW, SW, S, SE, NE, E, W
+  commandingUnit: undefined,
+  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
+}
 
 var troops = [];
 
@@ -72,27 +85,30 @@ troops[1] = {
   commandingUnit: "Bluecher",
   image: "images/Losthin.png"
 }
-  
-function GameUnit (nationality, commander, type, strength, attackValue, defenseValue, movAllowance, initiative, bonus, commandCapacity, subordinationValue, formation, facing, x, y, commandingUnit, images)
-{
-  this.nationality = nationality;
-  this.commander = commander;
-  this.type = type;
-  this.strength = strength;
-  this.attackValue = attackValue;
-  this.defenseValue = defenseValue;
-  this.movAllowance = movAllowance;
-  this.initiative = initiative;
-  this.bonus = bonus;
-  this.commandCapacity = commandCapacity;
-  this.subordinationValue = subordinationValue;
-  this.formation = formation;
-  this.facing = facing;
-  this.x = x;
-  this.y = y;
-  this.commandingUnit = commandingUnit;
-  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.pgn", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
-}   
+ 
+
+var stacks = [];
+
+
+stacks[0] = {
+  x: 5,
+  y: 6,
+  units: [leaders[0], leaders[2]],
+  formation: "line", // either "column" or "line"
+  facing: "N", // N, NW, SW, S, SE, NE, E, W
+  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
+}
+
+stacks[1] = {
+  x: 9,
+  y: 8,
+  units: [leaders[1]],
+  formation: "line", // either "column" or "line"
+  facing: "NE", // N, NW, SW, S, SE, NE, E, W
+  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
+}
+
+
   
   
 
@@ -134,40 +150,26 @@ function drawBoard ()
   document.getElementById ("phaseIndicator").innerHTML = turnInfo.phase + " Segment: " + turnInfo.segment;
 
   
-//  createUnit();
   // Draw all the units on the map
-  leaders.forEach (createUnitWidget);
-  leaders.forEach (drawUnit);
+  stacks.forEach (createStackWidget);
+  stacks.forEach (drawStack);
   
 
-//  createUnitWidget(gameUnit);
-//  drawUnit(gameUnit);
+//  createStackWidget(gameUnit);
+//  drawStack(gameUnit);
 }
 
-function createUnit ()
+function createStackWidget(theStack)
 {
-  gameUnit.x = 6;
-  gameUnit.y = 5;
-  gameUnit.commander = "Bluecher";
-  gameUnit.facing = "N";
-  gameUnit.formation = "line";
-  gameUnit.initiative = 4;
-  gameUnit.commandCapacity = 10;
-  gameUnit.subordinationValue = 5;
-  gameUnit.bonus = "*";
-}
-
-function createUnitWidget(aUnit)
-{
-  var unitWidget = document.createElement ("IMG");
+  var stackWidget = document.createElement ("IMG");
   
-  unitWidget.id = aUnit.commander;
-  unitWidget.setAttribute ("class", "unit-widget");
-  unitWidget.innerHTML = aUnit.commander;
-  unitWidget.draggable = true;
-  unitWidget.ondragstart = startDrag; 
+  stackWidget.id = "stack" + theStack.x + "-" + theStack.y;
+  stackWidget.setAttribute ("class", "unit-widget");
+  stackWidget.innerHTML = theStack.units.length == 1 ? theStack.units[0].commander : "Stack";
+//  unitWidget.draggable = true;
+//  unitWidget.ondragstart = startDrag; 
   
-  document.getElementById("mapContainer").appendChild(unitWidget);
+  document.getElementById("mapContainer").appendChild(stackWidget);
 }
 
 function xMapCoordFromUnitCoord (unitX, unitY)
@@ -197,79 +199,6 @@ function yUnitCoorfdFromMapCoord (mapX, mapY)
   return floor((mapY-35)/30);
 }
 
-function drawUnit(aUnit)
-{
-  x = 0;
-  y = 0;
-  
-  var unitWidget = document.getElementById (aUnit.commander);
-  
-  switch (aUnit.facing) 
-  {
-      case "N": // North
-        unitWidget.style.width = "60px";
-        unitWidget.style.height = "30px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-N.png')";
-        unitWidget.style.paddingTop = "8px";
-        unitWidget.style.paddingBottom = "0px";
-        x = -13; 
-        break;
-        
-      case "NW":
-        unitWidget.style.width = "54px";
-        unitWidget.style.height = "64px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-NW.png')";
-        unitWidget.style.paddingTop = "0px";
-        unitWidget.style.paddingBottom = "0px";
-        x = 4;
-        break;
-        
-      case "SW":
-        unitWidget.style.width = "54px";
-        unitWidget.style.height = "64px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-SW.png')";
-        unitWidget.style.paddingTop = "0px";
-        unitWidget.style.paddingBottom = "0px";
-        x = 17;   
-        break;
-
-      case "S":
-        unitWidget.style.width = "60px";
-        unitWidget.style.height = "30px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-S.png')";
-        unitWidget.style.paddingTop = "0px";
-        unitWidget.style.paddingBottom = "8px";
-        x = 21;  
-        break;
-        
-      case "SE":
-        unitWidget.style.width = "54px";
-        unitWidget.style.height = "64px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-SE.png')";
-        unitWidget.style.paddingTop = "0px";
-        unitWidget.style.paddingBottom = "0px";
-        x = 17; 
-        y = -33;
-        break;
-        
-      case "NE":
-        unitWidget.style.width = "54px";
-        unitWidget.style.height = "64px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-NE.png')";
-        unitWidget.style.paddingTop = "0px";
-        unitWidget.style.paddingBottom = "0px";
-        x = 17;
-        y = -33;
-        break;      
-    } 
-
-
-  unitWidget.style.top = yMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + (y/34)) + "px";
-  unitWidget.style.left = xMapCoordFromUnitCoord (aUnit.x + x/34, aUnit.y + (y/34).toFixed(0)) + "px";  
-  unitWidget.draggable = true;
-  unitWidget.onclick = function() { showUnitInfoWidget (aUnit); }
-  unitWidget.onmousedown =  function(event) { if (event.button==2) showUnitContextMenu (aUnit); }
-}
 
 function moveUnit (aUnit, direction)
 {
@@ -401,7 +330,7 @@ function moveLine (aUnit, direction)
       throw ("Incorrect unit facing");
   }
   
-  drawUnit (aUnit);
+  drawStack (aUnit);
 }
       
  
@@ -479,52 +408,179 @@ function rotateUnit (aUnit, direction)
       }
       break;  
   }
-  drawUnit (aUnit);
+  drawStack (aUnit);
 }
-  
-function showUnitInfoWidget (aUnit)
+
+function drawStack(theStack)
 {
-  var unitInfoWidget; 
+  x = 0;
+  y = 0;
+  
+  var unitWidget = document.getElementById ("stack" + theStack.x + "-" + theStack.y);
+  
+  switch (theStack.facing) 
+  {
+      case "N": // North
+        unitWidget.style.width = "60px";
+        unitWidget.style.height = "30px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-N.png')";
+        unitWidget.style.paddingTop = "8px";
+        unitWidget.style.paddingBottom = "0px";
+        x = -13; 
+        break;
+        
+      case "NW":
+        unitWidget.style.width = "54px";
+        unitWidget.style.height = "64px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-NW.png')";
+        unitWidget.style.paddingTop = "0px";
+        unitWidget.style.paddingBottom = "0px";
+        x = 4;
+        break;
+        
+      case "SW":
+        unitWidget.style.width = "54px";
+        unitWidget.style.height = "64px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-SW.png')";
+        unitWidget.style.paddingTop = "0px";
+        unitWidget.style.paddingBottom = "0px";
+        x = 17;   
+        break;
+
+      case "S":
+        unitWidget.style.width = "60px";
+        unitWidget.style.height = "30px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-S.png')";
+        unitWidget.style.paddingTop = "0px";
+        unitWidget.style.paddingBottom = "8px";
+        x = 21;  
+        break;
+        
+      case "SE":
+        unitWidget.style.width = "54px";
+        unitWidget.style.height = "64px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-SE.png')";
+        unitWidget.style.paddingTop = "0px";
+        unitWidget.style.paddingBottom = "0px";
+        x = 17; 
+        y = -33;
+        break;
+        
+      case "NE":
+        unitWidget.style.width = "54px";
+        unitWidget.style.height = "64px";
+        unitWidget.style.backgroundImage = "url('images/allied-MGen-NE.png')";
+        unitWidget.style.paddingTop = "0px";
+        unitWidget.style.paddingBottom = "0px";
+        x = 17;
+        y = -33;
+        break;      
+    } 
+
+
+  unitWidget.style.top = yMapCoordFromUnitCoord (theStack.x + x/34, theStack.y + (y/34)) + "px";
+  unitWidget.style.left = xMapCoordFromUnitCoord (theStack.x + x/34, theStack.y + (y/34).toFixed(0)) + "px";  
+//  unitWidget.draggable = true;
+  unitWidget.onclick = function() { showStackInfo (theStack); }
+  unitWidget.onmousedown =  function(event) { if (event.button==2) showStackContextMenu (theStack); }
+}
+
+  
+function showStackInfo (theStack)
+{
+  var stackInfoWidget; 
   var unitInfoContent = undefined;
-  var parentWidget = document.getElementById("mapContainer");
+//  var parentWidget = document.getElementById("mapContainer");
   
   // Check if the info widget already exists - if so, returns
-  unitInfoWidget = document.getElementById (aUnit.commander + "-info");
-  if (unitInfoWidget != null)
+  stackInfoWidget = document.getElementById ("stackInfoWidget" + theStack.x + "-" + theStack.y );
+  if (stackInfoWidget != null)
       return;
   
   // Widget does not exist - create it!
-  unitInfoWidget= document.createElement ("DIV");
+  stackInfoWidget= document.createElement ("DIV");
+  stackInfoWidget.id = "stackInfoWidget" + theStack.x + "-" + theStack.y;
+  stackInfoWidget.setAttribute ("class", "leader-info");   // TODO: rename class
   
-  unitInfoWidget.id = aUnit.commander + "-info";
-  unitInfoWidget.setAttribute ("class", "unit-info");
+  document.getElementById("mapContainer").appendChild(stackInfoWidget);
   
-  parentWidget.appendChild(unitInfoWidget);
-  
-  unitInfoWidget.style.left = (xMapCoordFromUnitCoord (aUnit.x) + 51) + "px";
-  unitInfoWidget.style.top = (xMapCoordFromUnitCoord (aUnit.y) - 10) + "px";
-  unitInfoWidget.onclick = function() { this.remove(); }
+  stackInfoWidget.style.left = (xMapCoordFromUnitCoord (theStack.x, theStack.y) + 51) + "px";
+  stackInfoWidget.style.top  = (yMapCoordFromUnitCoord (theStack.x, theStack.y) - 10) + "px";
 
-  unitInfoContent = document.createElement ("IMG");
-  unitInfoContent.src ="images/" + aUnit.commander + ".png";
-  unitInfoContent.style.width = "100px";
-  unitInfoWidget.appendChild (unitInfoContent);
+
+  // Display all the leaders in the stack
+  var j=0;
+  for (j=0; j<theStack.units.length; j++)
+  {
+    unitInfoContent = document.createElement ("IMG");
+    unitInfoContent.id = "img:" + theStack.units[j].commander;
+    unitInfoContent.src ="images/" + theStack.units[j].commander + ".png";
+    unitInfoContent.style.width = "50px";
+    unitInfoContent.onmousedown = function(event) { displayLeaderUnits(event) };
+    stackInfoWidget.appendChild (unitInfoContent);
+    
+
+    unitInfoContent = document.createElement ("P");
+    unitInfoContent.innerHTML = "<b>" + theStack.units[j].commander + "&nbsp" + theStack.units[j].initiative + "&nbsp" + theStack.units[j].bonus + "&nbsp" + theStack.units[j].commandCapacity + "&nbsp" + theStack.units[j].subordinationValue + "</b>"
+    stackInfoWidget.appendChild (unitInfoContent);
+ 
+  }
   
-  unitInfoContent = document.createElement ("P");
-  unitInfoContent.innerHTML = "<b>" + aUnit.commander + "&nbsp" + aUnit.initiative + "&nbsp" + aUnit.bonus + "&nbsp" + aUnit.commandCapacity + "&nbsp" + aUnit.subordinationValue + "</b>"
-  unitInfoWidget.appendChild (unitInfoContent);
-  
-  var unitTable = document.createElement ("TABLE");
-      unitInfoWidget.appendChild (unitTable);    
-  
-  
+  var closeButton = document.createElement ("BUTTON");
+  closeButton.setAttribute ("class", "menu-button");  
+  closeButton.style.minWidth = "80px";
+  closeButton.innerHTML = "Close";
+  closeButton.onclick = function() { stackInfoWidget.remove(); }
+  stackInfoWidget.appendChild (closeButton);
+}
+
+
+// Display the units (infantry, cavalry, artillery, pontoons) commanded by a leader
+// Enable 
+function displayLeaderUnits (event)
+{
   var i=0;
   var tableRow;
   var tableCell;
   var unitIcon;
+  var leaderName ;
+  var leaderInfoWidget;
+  var leaderInfoWidgetName;
+  var leaderImgWidget;
+  
+  // Extract the name of the leader
+  leaderName = event.currentTarget.id.slice(4);
+  
+  leaderInfoWidgetName = "leaderInfoWidget:" + leaderName;
+  leaderImgWidget = document.getElementById ("img:" + leaderName);
+
+  // Check the widget doesn't exist already
+  leaderInfoWidget = document.getElementById (leaderInfoWidgetName);
+  if (leaderInfoWidget != null)
+      return;
+  
+  // Widget does not exist - create it!
+  leaderInfoWidget= document.createElement ("DIV");
+  leaderInfoWidget.id = leaderInfoWidgetName;
+  leaderInfoWidget.setAttribute ("class", "unit-info");   // TODO: rename class  
+  
+  var t;
+  t = Number(leaderImgWidget.parentNode.style.left.slice(0, -2)) + 0;
+  
+  leaderInfoWidget.style.left = Number (leaderImgWidget.parentNode.style.left.slice(0, -2)) + Number (leaderImgWidget.style.width.slice (0, -2)) + 100 + "px";
+  leaderInfoWidget.style.top  = Number (leaderImgWidget.parentNode.style.top.slice(0, -2))  + Number (leaderImgWidget.style.height.slice (0, -2)) / 2 +"px";
+  leaderInfoWidget.style.backgroundColor = "DarkGray";
+  leaderInfoWidget.style.width = "200px";
+  leaderInfoWidget.style.height = "300px";
+  leaderInfoWidget.style.zIndex = 2;
+  document.getElementById ("mapContainer").appendChild(leaderInfoWidget);
+
+
+  var unitTable = document.createElement ("TABLE");
+  leaderInfoWidget.appendChild (unitTable);    
   
   for (i=0; i<troops.length; i++) {
-    if (troops[i].commandingUnit == aUnit.commander) {
+    if (troops[i].commandingUnit == leaderName) {
       tableRow = document.createElement ("tr");
       unitTable.appendChild (tableRow);
 
@@ -533,8 +589,10 @@ function showUnitInfoWidget (aUnit)
 
       unitIcon = document.createElement ("IMG");
       unitIcon.src = "images/Infantry.png";
+      unitIcon.style.width = "30px";
+      unitIcon.style.height = "15px";
       tableCell.appendChild (unitIcon);
-      
+
       tableCell = document.createElement ("td");
       tableCell.innerHTML = troops[i].commander;
       tableRow.appendChild (tableCell);    
@@ -542,12 +600,29 @@ function showUnitInfoWidget (aUnit)
       tableCell = document.createElement ("td");
       tableCell.innerHTML = troops[i].strength;
       tableRow.appendChild (tableCell);    
-    
     }
   }
-}
   
-function showUnitContextMenu (aUnit)  
+  var closeButton = document.createElement ("BUTTON");
+  closeButton.setAttribute ("class", "menu-button");  
+  closeButton.style.minWidth = "80px";
+  closeButton.style.left = "10px";
+  closeButton.innerHTML = "Close";
+  closeButton.onclick = function() { leaderInfoWidget.remove(); }
+  leaderInfoWidget.appendChild (closeButton);
+
+  var manageButton = document.createElement ("BUTTON");
+  manageButton.setAttribute ("class", "menu-button");  
+  manageButton.style.minWidth = "80px";
+  manageButton.style.left = "20px";
+  manageButton.innerHTML = "Manage";
+//  manageButton.onclick = function() { leaderInfoWidget.remove(); }
+  leaderInfoWidget.appendChild (manageButton);
+
+}
+
+
+function showStackContextMenu (aUnit)  
 {
   var unitContextMenu; 
   var menuContent = undefined;
@@ -627,39 +702,39 @@ function showUnitContextMenu (aUnit)
 
   
   
-  function saveData()
+function saveData()
+{
+  var jsonData = JSON.stringify (leaders);
+
+  // Check for the various File API support.
+  if (window.File && window.FileReader && window.FileList && window.Blob) {
+    // Great success! All the File APIs are supported.
+  } else {
+    alert('The File APIs are not fully supported in this browser.');
+  }
+
+  var textFileAsBlob = new Blob([jsonData], {type:'text/plain'});
+  var fileNameToSaveAs = "test.json";
+  var downloadLink = document.createElement("a");
+  downloadLink.download = fileNameToSaveAs;
+  downloadLink.innerHTML = "Download File";
+  if (window.webkitURL != null)
   {
-    var jsonData = JSON.stringify (leaders);
-    
-    // Check for the various File API support.
-    if (window.File && window.FileReader && window.FileList && window.Blob) {
-      // Great success! All the File APIs are supported.
-    } else {
-      alert('The File APIs are not fully supported in this browser.');
-    }
-    
-    var textFileAsBlob = new Blob([jsonData], {type:'text/plain'});
-    var fileNameToSaveAs = "test.json";
-    var downloadLink = document.createElement("a");
-    downloadLink.download = fileNameToSaveAs;
-    downloadLink.innerHTML = "Download File";
-    if (window.webkitURL != null)
-    {
-        // Chrome allows the link to be clicked
-        // without actually adding it to the DOM.
-        downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
-    }
-    else
-    {
-        // Firefox requires the link to be added to the DOM
-        // before it can be clicked.
-        downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
-        // downloadLink.onclick = remove(this);
-        downloadLink.style.display = "none";
-        document.body.appendChild(downloadLink);
-    }
-    downloadLink.click();
-    alert ("Game data saved");
+      // Chrome allows the link to be clicked
+      // without actually adding it to the DOM.
+      downloadLink.href = window.webkitURL.createObjectURL(textFileAsBlob);
+  }
+  else
+  {
+      // Firefox requires the link to be added to the DOM
+      // before it can be clicked.
+      downloadLink.href = window.URL.createObjectURL(textFileAsBlob);
+      // downloadLink.onclick = remove(this);
+      downloadLink.style.display = "none";
+      document.body.appendChild(downloadLink);
+  }
+  downloadLink.click();
+  alert ("Game data saved");
 }
   
 function allowDrop(ev) {
