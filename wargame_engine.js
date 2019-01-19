@@ -14,7 +14,6 @@ leaders[0] = {
   commandCapacity: 0,
   subordinationValue: 0,
   formation: "line", // either "column" or "line"
-  facing: "N", // N, NW, SW, S, SE, NE, E, W
   commandingUnit: undefined,
   images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
 }
@@ -33,7 +32,6 @@ leaders[1] = {
   commandCapacity: 0,
   subordinationValue: 0,
   formation: "line", // either "column" or "line"
-  facing: "NE", // N, NW, SW, S, SE, NE, E, W
   commandingUnit: undefined,
   images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
 }
@@ -51,7 +49,6 @@ leaders[2] = {
   commandCapacity: 6,
   subordinationValue: 1,
   formation: "line", // either "column" or "line"
-  facing: "NE", // N, NW, SW, S, SE, NE, E, W
   commandingUnit: undefined,
   images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
 }
@@ -104,7 +101,7 @@ stacks[1] = {
   y: 3,
   units: [leaders[1]],
   formation: "line", // either "column" or "line"
-  facing: "NE", // N, NW, SW, S, SE, NE, E, W
+  facing: "N", // N, NW, SW, S, SE, NE, E, W
   images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
 }
 
@@ -157,15 +154,33 @@ function drawBoard ()
 
 function createStackWidget(theStack)
 {
-  var stackWidget = document.createElement ("IMG");
+  var stackWidget = document.createElement ("DIV");
   
   stackWidget.id = "stack" + theStack.x + "-" + theStack.y;
-  stackWidget.setAttribute ("class", "unit-widget");
-  stackWidget.innerHTML = theStack.units.length == 1 ? theStack.units[0].commander : "Stack";
-//  unitWidget.draggable = true;
-//  unitWidget.ondragstart = startDrag; 
-  
+  stackWidget.setAttribute ("class", "stack-widget");
+  stackWidget.onclick = function() { showStackInfo (theStack); }
+  stackWidget.onmousedown =  function(event) { if (event.button==2) showStackContextMenu (theStack); }
+
   document.getElementById("mapContainer").appendChild(stackWidget);
+  
+  var stackIcon = document.createElement ("img");
+  stackIcon.src = "images/allied-MGen.png";
+  stackIcon.style.position = "absolute";
+  stackIcon.style.top = "0px";
+  stackIcon.style.left = "0px";
+  stackIcon.style.zIndex = 0;
+  stackWidget.appendChild (stackIcon);
+  
+  var stackName = document.createElement ("P");
+  stackName.innerHTML = theStack.units.length == 1 ? theStack.units[0].commander : "Stack";
+  stackName.style.position = "absolute";
+  stackName.style.left = "0px";
+  stackName.style.top = "0px";
+  stackName.style.width = "60px";
+  stackName.style.textAlign = "center";
+  stackName.style.zIndex = 1;
+  stackWidget.appendChild (stackName);
+  
 }
 
 function xMapCoordFromUnitCoord (unitX, unitY)
@@ -412,78 +427,54 @@ function drawStack(theStack)
   x = 0;
   y = 0;
   
-  var unitWidget = document.getElementById ("stack" + theStack.x + "-" + theStack.y);
+  var stackWidget = document.getElementById ("stack" + theStack.x + "-" + theStack.y);
   
+//  stackWidget.style.width = "60px";
+//  stackWidget.style.height = "30px";
+
   switch (theStack.facing) 
   {
       case "N": // North
-        unitWidget.style.width = "60px";
-        unitWidget.style.height = "30px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-N.png')";
-        unitWidget.style.paddingTop = "8px";
-        unitWidget.style.paddingBottom = "0px";
+        stackWidget.style.transform = "rotate(0)";
         x = -29; 
         y = 7;
         break;
         
-      case "NW":
-        unitWidget.style.width = "54px";
-        unitWidget.style.height = "64px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-NW.png')";
-        unitWidget.style.paddingTop = "0px";
-        unitWidget.style.paddingBottom = "0px";
-        x = -17;
+      case "NE":
+        stackWidget.style.transform = "rotate(-300deg)";
+        x = -22;
+        y = -5;
+        break;      
+      
+      case "SE":
+        stackWidget.style.transform = "rotate(-240deg)";
+        x = -8; 
+        y = -7;
+        break;
+        
+      case "S":
+        stackWidget.style.transform = "rotate(-180deg)";
+        x = 2;
         y = 3;
         break;
         
       case "SW":
-        unitWidget.style.width = "54px";
-        unitWidget.style.height = "64px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-SW.png')";
-        unitWidget.style.paddingTop = "0px";
-        unitWidget.style.paddingBottom = "0px";
+        stackWidget.style.transform = "rotate(-120deg)";
         x = -3;   
+        y = 18;
         break;
 
-      case "S":
-        unitWidget.style.width = "60px";
-        unitWidget.style.height = "30px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-S.png')";
-        unitWidget.style.paddingTop = "0px";
-        unitWidget.style.paddingBottom = "8px";
-        x = 4;
-        y = 7;
+       case "NW":
+        stackWidget.style.transform = "rotate(-60deg)";
+        x = -19;
+        y = 21;
         break;
         
-      case "SE":
-        unitWidget.style.width = "54px";
-        unitWidget.style.height = "64px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-SE.png')";
-        unitWidget.style.paddingTop = "0px";
-        unitWidget.style.paddingBottom = "0px";
-        x = 0; 
-        y = -27;
-        break;
-        
-      case "NE":
-        unitWidget.style.width = "54px";
-        unitWidget.style.height = "64px";
-        unitWidget.style.backgroundImage = "url('images/allied-MGen-NE.png')";
-        unitWidget.style.paddingTop = "0px";
-        unitWidget.style.paddingBottom = "0px";
-        x = -18;
-        y = -27;
-        break;      
-    } 
+   } 
 
-
-  unitWidget.style.top = (y + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
-  unitWidget.style.left = (x + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
-//  unitWidget.draggable = true;
-  unitWidget.onclick = function() { showStackInfo (theStack); }
-  unitWidget.onmousedown =  function(event) { if (event.button==2) showStackContextMenu (theStack); }
+  stackWidget.style.top = (y + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
+  stackWidget.style.left = (x + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
 }
-
   
 function showStackInfo (theStack)
 {
