@@ -79,7 +79,7 @@ var lineRotationInfo =
 
 
 
-var columnRotationInfo = 
+var columnMovementInfo = 
 [
   {
     facing: "NE",
@@ -91,6 +91,11 @@ var columnRotationInfo =
       xOffsetEven: -1,
       xOffsetOdd: 0,
       yOffset: 1
+    },
+    movement: {
+      xMoveWhenYEven: 0,
+      xMoveWhenYOdd: 1,
+      yMove: -1
     }
   },
   {
@@ -103,6 +108,11 @@ var columnRotationInfo =
       xOffsetEven: -1,
       xOffsetOdd: -1,
       yOffset: 0
+    },
+    movement: {
+      xMoveWhenYEven: 1,
+      xMoveWhenYOdd: 1,
+      yMove: 0
     }
   },
   {
@@ -115,7 +125,13 @@ var columnRotationInfo =
       xOffsetEven: -1,
       xOffsetOdd: 0,
       yOffset: -1
+    },
+    movement: {
+      xMoveWhenYEven: 0,
+      xMoveWhenYOdd: 1,
+      yMove: 1
     }
+
   },
   {     
     facing: "SW",
@@ -127,6 +143,11 @@ var columnRotationInfo =
       xOffsetEven: 0,
       xOffsetOdd: 1,
       yOffset: -1
+    },
+    movement: {
+      xMoveWhenYEven: -1,
+      xMoveWhenYOdd: 0,
+      yMove: 1
     }
   },
   {        
@@ -139,6 +160,11 @@ var columnRotationInfo =
       xOffsetEven: 1,
       xOffsetOdd: 1,
       yOffset: 0
+    },
+    movement: {
+      xMoveWhenYEven: -1,
+      xMoveWhenYOdd: -1,
+      yMove: 0
     }
   },
   {
@@ -151,7 +177,13 @@ var columnRotationInfo =
       xOffsetEven: 0,
       xOffsetOdd: 1,
       yOffset: 1
+    },
+    movement: {
+      xMoveWhenYEven: -1,
+      xMoveWhenYOdd: 0,
+      yMove: -1
     }
+
   }        
 ]
   
@@ -397,20 +429,26 @@ function yUnitCoordFromMapCoord (mapX, mapY)
   return Math.floor (mapY / 30);
 }
 
-function moveStack (aUnit, direction)
+
+// Move a stack one hex
+// direction:
+//  0: move ahead
+// -1: move forward left
+// +1: move forward right
+function moveStack (aStack, direction)
 {
-  switch (aUnit.formation)
+  switch (aStack.formation)
   {
     case "line":
-      moveLine (aUnit, direction);
+      moveLine (aStack, direction);
       break;
       
     case "column":
-      moveColumn (aUnit, direction);
+      moveColumn (aStack, direction);
       break;
       
     default:
-      throw ("Invalid unit formation");
+      throw ("Invalid stack formation");
   }
 }
   
@@ -604,126 +642,24 @@ function rotateStack (aUnit, direction)
   drawStack (aUnit);
 }
 
-function moveColumn (aUnit, direction)
+function moveColumn (aStack, direction)
 {
-  switch (aUnit.facing)
-    {
-      case "E":
-        switch (direction) 
-        {
-          case "FL":
-            aUnit.facing = "NE";
-            break;
-  
-          case "FR":
-            aUnit.facing = "SE";            
-            break;
-        }
-        break;
-  
-      case "NE":
-        switch (direction)
-        {
-  
-          case "FL":
-            aUnit.facing = "NW";
-            break;
-  
-          case "FR":
-            aUnit.facing = "E";
-            break;  
-        }
-        break;
-  
-      case "SE":
-        switch (direction)
-        {
-          case "FL":
-            aUnit.facing = "E";
-            break;
-  
-          case "FR":
-            aUnit.facing = "SW";
-            break;
-        }
-        break;
-  
-      case "SW":
-        switch (direction)
-        {
-          case "FL":
-            aUnit.facing = "SE";
-            break;
-  
-          case "FR":
-            aUnit.facing = "W";
-            break;
-        }
-        break;
-  
-      case "W":
-        switch (direction)
-        {
-          case "FL":
-            aUnit.facing = "SW";
-            break;
-  
-          case "FR":
-            aUnit.facing = "NW";
-            break;
-        }
-        break;
-        
-      case "NW":
-        switch (direction)
-        {
-          case "FL":
-            aUnit.facing = "W";
-            break;
-  
-          case "FR":
-            aUnit.facing = "NE";
-            break;
-          }
-        break;
-        
-      default:
-        throw ("Incorrect unit facing");
-    }
-  
-  // Advance one hex
-  switch (aUnit.facing)
-  {
-    case "NE":
-      aUnit.x += (aUnit.y % 2 == 0 ? 0 : 1);
-      aUnit.y += -1;
-      break;
-      
-    case "E":
-      aUnit.x++;
-      break;
-      
-    case "SE":
-      aUnit.x += (aUnit.y % 2 == 0 ? 0 : 1)
-      aUnit.y += 1;
-      break;
-      
-    case "SW":
-      aUnit.x += (aUnit.y % 2 == 0 ? -1 : 0)
-      aUnit.y += 1;
-      break;
+  // Find the current orientation in the RotationInfo array
+  var i=0;
+  while (i < 6 && aStack.facing != columnMovementInfo[i].facing) i++;
+  if (i == 6) throw ("Incorrect column facing");
+
+  // Calc the new direction by adding 'direction' to the current index. 
+  // Treat the array as circular, managing the overflow
+  i += direction;
+  if (i < 0) i += 6;
+  if (i >= 6) i -= 6;
+  aStack.facing = columnMovementInfo[i].facing;      
     
-    case "W":
-      aUnit.x--;
-      break;
-      
-    case "NW":
-      aUnit.x += (aUnit.y % 2 == 0 ? -1 : 0)
-      aUnit.y += -1;
-      break;
-  }  
-  
-  drawStack (aUnit);
+  // Advance one hex
+  aStack.x += (aStack.y % 2 == 0) ? columnMovementInfo[i].movement.xMoveWhenYEven : columnMovementInfo[i].movement.xMoveWhenYOdd;
+  aStack.y += columnMovementInfo[i].movement.yMove;
+  drawStack (aStack);
 }
 
 function flipStack (aUnit)
@@ -749,11 +685,11 @@ function flipStack (aUnit)
     case "column":
       for (i=0; i<6; i++)
       {
-        if (aUnit.facing == columnRotationInfo[i].facing)
+        if (aUnit.facing == columnMovementInfo[i].facing)
         {
-          aUnit.facing = columnRotationInfo[i].flip.newFacing;
-          aUnit.x += (aUnit.y % 2 ==0) ? columnRotationInfo[i].flip.xOffsetEven : columnRotationInfo[i].flip.xOffsetOdd;
-          aUnit.y += columnRotationInfo[i].flip.yOffset;
+          aUnit.facing = columnMovementInfo[i].flip.newFacing;
+          aUnit.x += (aUnit.y % 2 ==0) ? columnMovementInfo[i].flip.xOffsetEven : columnMovementInfo[i].flip.xOffsetOdd;
+          aUnit.y += columnMovementInfo[i].flip.yOffset;
           drawColumnStack (aUnit);
           return;
         }
@@ -793,11 +729,11 @@ function drawStack(theStack)
     case "column":
       for (i=0; i<6; i++)
       {
-        if (theStack.facing == columnRotationInfo[i].facing)
+        if (theStack.facing == columnMovementInfo[i].facing)
         {
-          stackWidget.style.transform = "rotate(" + columnRotationInfo[i].angle + "deg)";
-          stackWidget.style.left = (columnRotationInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
-          stackWidget.style.top = (columnRotationInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
+          stackWidget.style.transform = "rotate(" + columnMovementInfo[i].angle + "deg)";
+          stackWidget.style.left = (columnMovementInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
+          stackWidget.style.top = (columnMovementInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
           return;
         }
       } 
@@ -1016,7 +952,7 @@ function showStackContextMenu (aUnit)
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Move forward-left";
-  menuContent.onclick = function() { moveStack (aUnit, "FL"); }
+  menuContent.onclick = function() { moveStack (aUnit, -1); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
@@ -1024,12 +960,12 @@ function showStackContextMenu (aUnit)
   if (aUnit.formation == "line") 
     menuContent.style.color = "#323232";
   else  
-    menuContent.onclick = function() { moveStack (aUnit, "F"); }
+    menuContent.onclick = function() { moveStack (aUnit, 0); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Move forward-right";
-  menuContent.onclick = function() { moveStack (aUnit, "FR"); }
+  menuContent.onclick = function() { moveStack (aUnit, 1); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
