@@ -33,18 +33,34 @@
   }
   
   
+.position-tracker {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 100px;
+  height: 100px;
+  z-index: 2;
+  background-color: black;
+  color: white;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  }
+  
+
+  
+  
   
 .container {
-  max-width: 4474px;
-  max-height: 2791px;
-  position: relative;
+  width: 4474px;
+  height: 2791px;
+  position: absolute;
   left: 0px;
   top: 0px;
 }
 
 .container .img {
   height: auto;
-  position: relative;
+  position: absolute;
   left: 0px;
   top: 0px;
 }
@@ -55,12 +71,13 @@
   background-color: orange;
   width: 60px;
   height: 30px;
-  font-size: 12px;
   padding: 1px 1px;
   border: none;
   cursor: pointer;
   border-radius: 1px;
   text-align: center;
+  font-size: 10px;
+  font-family: Times, Roman, serif;
   background-repeat: no-repeat;
   background-color: transparent;
 }
@@ -91,7 +108,7 @@
 .leader-table {
   text-align: left;
   font-size: 12px;
-  font-family: Times, Times, serif;
+  font-family: Times, Roman, serif;
 }
 
 .leader-table tr {
@@ -200,7 +217,7 @@ hr {
   
 </head>
 
-<body onload="drawBoard()">
+<body onload="drawBoard()" background="images/SoN_Map_New-2011_0521.png" onmousemove= "showMousePosition(event)"> 
 
 <div class="admin-board" id="adminBoard">
   <h1>Administrative Board</h1>
@@ -212,25 +229,30 @@ hr {
       <td width="25%">Player: <input id="playerIndicator" type="text" readonly="true" size="1"></td>
       <td width="25%">Phase: <input id="phaseIndicator" type="text" readonly="true" size="1"></td>
     </tr>
-</table>
+  </table>
 
-<table>
-  <tr>
-    <td>Administrative Points</td>
-    <td><input id="adminPointsText"type="text" readonly="true" size="1"><meter id="adminPointsMeter" value="0" min="0" max="20" width="200"></meter>  </td>
-    <td>Morale Level</td>
-    <td><input id="moraleLevelText"type="text" readonly="true" size="1"><meter id="moraleLevelMeter" value="0" min="-1" max="2" width="100"></meter>  </td>
-    <td>Reinforcement Points</td>
-    <td><input id="reinforcementPointsText"type="text" readonly="true" size="1"><meter id="reinforcementPointsMeter" value="0" min="0" max="30" width="200"></meter>  </td>
-  </tr>
-</table>
+  <table>
+    <tr>
+      <td>Administrative Points</td>
+      <td><input id="adminPointsText"type="text" readonly="true" size="1"><meter id="adminPointsMeter" value="0" min="0" max="20" width="200"></meter>  </td>
+      <td>Morale Level</td>
+      <td><input id="moraleLevelText"type="text" readonly="true" size="1"><meter id="moraleLevelMeter" value="0" min="-1" max="2" width="100"></meter>  </td>
+      <td>Reinforcement Points</td>
+      <td><input id="reinforcementPointsText"type="text" readonly="true" size="1"><meter id="reinforcementPointsMeter" value="0" min="0" max="30" width="200"></meter>  </td>
+    </tr>
+  </table>
   <button onclick="saveData()">Save</button>
   <a download="info.txt" id="downloadlink" style="display: none">Download</a>
 </div>
 
 
-<div class="container" id="mapContainer">
-  <img id="gameMapImg" src="images/SoN_Map_New-2011_0521.png" style="top: 0px, left: 0px" ondrop="drop(event)" ondragover="allowDrop(event)">
+<div class="position-tracker">
+  <p id="position-tracker">&nbsp;</p>
+</div>
+  
+  
+<div class="container" id="mapContainer" height="2000px" width="4000px">
+&nbsp;
 </div>
 
 </body>

@@ -100,8 +100,8 @@ stacks[0] = {
 }
 
 stacks[1] = {
-  x: 9,
-  y: 8,
+  x: 2,
+  y: 3,
   units: [leaders[1]],
   formation: "line", // either "column" or "line"
   facing: "NE", // N, NW, SW, S, SE, NE, E, W
@@ -153,10 +153,6 @@ function drawBoard ()
   // Draw all the units on the map
   stacks.forEach (createStackWidget);
   stacks.forEach (drawStack);
-  
-
-//  createStackWidget(gameUnit);
-//  drawStack(gameUnit);
 }
 
 function createStackWidget(theStack)
@@ -182,21 +178,21 @@ function xMapCoordFromUnitCoord (unitX, unitY)
 
 function yMapCoordFromUnitCoord (unitX, unitY)
 {
-  return 35 + 30*(unitY);
+  return 30*unitY;
 }
 
-function xUnitCoorfdFromMapCoord (mapX, mapY)
+function xUnitCoordFromMapCoord (mapX, mapY)
 {
-  y = floor((mapY-35)/30);
-  if ((unitY % 2) == 1)
-    return floor((mapX-17)/34);
+  y = Math.floor (mapY / 30);
+  if ((y % 2) == 1)
+    return Math.floor((mapX-17)/34);
   else
-    return floor (mapX/34);
+    return Math.floor (mapX / 34);
 }
 
-function yUnitCoorfdFromMapCoord (mapX, mapY)
+function yUnitCoordFromMapCoord (mapX, mapY)
 {
-  return floor((mapY-35)/30);
+  return Math.floor (mapY / 30);
 }
 
 
@@ -426,7 +422,8 @@ function drawStack(theStack)
         unitWidget.style.backgroundImage = "url('images/allied-MGen-N.png')";
         unitWidget.style.paddingTop = "8px";
         unitWidget.style.paddingBottom = "0px";
-        x = -13; 
+        x = -29; 
+        y = 7;
         break;
         
       case "NW":
@@ -435,7 +432,8 @@ function drawStack(theStack)
         unitWidget.style.backgroundImage = "url('images/allied-MGen-NW.png')";
         unitWidget.style.paddingTop = "0px";
         unitWidget.style.paddingBottom = "0px";
-        x = 4;
+        x = -17;
+        y = 3;
         break;
         
       case "SW":
@@ -444,7 +442,7 @@ function drawStack(theStack)
         unitWidget.style.backgroundImage = "url('images/allied-MGen-SW.png')";
         unitWidget.style.paddingTop = "0px";
         unitWidget.style.paddingBottom = "0px";
-        x = 17;   
+        x = -3;   
         break;
 
       case "S":
@@ -453,7 +451,8 @@ function drawStack(theStack)
         unitWidget.style.backgroundImage = "url('images/allied-MGen-S.png')";
         unitWidget.style.paddingTop = "0px";
         unitWidget.style.paddingBottom = "8px";
-        x = 21;  
+        x = 4;
+        y = 7;
         break;
         
       case "SE":
@@ -462,8 +461,8 @@ function drawStack(theStack)
         unitWidget.style.backgroundImage = "url('images/allied-MGen-SE.png')";
         unitWidget.style.paddingTop = "0px";
         unitWidget.style.paddingBottom = "0px";
-        x = 17; 
-        y = -33;
+        x = 0; 
+        y = -27;
         break;
         
       case "NE":
@@ -472,14 +471,14 @@ function drawStack(theStack)
         unitWidget.style.backgroundImage = "url('images/allied-MGen-NE.png')";
         unitWidget.style.paddingTop = "0px";
         unitWidget.style.paddingBottom = "0px";
-        x = 17;
-        y = -33;
+        x = -18;
+        y = -27;
         break;      
     } 
 
 
-  unitWidget.style.top = yMapCoordFromUnitCoord (theStack.x + x/34, theStack.y + (y/34)) + "px";
-  unitWidget.style.left = xMapCoordFromUnitCoord (theStack.x + x/34, theStack.y + (y/34).toFixed(0)) + "px";  
+  unitWidget.style.top = (y + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
+  unitWidget.style.left = (x + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
 //  unitWidget.draggable = true;
   unitWidget.onclick = function() { showStackInfo (theStack); }
   unitWidget.onmousedown =  function(event) { if (event.button==2) showStackContextMenu (theStack); }
@@ -754,4 +753,14 @@ function drop(ev) {
 //  alert ("X=" + theUnit.style.left.slice(0, -2) + "  Y=" + theUnit.style.top.slice (0, -2));
 }
 
+
+function showMousePosition (ev)
+{
+  var x, y;
+  
+  x = xUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
+  y = yUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
+  
+  document.getElementById ("position-tracker").innerHTML = ev.offsetX + "," + ev.offsetY + "<br>" + x + ", " + y;
+}
 
