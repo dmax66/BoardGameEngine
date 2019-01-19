@@ -490,7 +490,6 @@ function showStackInfo (theStack)
 {
   var stackInfoWidget; 
   var unitInfoContent = undefined;
-//  var parentWidget = document.getElementById("mapContainer");
   
   // Check if the info widget already exists - if so, returns
   stackInfoWidget = document.getElementById ("stackInfoWidget" + theStack.x + "-" + theStack.y );
@@ -507,28 +506,36 @@ function showStackInfo (theStack)
   stackInfoWidget.style.left = (xMapCoordFromUnitCoord (theStack.x, theStack.y) + 51) + "px";
   stackInfoWidget.style.top  = (yMapCoordFromUnitCoord (theStack.x, theStack.y) - 10) + "px";
 
-
+  var leaderTable = document.createElement ("TABLE");
+  leaderTable.setAttribute ("class", "leader-table");
+  stackInfoWidget.appendChild (leaderTable);
+  
   // Display all the leaders in the stack
   var j=0;
   for (j=0; j<theStack.units.length; j++)
   {
+    var tableRow  = document.createElement ("tr");
+    leaderTable.appendChild (tableRow);
+    
+    var tableCell = document.createElement ("td");
+    tableRow.appendChild (tableCell);
+   
+    // First cell: add the leader's image
     unitInfoContent = document.createElement ("IMG");
     unitInfoContent.id = "img:" + theStack.units[j].commander;
     unitInfoContent.src ="images/" + theStack.units[j].commander + ".png";
     unitInfoContent.style.width = "50px";
     unitInfoContent.onmousedown = function(event) { displayLeaderUnits(event) };
-    stackInfoWidget.appendChild (unitInfoContent);
-    
+    tableCell.appendChild (unitInfoContent);
 
-    unitInfoContent = document.createElement ("P");
-    unitInfoContent.innerHTML = "<b>" + theStack.units[j].commander + "&nbsp" + theStack.units[j].initiative + "&nbsp" + theStack.units[j].bonus + "&nbsp" + theStack.units[j].commandCapacity + "&nbsp" + theStack.units[j].subordinationValue + "</b>"
-    stackInfoWidget.appendChild (unitInfoContent);
- 
+    // Second cell: add the leader's characteristics
+    tableCell = document.createElement ("TD");    
+    tableCell.innerHTML = "<b>" + theStack.units[j].commander + "&nbsp" + theStack.units[j].initiative + "&nbsp" + theStack.units[j].bonus + "&nbsp" + theStack.units[j].commandCapacity + "&nbsp" + theStack.units[j].subordinationValue + "</b>"
+    tableRow.appendChild (tableCell);
   }
   
   var closeButton = document.createElement ("BUTTON");
   closeButton.setAttribute ("class", "menu-button");  
-  closeButton.style.minWidth = "80px";
   closeButton.innerHTML = "Close";
   closeButton.onclick = function() { stackInfoWidget.remove(); }
   stackInfoWidget.appendChild (closeButton);
@@ -562,21 +569,14 @@ function displayLeaderUnits (event)
   // Widget does not exist - create it!
   leaderInfoWidget= document.createElement ("DIV");
   leaderInfoWidget.id = leaderInfoWidgetName;
-  leaderInfoWidget.setAttribute ("class", "unit-info");   // TODO: rename class  
-  
-  var t;
-  t = Number(leaderImgWidget.parentNode.style.left.slice(0, -2)) + 0;
-  
-  leaderInfoWidget.style.left = Number (leaderImgWidget.parentNode.style.left.slice(0, -2)) + Number (leaderImgWidget.style.width.slice (0, -2)) + 100 + "px";
-  leaderInfoWidget.style.top  = Number (leaderImgWidget.parentNode.style.top.slice(0, -2))  + Number (leaderImgWidget.style.height.slice (0, -2)) / 2 +"px";
-  leaderInfoWidget.style.backgroundColor = "DarkGray";
-  leaderInfoWidget.style.width = "200px";
-  leaderInfoWidget.style.height = "300px";
-  leaderInfoWidget.style.zIndex = 2;
+  leaderInfoWidget.setAttribute ("class", "unit-info");   
+  leaderInfoWidget.style.left = Number (leaderImgWidget.parentNode.parentNode.parentNode.parentNode.style.left.slice(0, -2)) + Number (leaderImgWidget.style.width.slice (0, -2)) + 100 + "px";
+  leaderInfoWidget.style.top  = Number (leaderImgWidget.parentNode.parentNode.parentNode.parentNode.style.top.slice(0, -2))  + Number (leaderImgWidget.style.height.slice (0, -2)) / 2 +"px";
   document.getElementById ("mapContainer").appendChild(leaderInfoWidget);
 
 
   var unitTable = document.createElement ("TABLE");
+  unitTable.setAttribute ("class", "unit-table");
   leaderInfoWidget.appendChild (unitTable);    
   
   for (i=0; i<troops.length; i++) {
@@ -605,7 +605,6 @@ function displayLeaderUnits (event)
   
   var closeButton = document.createElement ("BUTTON");
   closeButton.setAttribute ("class", "menu-button");  
-  closeButton.style.minWidth = "80px";
   closeButton.style.left = "10px";
   closeButton.innerHTML = "Close";
   closeButton.onclick = function() { leaderInfoWidget.remove(); }
@@ -613,10 +612,9 @@ function displayLeaderUnits (event)
 
   var manageButton = document.createElement ("BUTTON");
   manageButton.setAttribute ("class", "menu-button");  
-  manageButton.style.minWidth = "80px";
   manageButton.style.left = "20px";
   manageButton.innerHTML = "Manage";
-//  manageButton.onclick = function() { leaderInfoWidget.remove(); }
+//  manageButton.onclick = function() { do something }
   leaderInfoWidget.appendChild (manageButton);
 
 }
