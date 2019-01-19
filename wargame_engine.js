@@ -166,23 +166,14 @@ function createStackWidget(theStack)
   document.getElementById("mapContainer").appendChild(stackWidget);
   
   var stackIcon = document.createElement ("img");
+  stackIcon.setAttribute ("class", "stack-icon");
   stackIcon.src = "images/allied-MGen.png";
-  stackIcon.style.position = "absolute";
-  stackIcon.style.top = "0px";
-  stackIcon.style.left = "0px";
-  stackIcon.style.zIndex = 0;
   stackWidget.appendChild (stackIcon);
   
   var stackName = document.createElement ("P");
+  stackName.setAttribute ("class", "stack-name");
   stackName.innerHTML = theStack.units.length == 1 ? theStack.units[0].commander : "Stack";
-  stackName.style.position = "absolute";
-  stackName.style.left = "0px";
-  stackName.style.top = "0px";
-  stackName.style.width = "60px";
-  stackName.style.textAlign = "center";
-  stackName.style.zIndex = 1;
-  stackWidget.appendChild (stackName);
-  
+  stackWidget.appendChild (stackName);  
 }
 
 function xMapCoordFromUnitCoord (unitX, unitY)
