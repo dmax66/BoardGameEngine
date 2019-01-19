@@ -1,7 +1,7 @@
 
 var leaders = [];
 
-var lineRotationInfo = 
+var lineMovementInfo = 
 [
   {
     facing: "N",
@@ -567,40 +567,32 @@ function moveLine (aUnit, direction)
   drawStack (aUnit);
 }
    
+// Rotate a stack (line) one hex
+// direction:
+// -1: rotate anticlockwise
+// +1: rotate clockwise
 function rotateStack (aUnit, direction) 
 {
+  var i=0;
+  
   switch (direction) 
   {
-    case "clockwise":
-      switch (aUnit.facing)
+    case 1:
+      for (i=0; i<6; i++)
       {
-        case "N":
-          aUnit.facing="NE";
-          break;
-
-        case "NE":
-          aUnit.facing="SE";
-          break;
-
-        case "SE":
-          aUnit.facing="S";
-          break;
-
-        case "S":
-          aUnit.facing="SW";
-          break;
-
-        case "SW":
-          aUnit.facing="NW";
-          break;
-
-        case "NW":
-          aUnit.facing="N";
-          break;
+        if (aUnit.facing == lineMovementInfo[i].facing) break;
       }
+      if (i==6)
+        throw ("Invalid stack (line) orientation");
+        
+      i += direction;
+      if (i < 0) i += 6;
+      if (i >= 6) i -= 6;
+
+      aUnit.facing = lineMovementInfo[i].facing;
       break;
-      
-    case "anti-clockwise":
+            
+    case -1:
       switch (aUnit.facing)
       {
         case "N":
@@ -638,6 +630,9 @@ function rotateStack (aUnit, direction)
           break;
       }
       break;  
+      
+    default:
+      throw ("Invalid direction when rotating line");
   }
   drawStack (aUnit);
 }
@@ -671,11 +666,11 @@ function flipStack (aUnit)
     case "line":
       for (i=0; i<6; i++)
       {
-        if (aUnit.facing == lineRotationInfo[i].facing)
+        if (aUnit.facing == lineMovementInfo[i].facing)
         {
-          aUnit.facing = lineRotationInfo[i].flip.newFacing;
-          aUnit.x += (aUnit.y % 2 ==0) ? lineRotationInfo[i].flip.xOffsetEven : lineRotationInfo[i].flip.xOffsetOdd;
-          aUnit.y += lineRotationInfo[i].flip.yOffset;
+          aUnit.facing = lineMovementInfo[i].flip.newFacing;
+          aUnit.x += (aUnit.y % 2 ==0) ? lineMovementInfo[i].flip.xOffsetEven : lineMovementInfo[i].flip.xOffsetOdd;
+          aUnit.y += lineMovementInfo[i].flip.yOffset;
           drawLineStack (aUnit);
           return;
         }
@@ -716,11 +711,11 @@ function drawStack(theStack)
     case "line":
       for (i=0; i<6; i++)
       {
-        if (theStack.facing == lineRotationInfo[i].facing)
+        if (theStack.facing == lineMovementInfo[i].facing)
         {
-          stackWidget.style.transform = "rotate(" + lineRotationInfo[i].angle + "deg)";
-          stackWidget.style.left = (lineRotationInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
-          stackWidget.style.top = (lineRotationInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
+          stackWidget.style.transform = "rotate(" + lineMovementInfo[i].angle + "deg)";
+          stackWidget.style.left = (lineMovementInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
+          stackWidget.style.top = (lineMovementInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
           return;
         }
       } 
@@ -934,7 +929,7 @@ function showStackContextMenu (aUnit)
   if (aUnit.formation == "column") 
     menuContent.style.color = "#323232";
   else
-    menuContent.onclick = function() { rotateStack (aUnit, "clockwise"); }
+    menuContent.onclick = function() { rotateStack (aUnit, 1); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
@@ -942,7 +937,7 @@ function showStackContextMenu (aUnit)
   if (aUnit.formation == "column") 
     menuContent.style.color = "#323232";
   else
-    menuContent.onclick = function() { rotateStack (aUnit, "anti-clockwise"); }
+    menuContent.onclick = function() { rotateStack (aUnit, -1); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
