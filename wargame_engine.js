@@ -1,5 +1,45 @@
 
 var leaders = [];
+
+var lineRotationInfo = [
+  {
+    facing: "N",
+    angle: "0deg",
+    xOffset: -29,
+    yOffset: 7
+  },
+  {
+    facing: "NE",
+    angle: "-300deg",
+    xOffset: -22,
+    yOffset: 5
+  },
+  {
+    facing: "SE",
+    angle: "-240deg",
+    xOffset: -8,
+    yOffset: -7
+  },
+  {
+    facing: "S",
+    angle: "-180deg",
+    xOffset: 2,
+    yOffset: 3
+  },
+  {
+    facing: "SW",
+    angle: "-120deg",
+    xOffset: -3,
+    yOffset: 18
+  },
+  {
+    facing: "NW",
+    angle: "-60deg",
+    xOffset: -19,
+    yOffset: 21
+  }
+];
+
   
 leaders[0] = {
   nationality: "prussian",
@@ -686,52 +726,25 @@ function drawColumnStack (theStack)
 }  
 function drawLineStack (theStack)
 {
-  var x = 0;
-  var y = 0;
   var stackWidget = document.getElementById ("stack" + theStack.id);
   
-  switch (theStack.facing) 
+  // Find the value for angle and offset for the image
+  var i=0;
+  
+  for (i=0; i<6; i++)
   {
-      case "N": // North
-        stackWidget.style.transform = "rotate(0)";
-        x = -29; 
-        y = 7;
-        break;
-        
-      case "NE":
-        stackWidget.style.transform = "rotate(-300deg)";
-        x = -22;
-        y = -5;
-        break;      
-      
-      case "SE":
-        stackWidget.style.transform = "rotate(-240deg)";
-        x = -8; 
-        y = -7;
-        break;
-        
-      case "S":
-        stackWidget.style.transform = "rotate(-180deg)";
-        x = 2;
-        y = 3;
-        break;
-        
-      case "SW":
-        stackWidget.style.transform = "rotate(-120deg)";
-        x = -3;   
-        y = 18;
-        break;
+    if (theStack.facing == lineRotationInfo[i].facing)
+    {
+      stackWidget.style.transform = "rotate(" + lineRotationInfo[i].angle + "deg)";
+      stackWidget.style.left = (lineRotationInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
+      stackWidget.style.top = (lineRotationInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
+      return;
+    }
+  } 
 
-       case "NW":
-        stackWidget.style.transform = "rotate(-60deg)";
-        x = -19;
-        y = 21;
-        break;
-   } 
-
-  stackWidget.style.top = (y + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
-  stackWidget.style.left = (x + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
+  throw ("Stack orientation (line mode) invalid");
 }
+
   
 function showStackInfo (theStack)
 {
