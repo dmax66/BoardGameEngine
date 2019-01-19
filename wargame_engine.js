@@ -2,7 +2,7 @@
 var leaders = [];
   
 leaders[0] = {
-  nationality: "Prussia",
+  nationality: "prussian",
   commander: "Bluecher",
   type: "Leader",    // "Leader", "Infantry", "Cavalry", "Artillery", "COP"
   strength: 0,
@@ -20,7 +20,7 @@ leaders[0] = {
 
   
 leaders[1] = {
-  nationality: "Austria",
+  nationality: "austrian",
   commander: "Schwarzenberg",
   type: "Leader",    // "Infantry", "Cavalry", "Artillery", "COP"
   strength: 0,
@@ -37,7 +37,7 @@ leaders[1] = {
 }
 
 leaders[2] = {
-  nationality: "Prussia",
+  nationality: "prussian",
   commander: "Yorck",
   type: "Leader",    // "Infantry", "Cavalry", "Artillery", "COP"
   strength: 0,
@@ -109,8 +109,8 @@ stacks[0] = {
   y: 6,
   sticky: false,
   units: [leaders[0], leaders[2]],
-  formation: "line", // either "column" or "line"
-  facing: "N", // N, NW, SW, S, SE, NE, E, W
+  formation: "column", // either "column" or "line"
+  facing: "E", // N, NW, SW, S, SE, NE, E, W
   images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
 }
 
@@ -187,13 +187,33 @@ function createStackWidget (theStack)
   
   var stackIcon = document.createElement ("img");
   stackIcon.setAttribute ("class", "stack-icon");
-  stackIcon.src = "images/allied-MGen.png";
+  stackIcon.setAttribute ("class", theStack.units[0].nationality);
+  switch (theStack.formation)
+  {
+    case "line":
+      stackIcon.src = "images/line.png";
+      break;
+      
+    case "column":
+      stackIcon.src = "images/column.png";    
+      break;
+      
+    default:
+      throw ("Invalid formation value");
+  }
+  stackIcon.style.height = "26px";
+  stackIcon.style.width = "60px";  
   stackWidget.appendChild (stackIcon);
   
-  var stackName = document.createElement ("P");
-  stackName.setAttribute ("class", "stack-name");
-  stackName.innerHTML = theStack.units.length == 1 ? theStack.units[0].commander : "Stack";
-  stackWidget.appendChild (stackName);  
+  // Add leader name to stack - or if multiple leader, add simply label "Stack"
+  if (theStack.formation == "line")
+  {
+    var stackName = document.createElement ("P");
+    stackName.setAttribute ("class", "stack-name");
+    stackName.innerHTML = theStack.units[0].commander;
+    if (theStack.units.length > 1) stackName.innerHTML += "+";
+    stackWidget.appendChild (stackName);
+  }  
 }
 
 function xMapCoordFromUnitCoord (unitX, unitY)
@@ -223,7 +243,6 @@ function yUnitCoordFromMapCoord (mapX, mapY)
   return Math.floor (mapY / 30);
 }
 
-
 function moveUnit (aUnit, direction)
 {
   switch (aUnit.formation)
@@ -240,7 +259,6 @@ function moveUnit (aUnit, direction)
       throw ("Invalid unit formation");
   }
 }
-  
   
 function moveLine (aUnit, direction)
 {
@@ -356,10 +374,7 @@ function moveLine (aUnit, direction)
   
   drawStack (aUnit);
 }
-      
- 
-  
-  
+   
 function rotateUnit (aUnit, direction) 
 {
   switch (direction) 
@@ -435,6 +450,128 @@ function rotateUnit (aUnit, direction)
   drawStack (aUnit);
 }
 
+function moveColumn (aUnit, direction)
+{
+  switch (aUnit.facing)
+    {
+      case "E":
+        switch (direction) 
+        {
+          case "FL":
+            aUnit.facing = "NE";
+            break;
+  
+          case "FR":
+            aUnit.facing = "SE";            
+            break;
+        }
+        break;
+  
+      case "NE":
+        switch (direction)
+        {
+  
+          case "FL":
+            aUnit.facing = "NW";
+            break;
+  
+          case "FR":
+            aUnit.facing = "E";
+            break;  
+        }
+        break;
+  
+      case "SE":
+        switch (direction)
+        {
+          case "FL":
+            aUnit.facing = "E";
+            break;
+  
+          case "FR":
+            aUnit.facing = "SW";
+            break;
+        }
+        break;
+  
+      case "SW":
+        switch (direction)
+        {
+          case "FL":
+            aUnit.facing = "SE";
+            break;
+  
+          case "FR":
+            aUnit.facing = "W";
+            break;
+        }
+        break;
+  
+      case "W":
+        switch (direction)
+        {
+          case "FL":
+            aUnit.facing = "SW";
+            break;
+  
+          case "FR":
+            aUnit.facing = "NW";
+            break;
+        }
+        break;
+        
+      case "NW":
+        switch (direction)
+        {
+          case "FL":
+            aUnit.facing = "W";
+            break;
+  
+          case "FR":
+            aUnit.facing = "NE";
+            break;
+          }
+        break;
+        
+      default:
+        throw ("Incorrect unit facing");
+    }
+  
+  // Advance one hex
+  switch (aUnit.facing)
+  {
+    case "NE":
+      aUnit.x += (aUnit.y % 2 == 0 ? 0 : 1);
+      aUnit.y += -1;
+      break;
+      
+    case "E":
+      aUnit.x++;
+      break;
+      
+    case "SE":
+      aUnit.x += (aUnit.y % 2 == 0 ? 0 : 1)
+      aUnit.y += 1;
+      break;
+      
+    case "SW":
+      aUnit.x += (aUnit.y % 2 == 0 ? -1 : 0)
+      aUnit.y += 1;
+      break;
+    
+    case "W":
+      aUnit.x--;
+      break;
+      
+    case "NW":
+      aUnit.x += (aUnit.y % 2 == 0 ? -1 : 0)
+      aUnit.y += -1;
+      break;
+  }  
+  
+  drawStack (aUnit);
+}
+
 function flipUnit (aUnit)
 {
   switch (aUnit.facing)
@@ -477,7 +614,77 @@ function flipUnit (aUnit)
   drawStack (aUnit);
 }
 
+function lineToColumn (aUnit)
+{
+  
+}
+
 function drawStack(theStack)
+{
+  switch (theStack.formation)
+  {
+    case "line":
+      drawLineStack (theStack);
+      break;
+
+    case "column":
+      drawColumnStack (theStack);
+      break;
+      
+    default:
+      throw ("Formation invalid");
+  }
+}
+
+function drawColumnStack (theStack)
+{
+  var x = 0;
+  var y = 0;
+  var stackWidget = document.getElementById ("stack" + theStack.id);
+  
+  switch (theStack.facing) 
+  {
+      case "NE": // North
+        stackWidget.style.transform = "rotate(-60deg)";
+        x = -23; 
+        y = 22;
+        break;
+        
+      case "E":
+        stackWidget.style.transform = "rotate(0deg)";
+        x = -29;
+        y = 6;
+        break;      
+      
+      case "SE":
+        stackWidget.style.transform = "rotate(60deg)";
+        x = -21; 
+        y = -8;
+        break;
+        
+      case "SW":
+        stackWidget.style.transform = "rotate(120deg)";
+        x = 0;
+        y = -10;
+        break;
+        
+      case "W":
+        stackWidget.style.transform = "rotate(180deg)";
+        x = 4;   
+        y = 4;
+        break;
+
+       case "NW":
+        stackWidget.style.transform = "rotate(-120deg)";
+        x = -4;
+        y = 20;
+        break;
+   } 
+
+  stackWidget.style.top = (y + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
+  stackWidget.style.left = (x + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
+}  
+function drawLineStack (theStack)
 {
   var x = 0;
   var y = 0;
