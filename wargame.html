@@ -171,6 +171,26 @@
 }
 
 
+.unit-icon {
+}
+
+.prussian {
+  background-color: #9494b8;
+}
+  
+.austrian {
+  background-color: White;
+}
+
+.russian {
+	background-color: #9fdf9f;
+	}
+	
+.french {
+	background-color: #66c2ff; 
+	}  
+  
+
 .menu-button {
   position: relative;
   color: black;
@@ -191,19 +211,23 @@
   color: rgb(200,200,200);
   background-color: black;
   min-width: 200px;
-  height: 200px;
-  font-size: 10px;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: left;
   padding: 1px 1px;
   border: 1px;
   cursor: pointer;
   border-radius: 1px;
-  text-align: left;
   background-repeat: no-repeat;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
 }
 
-hr { 
+.context-menu :hover {
+  background-color: Grey;
+ }
+
+.context-menu hr { 
   display: block;
   margin-top: 0.5em;
   margin-bottom: 0.5em;
@@ -232,7 +256,7 @@ hr {
   
 </head>
 
-<body onload="drawBoard()" background="images/SoN_Map_New-2011_0521.png" onmousemove= "showMousePosition(event)"> 
+<body onload="drawBoard()" background="images/SoN_Map_New-2011_0521.png" onmousemove= "showMousePosition(event)" oncontextmenu="return false;"> 
 
 <div class="admin-board" id="adminBoard">
   <h1>Administrative Board</h1>

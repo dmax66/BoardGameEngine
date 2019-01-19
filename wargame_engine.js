@@ -56,9 +56,10 @@ leaders[2] = {
 var troops = [];
 
 troops[0] = {
-  nationality: "Prussia",
+  nationality: "prussian",
   commander: "Losthin",
-  type: "Infantry",    // "Infantry", "Cavalry", "Artillery", "COP"
+  type: "Infantry",    // "Infantry", "Cavalry", "Artillery", "COP", "Bridge"
+  size: "Division",    // "Division", "Regiment"
   strength: 7,
   attackValue: 0,
   defenseValue: 0,
@@ -70,9 +71,10 @@ troops[0] = {
 }
 
 troops[1] = {
-  nationality: "Prussia",
+  nationality: "prussian",
   commander: "Warburg",
   type: "Infantry",    // "Infantry", "Cavalry", "Artillery", "COP"
+  size: "Division",    // "Division", "Regiment"
   strength: 5,
   attackValue: 0,
   defenseValue: 0,
@@ -82,7 +84,21 @@ troops[1] = {
   commandingUnit: "Bluecher",
   image: "images/Losthin.png"
 }
- 
+
+troops[2] = {
+	nationality: "russian",
+  commander: "Paskiexit",
+  type: "Infantry",    // "Infantry", "Cavalry", "Artillery", "COP"
+  size: "Division",    // "Division", "Regiment"
+  strength: 8,
+  attackValue: 0,
+  defenseValue: 0,
+  movAllowance: 5,
+  initiative: 0,
+  subordinationValue: 1,
+  commandingUnit: "Schwarzenberg",
+  image: "images/Losthin.png"
+ }
 
 var stacks = [];
 
@@ -165,7 +181,7 @@ function createStackWidget (theStack)
   stackWidget.onmouseover = function() { showStackInfo (theStack); }
   stackWidget.onmouseout = function() { hideStackInfo (theStack); }
   stackWidget.onclick = function() { theStack.sticky = true; showStackInfo (theStack); }
-  stackWidget.onmousedown =  function(event) { if (event.button==2) showStackContextMenu (theStack); }
+  stackWidget.onmousedown =  function(event) { if (event.button==2) { event.cancelBubble=true; event.stopPropagation(); showStackContextMenu (theStack); }}
 
   document.getElementById("mapContainer").appendChild(stackWidget);
   
@@ -419,6 +435,48 @@ function rotateUnit (aUnit, direction)
   drawStack (aUnit);
 }
 
+function flipUnit (aUnit)
+{
+  switch (aUnit.facing)
+  {
+    case "N":
+      aUnit.facing="S";
+      aUnit.x--;
+      break;
+
+    case "NE":
+      aUnit.facing="SW";
+      aUnit.x += (aUnit.y % 2 == 0 ? -1 : 0);
+      aUnit.y--;
+      break;
+
+    case "SE":
+      aUnit.facing="NW";
+      aUnit.x += (aUnit.y % 2 == 0 ? 0 : 1);
+      aUnit.y--;
+      break;
+
+    case "S":
+      aUnit.facing="N";
+      aUnit.x++;
+      break;
+
+    case "SW":
+      aUnit.facing="NE";
+      aUnit.x += (aUnit.y % 2 == 0 ? 0 : 1);
+      aUnit.y++;
+      break;
+
+    case "NW":
+      aUnit.facing="SE";
+      aUnit.x += (aUnit.y % 2 == 0 ? -1 : 0);
+      aUnit.y++;
+      break;
+  }	
+    
+  drawStack (aUnit);
+}
+
 function drawStack(theStack)
 {
   var x = 0;
@@ -579,10 +637,10 @@ function displayLeaderUnits (event)
       tableCell = document.createElement ("td");
       tableRow.appendChild (tableCell);    
 
-      unitIcon = document.createElement ("IMG");
-      unitIcon.src = "images/Infantry.png";
-      unitIcon.style.width = "30px";
-      unitIcon.style.height = "15px";
+      unitIcon = document.createElement ("img");
+      unitIcon.setAttribute ("class", "unit-icon");
+      unitIcon.setAttribute ("class", troops[i].nationality);
+      unitIcon.src = "images/" + troops[i].type + "-" + troops[i].size + ".png";
       tableCell.appendChild (unitIcon);
 
       tableCell = document.createElement ("td");
@@ -665,6 +723,11 @@ function showStackContextMenu (aUnit)
     menuContent.style.color = "#323232";
   else
     menuContent.onclick = function() { rotateUnit (aUnit, "anti-clockwise"); }
+  unitContextMenu.appendChild (menuContent);
+
+  menuContent = document.createElement ("P");
+  menuContent.innerHTML = "Flip direction";
+  menuContent.onclick = function() { flipUnit (aUnit); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
