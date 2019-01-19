@@ -7,39 +7,77 @@ var lineRotationInfo =
     facing: "N",
     angle: 0,
     xOffset: -29,
-    yOffset: 7
+    yOffset: 7,
+    flip: {
+      newFacing: "S",
+      xOffsetEven: -1,
+      xOffsetOdd: -1,
+      yOffset: 0
+    }
   },
   {
     facing: "NE",
     angle: -300,
     xOffset: -22,
-    yOffset: 5
+    yOffset: 5,
+    flip: {
+      newFacing: "SW",
+      xOffsetEven: -1,
+      xOffsetOdd: 0,
+      yOffset: -1
+    }
   },
   {
     facing: "SE",
     angle: -240,
     xOffset: -8,
-    yOffset: -7
+    yOffset: -7,
+    flip: {
+      newFacing: "NW",
+      xOffsetEven: 0,
+      xOffsetOdd: 1,
+      yOffset: -1
+    }
   },
   {
     facing: "S",
     angle: -180,
     xOffset: 2,
-    yOffset: 3
+    yOffset: 3,
+    flip: {
+      newFacing: "N",
+      xOffsetEven: 1,
+      xOffsetOdd: 1,
+      yOffset: 0
+    }
   },
   {
     facing: "SW",
     angle: -120,
     xOffset: -3,
-    yOffset: 18
+    yOffset: 18,
+    flip: {
+      newFacing: "NE",
+      xOffsetEven: 0,
+      xOffsetOdd: 1,
+      yOffset: 1
+    }
   },
   {
     facing: "NW",
     angle: -60,
     xOffset: -19,
-    yOffset: 21
+    yOffset: 21,
+    flip: {
+      newFacing: "SE",
+      xOffsetEven: -1,
+      xOffsetOdd: 0,
+      yOffset: 1
+    }
   }
 ];
+
+
 
 var columnRotationInfo = 
 [
@@ -47,37 +85,73 @@ var columnRotationInfo =
     facing: "NE",
     angle: -60,
     xOffset: -23, 
-    yOffset: 22
+    yOffset: 22,
+    flip: {
+      newFacing: "SW",
+      xOffsetEven: -1,
+      xOffsetOdd: 0,
+      yOffset: 1
+    }
   },
   {
     facing: "E",
     angle: 0,
     xOffset: -29,
-    yOffset: 6
+    yOffset: 6,
+    flip: {
+      newFacing: "W",
+      xOffsetEven: -1,
+      xOffsetOdd: -1,
+      yOffset: 0
+    }
   },
   {
     facing: "SE",
     angle: 60,
     xOffset: -21, 
-    yOffset: -8
+    yOffset: -8,
+    flip: {
+      newFacing: "NW",
+      xOffsetEven: -1,
+      xOffsetOdd: 0,
+      yOffset: -1
+    }
   },
   {     
     facing: "SW",
     angle: 120,
     xOffset: 0,
-    yOffset: -10
+    yOffset: -10,
+    flip: {
+      newFacing: "NE",
+      xOffsetEven: 0,
+      xOffsetOdd: 1,
+      yOffset: -1
+    }
   },
   {        
     facing: "W",
     angle: 180,
     xOffset: 4,   
-    yOffset: 4
+    yOffset: 4,
+    flip: {
+      newFacing: "E",
+      xOffsetEven: 1,
+      xOffsetOdd: 1,
+      yOffset: 0
+    }
   },
   {
     facing: "NW",
     angle: 240,
     xOffset: -4,
-    yOffset: 20
+    yOffset: 20,
+    flip: {
+      newFacing: "SE",
+      xOffsetEven: 0,
+      xOffsetOdd: 1,
+      yOffset: 1
+    }
   }        
 ]
   
@@ -323,7 +397,7 @@ function yUnitCoordFromMapCoord (mapX, mapY)
   return Math.floor (mapY / 30);
 }
 
-function moveUnit (aUnit, direction)
+function moveStack (aUnit, direction)
 {
   switch (aUnit.formation)
   {
@@ -455,7 +529,7 @@ function moveLine (aUnit, direction)
   drawStack (aUnit);
 }
    
-function rotateUnit (aUnit, direction) 
+function rotateStack (aUnit, direction) 
 {
   switch (direction) 
   {
@@ -652,47 +726,44 @@ function moveColumn (aUnit, direction)
   drawStack (aUnit);
 }
 
-function flipUnit (aUnit)
+function flipStack (aUnit)
 {
-  switch (aUnit.facing)
+  var i;
+  
+  switch (aUnit.formation)
   {
-    case "N":
-      aUnit.facing="S";
-      aUnit.x--;
-      break;
-
-    case "NE":
-      aUnit.facing="SW";
-      aUnit.x += (aUnit.y % 2 == 0 ? -1 : 0);
-      aUnit.y--;
-      break;
-
-    case "SE":
-      aUnit.facing="NW";
-      aUnit.x += (aUnit.y % 2 == 0 ? 0 : 1);
-      aUnit.y--;
-      break;
-
-    case "S":
-      aUnit.facing="N";
-      aUnit.x++;
-      break;
-
-    case "SW":
-      aUnit.facing="NE";
-      aUnit.x += (aUnit.y % 2 == 0 ? 0 : 1);
-      aUnit.y++;
-      break;
-
-    case "NW":
-      aUnit.facing="SE";
-      aUnit.x += (aUnit.y % 2 == 0 ? -1 : 0);
-      aUnit.y++;
-      break;
-  }	
-    
-  drawStack (aUnit);
-}
+    case "line":
+      for (i=0; i<6; i++)
+      {
+        if (aUnit.facing == lineRotationInfo[i].facing)
+        {
+          aUnit.facing = lineRotationInfo[i].flip.newFacing;
+          aUnit.x += (aUnit.y % 2 ==0) ? lineRotationInfo[i].flip.xOffsetEven : lineRotationInfo[i].flip.xOffsetOdd;
+          aUnit.y += lineRotationInfo[i].flip.yOffset;
+          drawLineStack (aUnit);
+          return;
+        }
+      }
+      throw ("Error - line 747");
+      
+    case "column":
+      for (i=0; i<6; i++)
+      {
+        if (aUnit.facing == columnRotationInfo[i].facing)
+        {
+          aUnit.facing = columnRotationInfo[i].flip.newFacing;
+          aUnit.x += (aUnit.y % 2 ==0) ? columnRotationInfo[i].flip.xOffsetEven : columnRotationInfo[i].flip.xOffsetOdd;
+          aUnit.y += columnRotationInfo[i].flip.yOffset;
+          drawColumnStack (aUnit);
+          return;
+        }
+      }
+      throw ("Error - line 761");
+      
+    default:
+      throw ("Invalid stack formation");
+  }
+}	
 
 function lineToColumn (aUnit)
 {
@@ -701,65 +772,42 @@ function lineToColumn (aUnit)
 
 function drawStack(theStack)
 {
+  var stackWidget = document.getElementById ("stack" + theStack.id);
+  var i=0;
+  
   switch (theStack.formation)
   {
     case "line":
-      drawLineStack (theStack);
-      break;
-
+      for (i=0; i<6; i++)
+      {
+        if (theStack.facing == lineRotationInfo[i].facing)
+        {
+          stackWidget.style.transform = "rotate(" + lineRotationInfo[i].angle + "deg)";
+          stackWidget.style.left = (lineRotationInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
+          stackWidget.style.top = (lineRotationInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
+          return;
+        }
+      } 
+      throw ("Stack orientation (line mode) invalid");
+    
     case "column":
-      drawColumnStack (theStack);
-      break;
+      for (i=0; i<6; i++)
+      {
+        if (theStack.facing == columnRotationInfo[i].facing)
+        {
+          stackWidget.style.transform = "rotate(" + columnRotationInfo[i].angle + "deg)";
+          stackWidget.style.left = (columnRotationInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
+          stackWidget.style.top = (columnRotationInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
+          return;
+        }
+      } 
+      throw ("Stack orientation (column mode) invalid");
       
     default:
       throw ("Formation invalid");
   }
 }
 
-function drawColumnStack (theStack)
-{
-  var stackWidget = document.getElementById ("stack" + theStack.id);
-  
-  // Find the value for angle and offset for the image
-  var i=0;
-  
-  for (i=0; i<6; i++)
-  {
-    if (theStack.facing == columnRotationInfo[i].facing)
-    {
-      stackWidget.style.transform = "rotate(" + columnRotationInfo[i].angle + "deg)";
-      stackWidget.style.left = (columnRotationInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
-      stackWidget.style.top = (columnRotationInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
-      return;
-    }
-  } 
-
-  throw ("Stack orientation (column mode) invalid");
-}
-
-
-
-
-function drawLineStack (theStack)
-{
-  var stackWidget = document.getElementById ("stack" + theStack.id);
-  
-  // Find the value for angle and offset for the image
-  var i=0;
-  
-  for (i=0; i<6; i++)
-  {
-    if (theStack.facing == lineRotationInfo[i].facing)
-    {
-      stackWidget.style.transform = "rotate(" + lineRotationInfo[i].angle + "deg)";
-      stackWidget.style.left = (lineRotationInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
-      stackWidget.style.top = (lineRotationInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
-      return;
-    }
-  } 
-
-  throw ("Stack orientation (line mode) invalid");
-}
 
   
 function showStackInfo (theStack)
@@ -950,7 +998,7 @@ function showStackContextMenu (aUnit)
   if (aUnit.formation == "column") 
     menuContent.style.color = "#323232";
   else
-    menuContent.onclick = function() { rotateUnit (aUnit, "clockwise"); }
+    menuContent.onclick = function() { rotateStack (aUnit, "clockwise"); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
@@ -958,17 +1006,17 @@ function showStackContextMenu (aUnit)
   if (aUnit.formation == "column") 
     menuContent.style.color = "#323232";
   else
-    menuContent.onclick = function() { rotateUnit (aUnit, "anti-clockwise"); }
+    menuContent.onclick = function() { rotateStack (aUnit, "anti-clockwise"); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Flip direction";
-  menuContent.onclick = function() { flipUnit (aUnit); }
+  menuContent.onclick = function() { flipStack (aUnit); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Move forward-left";
-  menuContent.onclick = function() { moveUnit (aUnit, "FL"); }
+  menuContent.onclick = function() { moveStack (aUnit, "FL"); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
@@ -976,12 +1024,12 @@ function showStackContextMenu (aUnit)
   if (aUnit.formation == "line") 
     menuContent.style.color = "#323232";
   else  
-    menuContent.onclick = function() { moveUnit (aUnit, "F"); }
+    menuContent.onclick = function() { moveStack (aUnit, "F"); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Move forward-right";
-  menuContent.onclick = function() { moveUnit (aUnit, "FR"); }
+  menuContent.onclick = function() { moveStack (aUnit, "FR"); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
