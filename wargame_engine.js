@@ -91,6 +91,7 @@ stacks[0] = {
   id: 1,
   x: 5,
   y: 6,
+  sticky: false,
   units: [leaders[0], leaders[2]],
   formation: "line", // either "column" or "line"
   facing: "N", // N, NW, SW, S, SE, NE, E, W
@@ -101,6 +102,7 @@ stacks[1] = {
   id: 2,
   x: 2,
   y: 3,
+  sticky: false,
   units: [leaders[1]],
   formation: "line", // either "column" or "line"
   facing: "N", // N, NW, SW, S, SE, NE, E, W
@@ -154,13 +156,15 @@ function drawBoard ()
   stacks.forEach (drawStack);
 }
 
-function createStackWidget(theStack)
+function createStackWidget (theStack)
 {
   var stackWidget = document.createElement ("DIV");
   
   stackWidget.id = "stack" + theStack.id;
   stackWidget.setAttribute ("class", "stack-widget");
-  stackWidget.onclick = function() { showStackInfo (theStack); }
+  stackWidget.onmouseover = function() { showStackInfo (theStack); }
+  stackWidget.onmouseout = function() { hideStackInfo (theStack); }
+  stackWidget.onclick = function() { theStack.sticky = true; showStackInfo (theStack); }
   stackWidget.onmousedown =  function(event) { if (event.button==2) showStackContextMenu (theStack); }
 
   document.getElementById("mapContainer").appendChild(stackWidget);
@@ -417,14 +421,10 @@ function rotateUnit (aUnit, direction)
 
 function drawStack(theStack)
 {
-  x = 0;
-  y = 0;
-  
+  var x = 0;
+  var y = 0;
   var stackWidget = document.getElementById ("stack" + theStack.id);
   
-//  stackWidget.style.width = "60px";
-//  stackWidget.style.height = "30px";
-
   switch (theStack.facing) 
   {
       case "N": // North
@@ -462,7 +462,6 @@ function drawStack(theStack)
         x = -19;
         y = 21;
         break;
-        
    } 
 
   stackWidget.style.top = (y + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
@@ -475,19 +474,18 @@ function showStackInfo (theStack)
   var unitInfoContent = undefined;
   
   // Check if the info widget already exists - if so, returns
-  stackInfoWidget = document.getElementById ("stackInfoWidget" + theStack.x + "-" + theStack.y );
+  stackInfoWidget = document.getElementById ("stackInfoWidget" + theStack.id);
   if (stackInfoWidget != null)
       return;
   
   // Widget does not exist - create it!
   stackInfoWidget= document.createElement ("DIV");
-  stackInfoWidget.id = "stackInfoWidget" + theStack.x + "-" + theStack.y;
+  stackInfoWidget.id = "stackInfoWidget" + theStack.id;
   stackInfoWidget.setAttribute ("class", "leader-info");   // TODO: rename class
-  
+  stackInfoWidget.style.left = (xMapCoordFromUnitCoord (theStack.x, theStack.y) + 10) + "px";
+  stackInfoWidget.style.top  = (yMapCoordFromUnitCoord (theStack.x, theStack.y) ) + "px";
   document.getElementById("mapContainer").appendChild(stackInfoWidget);
   
-  stackInfoWidget.style.left = (xMapCoordFromUnitCoord (theStack.x, theStack.y) + 51) + "px";
-  stackInfoWidget.style.top  = (yMapCoordFromUnitCoord (theStack.x, theStack.y) - 10) + "px";
 
   var leaderTable = document.createElement ("TABLE");
   leaderTable.setAttribute ("class", "leader-table");
@@ -520,11 +518,22 @@ function showStackInfo (theStack)
   var closeButton = document.createElement ("BUTTON");
   closeButton.setAttribute ("class", "menu-button");  
   closeButton.innerHTML = "Close";
-  closeButton.onclick = function() { stackInfoWidget.remove(); }
+  closeButton.onclick = function() { theStack.sticky = false; stackInfoWidget.remove(); }
   stackInfoWidget.appendChild (closeButton);
 }
 
-
+function hideStackInfo (theStack)
+{
+  if (theStack.sticky) return;
+    
+  var stackInfoWidget; 
+  
+  // Check if the info widget already exists - if so, returns
+  stackInfoWidget = document.getElementById ("stackInfoWidget" + theStack.id);
+  if (stackInfoWidget != null)
+      stackInfoWidget.remove();
+}  
+ 
 // Display the units (infantry, cavalry, artillery, pontoons) commanded by a leader
 // Enable 
 function displayLeaderUnits (event)
