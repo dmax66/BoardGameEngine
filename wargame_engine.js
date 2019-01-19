@@ -1,45 +1,85 @@
 
 var leaders = [];
 
-var lineRotationInfo = [
+var lineRotationInfo = 
+[
   {
     facing: "N",
-    angle: "0deg",
+    angle: 0,
     xOffset: -29,
     yOffset: 7
   },
   {
     facing: "NE",
-    angle: "-300deg",
+    angle: -300,
     xOffset: -22,
     yOffset: 5
   },
   {
     facing: "SE",
-    angle: "-240deg",
+    angle: -240,
     xOffset: -8,
     yOffset: -7
   },
   {
     facing: "S",
-    angle: "-180deg",
+    angle: -180,
     xOffset: 2,
     yOffset: 3
   },
   {
     facing: "SW",
-    angle: "-120deg",
+    angle: -120,
     xOffset: -3,
     yOffset: 18
   },
   {
     facing: "NW",
-    angle: "-60deg",
+    angle: -60,
     xOffset: -19,
     yOffset: 21
   }
 ];
 
+var columnRotationInfo = 
+[
+  {
+    facing: "NE",
+    angle: -60,
+    xOffset: -23, 
+    yOffset: 22
+  },
+  {
+    facing: "E",
+    angle: 0,
+    xOffset: -29,
+    yOffset: 6
+  },
+  {
+    facing: "SE",
+    angle: 60,
+    xOffset: -21, 
+    yOffset: -8
+  },
+  {     
+    facing: "SW",
+    angle: 120,
+    xOffset: 0,
+    yOffset: -10
+  },
+  {        
+    facing: "W",
+    angle: 180,
+    xOffset: 4,   
+    yOffset: 4
+  },
+  {
+    facing: "NW",
+    angle: 240,
+    xOffset: -4,
+    yOffset: 20
+  }        
+]
   
 leaders[0] = {
   nationality: "prussian",
@@ -678,52 +718,28 @@ function drawStack(theStack)
 
 function drawColumnStack (theStack)
 {
-  var x = 0;
-  var y = 0;
   var stackWidget = document.getElementById ("stack" + theStack.id);
   
-  switch (theStack.facing) 
+  // Find the value for angle and offset for the image
+  var i=0;
+  
+  for (i=0; i<6; i++)
   {
-      case "NE": // North
-        stackWidget.style.transform = "rotate(-60deg)";
-        x = -23; 
-        y = 22;
-        break;
-        
-      case "E":
-        stackWidget.style.transform = "rotate(0deg)";
-        x = -29;
-        y = 6;
-        break;      
-      
-      case "SE":
-        stackWidget.style.transform = "rotate(60deg)";
-        x = -21; 
-        y = -8;
-        break;
-        
-      case "SW":
-        stackWidget.style.transform = "rotate(120deg)";
-        x = 0;
-        y = -10;
-        break;
-        
-      case "W":
-        stackWidget.style.transform = "rotate(180deg)";
-        x = 4;   
-        y = 4;
-        break;
+    if (theStack.facing == columnRotationInfo[i].facing)
+    {
+      stackWidget.style.transform = "rotate(" + columnRotationInfo[i].angle + "deg)";
+      stackWidget.style.left = (columnRotationInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
+      stackWidget.style.top = (columnRotationInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
+      return;
+    }
+  } 
 
-       case "NW":
-        stackWidget.style.transform = "rotate(-120deg)";
-        x = -4;
-        y = 20;
-        break;
-   } 
+  throw ("Stack orientation (column mode) invalid");
+}
 
-  stackWidget.style.top = (y + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
-  stackWidget.style.left = (x + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
-}  
+
+
+
 function drawLineStack (theStack)
 {
   var stackWidget = document.getElementById ("stack" + theStack.id);
