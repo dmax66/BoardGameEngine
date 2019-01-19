@@ -88,6 +88,7 @@ var stacks = [];
 
 
 stacks[0] = {
+  id: 1,
   x: 5,
   y: 6,
   units: [leaders[0], leaders[2]],
@@ -97,6 +98,7 @@ stacks[0] = {
 }
 
 stacks[1] = {
+  id: 2,
   x: 2,
   y: 3,
   units: [leaders[1]],
@@ -156,7 +158,7 @@ function createStackWidget(theStack)
 {
   var stackWidget = document.createElement ("DIV");
   
-  stackWidget.id = "stack" + theStack.x + "-" + theStack.y;
+  stackWidget.id = "stack" + theStack.id;
   stackWidget.setAttribute ("class", "stack-widget");
   stackWidget.onclick = function() { showStackInfo (theStack); }
   stackWidget.onmousedown =  function(event) { if (event.button==2) showStackContextMenu (theStack); }
@@ -427,7 +429,7 @@ function drawStack(theStack)
   x = 0;
   y = 0;
   
-  var stackWidget = document.getElementById ("stack" + theStack.x + "-" + theStack.y);
+  var stackWidget = document.getElementById ("stack" + theStack.id);
   
 //  stackWidget.style.width = "60px";
 //  stackWidget.style.height = "30px";
