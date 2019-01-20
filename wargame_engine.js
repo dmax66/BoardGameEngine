@@ -1,7 +1,46 @@
 
 var leaders = [];
 
-var lineMovementInfo = 
+var lineMovementInfo = [
+  {
+    facing: "N",      // Facing of unit when starting the movement
+    xOffsetYEven: [-1, 0],    // index 0 = increment when moving forward left
+    xOffsetYOdd: [0, 1],    // index 0 = increment when moving forward left
+    yOffset: [-1, -1]     // index 1 = increment when moving forward right
+  }, 
+  {
+    facing: "NW",      // Facing of unit when starting the movement
+    xOffsetYEven: [-1, -1],    // index 0 = increment when moving forward left
+    xOffsetYOdd: [-1,0],    // index 0 = increment when moving forward left
+    yOffset: [0, -1]     // index 1 = increment when moving forward right
+  },
+  {
+    facing: "SW",      // Facing of unit when starting the movement
+    xOffsetYEven: [-1,-1],    // index 0 = increment when moving forward left
+    xOffsetYOdd: [0,-1],    // index 0 = increment when moving forward left
+    yOffset: [1, 0]     // index 1 = increment when moving forward right
+  },
+  {
+    facing: "S",      // Facing of unit when starting the movement
+    xOffsetYEven: [0,-1],    // index 0 = increment when moving forward left
+    xOffsetYOdd: [1,0],    // index 0 = increment when moving forward left
+    yOffset: [1, 1]     // index 1 = increment when moving forward right
+  },
+  {
+    facing: "SE",      // Facing of unit when starting the movement
+    xOffsetYEven: [1,0],    // index 0 = increment when moving forward left
+    xOffsetYOdd: [1,1],    // index 0 = increment when moving forward left
+    yOffset: [0,1]     // index 1 = increment when moving forward right
+  },
+  {
+    facing: "NE",      // Facing of unit when starting the movement
+    xOffsetYEven: [0,1],    // index 0 = increment when moving forward left
+    xOffsetYOdd: [1,1],    // index 0 = increment when moving forward left
+    yOffset: [-1,0]     // index 1 = increment when moving forward right
+  }
+]
+
+var lineDrawInfo = 
 [
   {
     facing: "N",
@@ -19,7 +58,7 @@ var lineMovementInfo =
     facing: "NE",
     angle: -300,
     xOffset: -22,
-    yOffset: 5,
+    yOffset: -3,
     flip: {
       newFacing: "SW",
       xOffsetEven: -1,
@@ -30,7 +69,7 @@ var lineMovementInfo =
   {
     facing: "SE",
     angle: -240,
-    xOffset: -8,
+    xOffset: -5,
     yOffset: -7,
     flip: {
       newFacing: "NW",
@@ -391,15 +430,13 @@ function createStackWidget (theStack)
   stackIcon.style.width = "60px";  
   stackWidget.appendChild (stackIcon);
   
-  // Add leader name to stack - or if multiple leader, add simply label "Stack"
-  if (theStack.formation == "line")
-  {
-    var stackName = document.createElement ("P");
-    stackName.setAttribute ("class", "stack-name");
-    stackName.innerHTML = theStack.units[0].commander;
-    if (theStack.units.length > 1) stackName.innerHTML += "+";
-    stackWidget.appendChild (stackName);
-  }  
+  // If the stack is in line formation, show leader name to stack - or if multiple leader, add the first leader's name
+  var stackName = document.createElement ("P");
+  stackName.setAttribute ("class", "stack-name");
+  stackName.innerHTML = theStack.units[0].commander;
+  if (theStack.units.length > 1) stackName.innerHTML += "+";
+  stackName.style.visibility = (theStack.formation == "line") ? "visible" : "hidden";
+  stackWidget.appendChild (stackName);
 }
 
 function xMapCoordFromUnitCoord (unitX, unitY)
@@ -452,119 +489,39 @@ function moveStack (aStack, direction)
   }
 }
   
-function moveLine (aUnit, direction)
+
+// Move a line one hex
+// direction:
+// -1: move forward left
+// +1: move forward right
+function moveLine (aStack, direction)
 {
-  switch (aUnit.facing)
+  // Find the index of stack facing for array "lineMovementInfo"
+
+  var i=0;
+  for (i=0; i<6; i++)
+    if (aStack.facing == lineMovementInfo[i].facing) break;
+
+  if (i==6) throw ("Invalid orientation of line stack");
+   
+  // A little hack to convert direction to either 0 (forward left) or 1 (forward right) to use the elements of the array xOffsetYEven / xOffsetYOdd
+  switch (direction)
   {
-    case "N":
-      aUnit.y--;
-      switch (direction) 
-      {
-        case "FL":
-          if (aUnit.y % 2 == 1) aUnit.x -= 1;
-          break;
-
-        case "FR":
-          if (aUnit.y % 2 == 0) aUnit.x += 1;
-          break;
-
-        default:
-           throw ("Movement not allowed");
-      }
+    case -1:
+      direction = 0;
       break;
-
-    case "NE":
-      switch (direction)
-      {
-
-        case "FR":
-          aUnit.x++;
-          break;
-
-        case "FL":
-          if (aUnit.y % 2 == 1) aUnit.x++;
-          aUnit.y--;
-          break;
-
-        default:
-           throw ("Movement not allowed");
-      }
-      break;
-
-    case "SE":
-      switch (direction)
-      {
-        case "FL":
-          aUnit.x += 1;
-          break;
-
-        case "FR":
-          if (aUnit.y % 2 == 1) aUnit.x++;
-          aUnit.y++;
-          break;
-
-        default:
-           throw ("Movement not allowed");
-      }
-      break;
-
-    case "S":
-      switch (direction)
-      {
-        case "FL":
-          if (aUnit.y % 2 == 1) aUnit.x++;
-          aUnit.y++;
-          break;
-
-        case "FR":
-          if (aUnit.y % 2 == 0) aUnit.x--;
-          aUnit.y++;
-          break;
-
-        default:
-           throw ("Movement not allowed");
-      }
-      break;
-
-    case "SW":
-      switch (direction)
-      {
-        case "FL":
-          if (aUnit.y % 2 == 0) aUnit.x--;
-          aUnit.y++;
-          break;
-
-        case "FR":
-          aUnit.x--;
-          break;
-
-        default:
-           throw ("Movement not allowed");
-      }
-      break;
-
-    case "NW":
-      switch (direction)
-      {
-        case "FL":
-          aUnit.x--;
-          break;
-
-        case "FR":
-          if (aUnit.y % 2 == 0) aUnit.x--;
-          aUnit.y--;
-          break;
-
-        default:
-           throw ("Movement not allowed");
-      }
+      
+    case 1:
       break;
       
     default:
-      throw ("Incorrect unit facing");
-  }
-  
-  drawStack (aUnit);
+      throw ("Invalid value for 'direction'");
+  }    
+    
+  aStack.x += (aStack.y % 2 == 0) ? lineMovementInfo[i].xOffsetYEven[direction] : lineMovementInfo[i].xOffsetYOdd[direction];
+  aStack.y += lineMovementInfo[i].yOffset[direction];
+      
+  drawStack (aStack);
 }
    
 // Rotate a stack (line) one hex
@@ -580,7 +537,7 @@ function rotateStack (aUnit, direction)
     case 1:
       for (i=0; i<6; i++)
       {
-        if (aUnit.facing == lineMovementInfo[i].facing) break;
+        if (aUnit.facing == lineDrawInfo[i].facing) break;
       }
       if (i==6)
         throw ("Invalid stack (line) orientation");
@@ -589,7 +546,7 @@ function rotateStack (aUnit, direction)
       if (i < 0) i += 6;
       if (i >= 6) i -= 6;
 
-      aUnit.facing = lineMovementInfo[i].facing;
+      aUnit.facing = lineDrawInfo[i].facing;
       break;
             
     case -1:
@@ -666,12 +623,12 @@ function flipStack (aUnit)
     case "line":
       for (i=0; i<6; i++)
       {
-        if (aUnit.facing == lineMovementInfo[i].facing)
+        if (aUnit.facing == lineDrawInfo[i].facing)
         {
-          aUnit.facing = lineMovementInfo[i].flip.newFacing;
-          aUnit.x += (aUnit.y % 2 ==0) ? lineMovementInfo[i].flip.xOffsetEven : lineMovementInfo[i].flip.xOffsetOdd;
-          aUnit.y += lineMovementInfo[i].flip.yOffset;
-          drawLineStack (aUnit);
+          aUnit.facing = lineDrawInfo[i].flip.newFacing;
+          aUnit.x += (aUnit.y % 2 ==0) ? lineDrawInfo[i].flip.xOffsetEven : lineDrawInfo[i].flip.xOffsetOdd;
+          aUnit.y += lineDrawInfo[i].flip.yOffset;
+          drawStack (aUnit);
           return;
         }
       }
@@ -685,7 +642,7 @@ function flipStack (aUnit)
           aUnit.facing = columnMovementInfo[i].flip.newFacing;
           aUnit.x += (aUnit.y % 2 ==0) ? columnMovementInfo[i].flip.xOffsetEven : columnMovementInfo[i].flip.xOffsetOdd;
           aUnit.y += columnMovementInfo[i].flip.yOffset;
-          drawColumnStack (aUnit);
+          drawStack (aUnit);
           return;
         }
       }
@@ -696,32 +653,129 @@ function flipStack (aUnit)
   }
 }	
 
-function lineToColumn (aUnit)
+function flipLineColumn (theStack)
 {
+  if (theStack.formation == "line") 
+  {
+    switch (theStack.facing)
+    {
+      case "N":
+        theStack.facing = "E";
+        break;
+        
+      case "S":
+        theStack.facing = "W";
+        break;
+        
+      case "NE":
+        theStack.facing = "SE";
+        break;
+        
+      case "NW":
+        theStack.facing = "NE";
+        break;
+        
+      case "SW":
+        theStack.facing = "NW";
+        break;
+        
+      case "SE":
+        theStack.facing = "SW";
+        break;
+        
+      default:
+        throw ("Invalid facing of line stack");
+    }
+    
+    theStack.formation = "column";
+  }
+  else if (theStack.formation == "column")
+  {
+    switch (theStack.facing)
+    {
+      case "W":
+        theStack.facing = "S";
+        break;
+        
+      case "E":
+        theStack.facing = "N";
+        break;
+        
+      case "NE":
+        theStack.facing = "NW";
+        break;
+        
+      case "NW":
+        theStack.facing = "SW";
+        break;
+        
+      case "SW":
+        theStack.facing = "SE";
+        break;
+        
+      case "SE":
+        theStack.facing = "NE";
+        break;
+        
+      default:
+        throw ("Invalid facing of column stack");
+    }
+    
+    theStack.formation = "line";
+  }
+  else 
+    throw ("Invalid stack formation");
   
+  
+  drawStack (theStack);
 }
 
-function drawStack(theStack)
+function drawStack (theStack)
 {
   var stackWidget = document.getElementById ("stack" + theStack.id);
+  var stackIcon = undefined;
+  var stackName = undefined;
   var i=0;
+  
+  // Find the stack icon object
+  for (i = 0; i < stackWidget.childNodes.length; i++)
+    if (stackWidget.childNodes[i].nodeName == "IMG")
+    {
+      stackIcon = stackWidget.childNodes[i];
+      break;
+    }
+  
+  // Find the stack name object
+  for (i = 0; i < stackWidget.childNodes.length; i++)
+    if (stackWidget.childNodes[i].nodeName == "P")
+    {
+      stackName = stackWidget.childNodes[i];
+      break;
+    }
+  
+  if (!stackIcon) throw ("Stack icon not found");
+  if (!stackName) throw ("Stack name not found");
   
   switch (theStack.formation)
   {
     case "line":
+      stackIcon.src = "images/line.png";
+      stackName.style.visibility = "visible";
       for (i=0; i<6; i++)
       {
-        if (theStack.facing == lineMovementInfo[i].facing)
+        if (theStack.facing == lineDrawInfo[i].facing)
         {
-          stackWidget.style.transform = "rotate(" + lineMovementInfo[i].angle + "deg)";
-          stackWidget.style.left = (lineMovementInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
-          stackWidget.style.top = (lineMovementInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
+          stackWidget.style.transform = "rotate(" + lineDrawInfo[i].angle + "deg)";
+          stackWidget.style.left = (lineDrawInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
+          stackWidget.style.top = (lineDrawInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
           return;
         }
       } 
       throw ("Stack orientation (line mode) invalid");
     
     case "column":
+      stackIcon.src = "images/column.png";
+      stackName.style.visibility = "hidden";
       for (i=0; i<6; i++)
       {
         if (theStack.facing == columnMovementInfo[i].facing)
@@ -915,15 +969,10 @@ function showStackContextMenu (aUnit)
   unitContextMenu.appendChild (menuContent);
   
   menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Line to Column";
-  if (aUnit.formation == "column") menuContent.style.color = "#323232";
+  menuContent.innerHTML = "Flip Line-Column";
+  menuContent.onclick = function() { flipLineColumn (aUnit); }
   unitContextMenu.appendChild (menuContent);
 
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Column to Line";
-  if (aUnit.formation == "line") menuContent.style.color = "#323232";
-  unitContextMenu.appendChild (menuContent);
-  
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Rotate clockwise";
   if (aUnit.formation == "column") 
