@@ -4,7 +4,20 @@
 <head>
 <style>
 
-.admin-board {
+.menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 200px;
+  height: 20px;
+  z-index: 2;
+  background-color: black;
+  color: gray;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  }
+  
+ .admin-board {
   position: fixed;
   top: 0;
   right: 0;
@@ -195,10 +208,48 @@
 	background-color: #ff66b3; 
 }
 
+.german {
+  background-color: yellow;
+}
+
 .generic {
   background-color: Gray;
 }
   
+.cavalry-counter {
+  background-image: url("img/cavalry-line.png");
+}
+
+.infantry-counter {
+  background-image: url("img/infantry-line.png");
+}
+
+.cop-counter {
+  background-image: url("img/center-operations.png");
+}
+
+.supply-counter {
+  background-image:url("img/active-supply.png");
+}
+
+.bridge-counter {
+  background-image: url("images/bridge-train.png");
+}
+
+.cavalry-unit-division {
+  background-image: url("images/Cavalry-Division.png");
+}
+
+.infantry-unit-division {
+  background-image: url ("images/Infantry-Division.png");
+}
+
+.artillery-unit {
+background-image: url("images/Artillery-Division.png")
+;}
+
+
+
 
 .menu-button {
   position: relative;
@@ -259,7 +310,6 @@
 
 </style>
 
-
 <script src="wargame_engine.js"></script>
 
   
@@ -267,6 +317,10 @@
 
 <body onload="drawBoard()" background="images/SoN_Map_New-2011_0521.png" onmousemove= "showMousePosition(event)" oncontextmenu="return false;"> 
 
+<div class="menu">
+  <input type="file" id="fileinput"/>
+</div>
+  
 <div class="admin-board" id="adminBoard">
   <h1>Administrative Board</h1>
 
@@ -303,6 +357,10 @@
 &nbsp;
 </div>
 
+
+
 </body>
+
+
 </html> 
 

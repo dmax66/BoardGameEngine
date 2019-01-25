@@ -1,6 +1,3 @@
-
-var leaders = [];
-
 var lineMovementInfo = [
   {
     facing: "N",      // Facing of unit when starting the movement
@@ -226,133 +223,8 @@ var columnMovementInfo =
   }        
 ]
   
-leaders[0] = {
-  nationality: "prussian",
-  commander: "Bluecher",
-  type: "Leader",    // "Leader", "Infantry", "Cavalry", "Artillery", "COP"
-  strength: 0,
-  attackValue: 0,
-  defenseValue: 0,
-  movAllowance: 0,
-  initiative: 4,
-  bonus: "*",
-  commandCapacity: 0,
-  subordinationValue: 0,
-  formation: "line", // either "column" or "line"
-  commandingUnit: undefined,
-  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
-}
-
-  
-leaders[1] = {
-  nationality: "austrian",
-  commander: "Schwarzenberg",
-  type: "Leader",    // "Infantry", "Cavalry", "Artillery", "COP"
-  strength: 0,
-  attackValue: 0,
-  defenseValue: 0,
-  movAllowance: 0,
-  initiative: 0,
-  bonus: "",
-  commandCapacity: 0,
-  subordinationValue: 0,
-  formation: "line", // either "column" or "line"
-  commandingUnit: undefined,
-  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
-}
-
-leaders[2] = {
-  nationality: "prussian",
-  commander: "Yorck",
-  type: "Leader",    // "Infantry", "Cavalry", "Artillery", "COP"
-  strength: 0,
-  attackValue: 0,
-  defenseValue: 0,
-  movAllowance: 0,
-  initiative: 3,
-  bonus: "",
-  commandCapacity: 6,
-  subordinationValue: 1,
-  formation: "line", // either "column" or "line"
-  commandingUnit: undefined,
-  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
-}
-
-var troops = [];
-
-troops[0] = {
-  nationality: "prussian",
-  commander: "Losthin",
-  type: "Infantry",    // "Infantry", "Cavalry", "Artillery", "COP", "Bridge"
-  size: "Division",    // "Division", "Regiment"
-  strength: 7,
-  attackValue: 0,
-  defenseValue: 0,
-  movAllowance: 5,
-  initiative: 0,
-  subordinationValue: 1,
-  commandingUnit: "Bluecher",
-  image: "images/Losthin.png"
-}
-
-troops[1] = {
-  nationality: "prussian",
-  commander: "Warburg",
-  type: "Infantry",    // "Infantry", "Cavalry", "Artillery", "COP"
-  size: "Division",    // "Division", "Regiment"
-  strength: 5,
-  attackValue: 0,
-  defenseValue: 0,
-  movAllowance: 5,
-  initiative: 0,
-  subordinationValue: 1,
-  commandingUnit: "Bluecher",
-  image: "images/Losthin.png"
-}
-
-troops[2] = {
-	nationality: "russian",
-  commander: "Paskiexit",
-  type: "Infantry",    // "Infantry", "Cavalry", "Artillery", "COP"
-  size: "Division",    // "Division", "Regiment"
-  strength: 8,
-  attackValue: 0,
-  defenseValue: 0,
-  movAllowance: 5,
-  initiative: 0,
-  subordinationValue: 1,
-  commandingUnit: "Schwarzenberg",
-  image: "images/Losthin.png"
- }
-
-var stacks = [];
 
 
-stacks[0] = {
-  id: 1,
-  x: 5,
-  y: 6,
-  sticky: false,
-  units: [leaders[0], leaders[2]],
-  formation: "column", // either "column" or "line"
-  facing: "E", // N, NW, SW, S, SE, NE, E, W
-  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
-}
-
-stacks[1] = {
-  id: 2,
-  x: 2,
-  y: 3,
-  sticky: false,
-  units: [leaders[1]],
-  formation: "line", // either "column" or "line"
-  facing: "N", // N, NW, SW, S, SE, NE, E, W
-  images: ["images/allied-MGen-East.png", "images/allied-MGen-NEast.png", "images/allied-MGen-NWest.png", "images/allied-MGen-West.png", "images/allied-MGen-SWest.png", "images/allied-MGen-SEast.png"]
-}
-
-
-  
-  
 
 
 var turnInfo = 
@@ -391,10 +263,12 @@ function drawBoard ()
   document.getElementById ("playerIndicator").innerHTML = turnInfo.phasingPlayer;  
   document.getElementById ("phaseIndicator").innerHTML = turnInfo.phase + " Segment: " + turnInfo.segment;
 
+  document.getElementById('fileinput').addEventListener('change', readScenarioFile, false);
+
   
   // Draw all the units on the map
-  stacks.forEach (createStackWidget);
-  stacks.forEach (drawStack);
+//  stacks.forEach (createStackWidget);
+//  stacks.forEach (drawStack);
 }
 
 function createStackWidget (theStack)
@@ -898,8 +772,8 @@ function displayLeaderUnits (event)
   unitTable.setAttribute ("class", "unit-table");
   leaderInfoWidget.appendChild (unitTable);    
   
-  for (i=0; i<troops.length; i++) {
-    if (troops[i].commandingUnit == leaderName) {
+  for (i=0; i<units.length; i++) {
+    if (units[i].commandingUnit == leaderName) {
       tableRow = document.createElement ("tr");
       unitTable.appendChild (tableRow);
 
@@ -908,16 +782,16 @@ function displayLeaderUnits (event)
 
       unitIcon = document.createElement ("img");
       unitIcon.setAttribute ("class", "unit-icon");
-      unitIcon.setAttribute ("class", troops[i].nationality);
-      unitIcon.src = "images/" + troops[i].type + "-" + troops[i].size + ".png";
+      unitIcon.setAttribute ("class", units[i].nationality);
+      unitIcon.src = "images/" + units[i].type + "-" + units[i].size + ".png";
       tableCell.appendChild (unitIcon);
 
       tableCell = document.createElement ("td");
-      tableCell.innerHTML = troops[i].commander;
+      tableCell.innerHTML = units[i].commander;
       tableRow.appendChild (tableCell);    
 
       tableCell = document.createElement ("td");
-      tableCell.innerHTML = troops[i].strength;
+      tableCell.innerHTML = units[i].strength;
       tableRow.appendChild (tableCell);    
     }
   }
@@ -1083,4 +957,37 @@ function showMousePosition (ev)
   
   document.getElementById ("position-tracker").innerHTML = ev.offsetX + "," + ev.offsetY + "<br>" + x + ", " + y;
 }
+
+function readScenarioFile(evt) 
+{
+  //Retrieve the first (and only!) File from the FileList object
+  var contents;
+  var f = evt.target.files[0]; 
+
+  if (f) 
+  {
+    var r = new FileReader();
+    r.onload = function(e) 
+    { 
+      contents = e.target.result;
+//      alert( "Got the file!" + "starts with: " + contents.substr(0, 20));  
+      eval(contents);
+
+      stacks.forEach (createStackWidget);
+      stacks.forEach (drawStack);
+      
+      alert ("Leaders[0]=" + leaders[0].commander);
+    
+    }
+
+    r.readAsText(f);
+  } 
+  else  
+    alert("Failed to load file");
+}
+
+
+
+
+
 
