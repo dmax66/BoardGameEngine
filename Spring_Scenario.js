@@ -1,24 +1,4 @@
-var leaders = [
-  {
-    commander: "Napoleon",
-    unit: "Armee du Nord",
-    nationality: "french",
-    initiative: 4,
-    bonus: "*",
-    commandCapacity: 10,
-    subordinationValue: 4,
-    commandingUnit: undefined
-  },
-  {
-    commander: "Marmont",
-    unit: "VI Corps",
-    nationality: "french",
-    initiative: 3,
-    bonus: "",
-    commandCapacity: 6,
-    subordinationValue: 3,
-    commandingUnit: undefined
-  },
+leaders = [
   {
     commander: "Vandamme",
     unit: "I Corps",
@@ -47,16 +27,6 @@ var leaders = [
     bonus: "",
     commandCapacity: 3,
     subordinationValue: 2,
-    commandingUnit: undefined
-  },
-  {
-    commander: "Soult",
-    unit: "Old Guard",
-    nationality: "french",
-    initiative: 4,
-    bonus: "",
-    commandCapacity: 6,
-    subordinationValue: 3,
     commandingUnit: undefined
   },
   {
@@ -142,16 +112,6 @@ var leaders = [
     subordinationValue: 2,
     commandingUnit: undefined
   },
-    {
-    commander: "Bertrand",
-    unit: "IV Corps",
-    nationality: "french",
-    initiative: 3,
-    bonus: "*",
-    commandCapacity: 6,
-    subordinationValue: 2,
-    commandingUnit: undefined
-  },  
   {
     commander: "Arrighi",
     unit: "III Cavalry",
@@ -3324,29 +3284,99 @@ var units = [
 ];  
 
 
-var stacks = [];
+
+timeTrack = 
+[
+  {   
+    day: "25-26 April",
+    stacks: 
+    [ {
+        id: 1,
+        x: 0,
+        y: 62,
+        sticky: false,
+        formation: "column",
+        facing: "E",
+        units:
+        [
+          {
+            commander: "Soult",
+            unit: "Old Guard",
+            nationality: "french",
+            initiative: 4,
+            bonus: "",
+            commandCapacity: 6,
+            subordinationValue: 3,
+            commandingUnit: undefined
+          },
+          {
+            commander: "Bessieres",
+            unit: "Guard Cavalry",
+            type: "cavalry",
+            nationality: "french",
+            initiative: 5,
+            bonus: "",
+            commandCapacity: 2,
+            subordinationValue: 1,
+            commandingUnit: undefined
+          },
+          {
+            commander: "Napoleon",
+            unit: "Armee du Nord",
+            nationality: "french",
+            initiative: 4,
+            bonus: "*",
+            commandCapacity: 10,
+            subordinationValue: 4,
+            commandingUnit: undefined
+          },
+          {
+            commander: "Marmont",
+            unit: "VI Corps",
+            nationality: "french",
+            initiative: 3,
+            bonus: "",
+            commandCapacity: 6,
+            subordinationValue: 3,
+            commandingUnit: undefined
+          }
+          // Russian Ic
+          // Russian Ii
+        ]
+      }
+    ]
+  },
+    
+  {
+    day: "27-28 April",
+    stacks: 
+    [
+      {
+        id: 2,
+        x: 1,
+        y: 78,
+        sticky: false,
+        formation: "column", 
+        facing: "E",
+        units:
+        [
+          {
+            commander: "Bertrand",
+            unit: "IV Corps",
+            nationality: "french",
+            initiative: 3,
+            bonus: "*",
+            commandCapacity: 6,
+            subordinationValue: 2,
+            commandingUnit: undefined
+          }
+        ]
+      }
+    ]
+  }
+]
 
 
-stacks[0] = {
-  id: 1,
-  x: 5,
-  y: 6,
-  sticky: false,
-  units: [leaders[0], leaders[2]],
-  formation: "column", // either "column" or "line"
-  facing: "E" // N, NW, SW, S, SE, NE, E, W
-}
 
-stacks[1] = {
-  id: 2,
-  x: 2,
-  y: 3,
-  sticky: false,
-  units: [leaders[1]],
-  formation: "line", // either "column" or "line"
-  facing: "N" // N, NW, SW, S, SE, NE, E, W
-}
-
-  
-
-
+      
+      

@@ -1,3 +1,7 @@
+var stacks = [];
+var timeTrack = [];
+var leaders = [];
+
 var lineMovementInfo = [
   {
     facing: "N",      // Facing of unit when starting the movement
@@ -287,10 +291,13 @@ function createStackWidget (theStack)
   var stackIcon = document.createElement ("img");
   stackIcon.setAttribute ("class", "stack-icon");
   stackIcon.setAttribute ("class", theStack.units[0].nationality);
+  
+  // This code should be removed as already present in drawStack() 
   switch (theStack.formation)
   {
     case "line":
-      stackIcon.src = "images/line.png";
+      stackIcon.src = theStack.units[0].type == "cavalry" ? "images/cavalry-line.png" : "images/infantry-line.png";
+//      stackIcon.src = "images/infantry-line.png";
       break;
       
     case "column":
@@ -604,6 +611,35 @@ function flipLineColumn (theStack)
   drawStack (theStack);
 }
 
+
+// Detach the checked units from the stack and move them to a new stack; then move the stack
+function detachUnitsAndMove (theStack, direction)
+{
+  // Create a new stack...
+  var newStack;
+  stacks.push (newStack);
+  
+  // Checked units are copied new stack  
+  for (i=0; i<theStack.length; i++)
+  {
+    var stackWidget = document.getElementById ("SIW:" + theStack.id + ":" + i);
+    if (stackWidget.value == "*")
+      newStack[newStack.length] = theStack.units[i];
+  }
+  
+  // Now remove the units from theStack
+  for (i=0; i<theStack.length; i++)
+  {
+    var stackWidget = document.getElementById ("SIW:" + theStack.id + ":" + i);
+    if (stackWidget.value = "*")
+      theStack.units.splice (i, 1);
+  }
+  
+  // ... and move it
+  moveStack (newStack, direction);
+}
+
+
 function drawStack (theStack)
 {
   var stackWidget = document.getElementById ("stack" + theStack.id);
@@ -633,7 +669,7 @@ function drawStack (theStack)
   switch (theStack.formation)
   {
     case "line":
-      stackIcon.src = "images/line.png";
+      stackIcon.src = theStack.units[0].type == "cavalry" ? "images/cavalry-line.png" : "images/infantry-line.png";
       stackName.style.visibility = "visible";
       for (i=0; i<6; i++)
       {
@@ -688,30 +724,38 @@ function showStackInfo (theStack)
   document.getElementById("mapContainer").appendChild(stackInfoWidget);
   
 
-  var leaderTable = document.createElement ("TABLE");
-  leaderTable.setAttribute ("class", "leader-table");
-  stackInfoWidget.appendChild (leaderTable);
+  var tableOfLeaders = document.createElement ("TABLE");
+  tableOfLeaders.setAttribute ("class", "leader-table");
+  stackInfoWidget.appendChild (tableOfLeaders);
   
   // Display all the leaders in the stack
   var j=0;
   for (j=0; j<theStack.units.length; j++)
   {
     var tableRow  = document.createElement ("tr");
-    leaderTable.appendChild (tableRow);
+    tableOfLeaders.appendChild (tableRow);
     
     var tableCell = document.createElement ("td");
     tableRow.appendChild (tableCell);
+    unitInfoContent = document.createElement ("input");
+    unitInfoContent.type = "checkbox";
+    unitInfoContent.value = "*";
+    unitInfoContent.id = "SIW:" + theStack.id + ":" + j;
+    tableCell.appendChild (unitInfoContent);
+    
+    // Second cell: add the leader's image
+    tableCell = document.createElement ("td");
+    tableRow.appendChild (tableCell);
    
-    // First cell: add the leader's image
-    unitInfoContent = document.createElement ("IMG");
+    unitInfoContent = document.createElement ("img");
     unitInfoContent.id = "img:" + theStack.units[j].commander;
     unitInfoContent.src ="images/" + theStack.units[j].commander + ".png";
     unitInfoContent.style.width = "50px";
     unitInfoContent.onmousedown = function(event) { displayLeaderUnits(event) };
     tableCell.appendChild (unitInfoContent);
 
-    // Second cell: add the leader's characteristics
-    tableCell = document.createElement ("TD");    
+    // Third cell: add the leader's characteristics
+    tableCell = document.createElement ("td");    
     tableCell.innerHTML = "<b>" + theStack.units[j].commander + "&nbsp" + theStack.units[j].initiative + "&nbsp" + theStack.units[j].bonus + "&nbsp" + theStack.units[j].commandCapacity + "&nbsp" + theStack.units[j].subordinationValue + "</b>"
     tableRow.appendChild (tableCell);
   }
@@ -958,10 +1002,12 @@ function showMousePosition (ev)
   document.getElementById ("position-tracker").innerHTML = ev.offsetX + "," + ev.offsetY + "<br>" + x + ", " + y;
 }
 
+
+ 
+
 function readScenarioFile(evt) 
 {
   //Retrieve the first (and only!) File from the FileList object
-  var contents;
   var f = evt.target.files[0]; 
 
   if (f) 
@@ -969,15 +1015,10 @@ function readScenarioFile(evt)
     var r = new FileReader();
     r.onload = function(e) 
     { 
-      contents = e.target.result;
-//      alert( "Got the file!" + "starts with: " + contents.substr(0, 20));  
+      var contents = e.target.result;
       eval(contents);
 
-      stacks.forEach (createStackWidget);
-      stacks.forEach (drawStack);
-      
-      alert ("Leaders[0]=" + leaders[0].commander);
-    
+      processTimeTrackInfo();
     }
 
     r.readAsText(f);
@@ -986,8 +1027,21 @@ function readScenarioFile(evt)
     alert("Failed to load file");
 }
 
+var currentTurn = 0;
 
 
+function processTimeTrackInfo()
+{
+  // Add new stacks
+  var i = 0;
+  for (i=0; i < timeTrack[currentTurn].stacks.length; i++)
+    stacks.push (timeTrack[currentTurn].stacks[i]);      
 
+  // @TODO: add replacements
+  
+  stacks.forEach (createStackWidget);
+  stacks.forEach (drawStack);
+}
+ 
 
 
