@@ -1,6 +1,8 @@
 var stacks = [];
 var timeTrack = [];
 var leaders = [];
+var currentTurn = 0;
+
 
 var lineMovementInfo = [
   {
@@ -972,25 +974,6 @@ function saveData()
   alert ("Game data saved");
 }
   
-function allowDrop(ev) {
-  ev.preventDefault();
-}
-
-function startDrag(ev) {
-  ev.dataTransfer.setData("text", ev.target.id);
-}
-
-function drop(ev) {
-  ev.preventDefault();
-  var unitId = ev.dataTransfer.getData("text");
-
-//  alert ("Target: " + unitId);
-  var theUnit = document.getElementById ("gameMapImg");
-  
-  alert ("X=" + (ev.offsetX - theUnit.style.left.slice(0, -2)) + "  Y=" + (ev.offsetY - theUnit.style.top.slice (0, -2)));
-//  alert ("X=" + theUnit.style.left.slice(0, -2) + "  Y=" + theUnit.style.top.slice (0, -2));
-}
-
 
 function showMousePosition (ev)
 {
@@ -1027,8 +1010,6 @@ function readScenarioFile(evt)
     alert("Failed to load file");
 }
 
-var currentTurn = 0;
-
 
 function processTimeTrackInfo()
 {
@@ -1039,9 +1020,21 @@ function processTimeTrackInfo()
 
   // @TODO: add replacements
   
+  // Creates the stacks on the map
   stacks.forEach (createStackWidget);
   stacks.forEach (drawStack);
 }
- 
+
+function endTurn()
+{
+  var r = confirm ("Are you sure?");
+  if (r == true)
+  {
+    currentTurn++;
+    processTimeTrackInfo();
+  }
+}
+
+
 
 
