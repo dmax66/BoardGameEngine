@@ -6,7 +6,17 @@ function CombatUnit (id, name, nationality, size, strength)
   this.strength = strength;
   this.size = size;
 }
-  
+ 
+CombatUnit.prototype.picture = function ()
+{
+  var unitIcon = document.createElement ("img");
+  unitIcon.setAttribute ("class", "unit-icon");
+  unitIcon.setAttribute ("class", this.nationality);
+  unitIcon.src = "images/" + this.type + "-" + this.size + ".png";
+
+  return unitIcon;
+}
+
 
 function InfantryUnit (id, name, nationality, size, strength)
 {
@@ -52,6 +62,17 @@ Leader.prototype.addUnit = function (aUnit)
   this.units.push (aUnit);
 }
 
+
+// Returns an "img" HTML element containing the image of the leader
+Leader.prototype.picture = function ()
+{
+  var leaderImg = document.createElement ("img");
+  leaderImg.id = "img:" + this. name;
+  leaderImg.src ="images/" + this.name + ".png";
+  leaderImg.style.width = "50px";
+
+  return leaderImg;
+}
 
 Leader.prototype.removeUnit = function (unitId)
 {
@@ -524,7 +545,6 @@ Stack.prototype.rotate = function  (direction)
     default:
       throw ("Invalid direction when rotating line");
   }
-//  drawStack (aUnit);
 }
 
 // Move a leader with name "leaderName" from this stack to another stack with name "stackName". If "stackName" does not exist, it creates a new stack

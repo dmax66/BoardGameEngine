@@ -715,15 +715,10 @@ function showStackInfo (theStack)
     unitInfoContent.value = "*";
     tableCell.appendChild (unitInfoContent);
     
-    // Second cell: add the leader's image
+    // Second cell: the leader's image
     tableCell = document.createElement ("td");
     tableRow.appendChild (tableCell);
-   
-    unitInfoContent = document.createElement ("img");
-    unitInfoContent.id = "img:" + theStack.leaders[j].name;
-    unitInfoContent.src ="images/" + theStack.leaders[j].name + ".png";
-    unitInfoContent.style.width = "50px";
-    tableCell.appendChild (unitInfoContent);
+    tableCell.appendChild (theStack.leaders[j].picture());
 
     // Third cell: add the leader's characteristics
     tableCell = document.createElement ("td");    
@@ -815,11 +810,11 @@ function displayLeaderUnits (event)
     tableRow.appendChild (tableCell);    
 
 
-    unitIcon = document.createElement ("img");
-    unitIcon.setAttribute ("class", "unit-icon");
-    unitIcon.setAttribute ("class", stacks[stackIndex].leaders[leaderIndex].units[i].nationality);
-    unitIcon.src = "images/" + stacks[stackIndex].leaders[leaderIndex].units[i].type + "-" + stacks[stackIndex].leaders[leaderIndex].units[i].size + ".png";
-    tableCell.appendChild (unitIcon);
+//    unitIcon = document.createElement ("img");
+//    unitIcon.setAttribute ("class", "unit-icon");
+//    unitIcon.setAttribute ("class", stacks[stackIndex].leaders[leaderIndex].units[i].nationality);
+//    unitIcon.src = "images/" + stacks[stackIndex].leaders[leaderIndex].units[i].type + "-" + stacks[stackIndex].leaders[leaderIndex].units[i].size + ".png";
+    tableCell.appendChild (stacks[stackIndex].leaders[leaderIndex].units[i].picture());
 
     tableCell = document.createElement ("td");
     tableCell.innerHTML = stacks[stackIndex].leaders[leaderIndex].units[i].name;
