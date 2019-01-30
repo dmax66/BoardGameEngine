@@ -8,12 +8,12 @@
   position: fixed;
   top: 0;
   left: 0;
-  width: 200px;
-  height: 20px;
+  min-width: 200px;
+  min-height: 20px;
   z-index: 2;
   background-color: black;
   color: gray;
-  font-size: 10px;
+  font-size: 14px;
   font-family: Arial, Helvetica, sans-serif;
   }
   
@@ -77,8 +77,6 @@
 
 .container .stack-widget {
   position: absolute;
-  color: white;
-  background-color: orange;
   width: 60px;
   height: 26px;
   padding: 0px 0px;
@@ -93,8 +91,15 @@
 }
 
 .container .stack-widget:hover {
-  border: 3px;
-  color: black;
+  border-top: 5px; 
+  border-left: 5px; 
+  border-right: 5px; 
+  border-bottom: 5px; 
+  border-color: rgba(239, 0, 0, 0.4); 
+  border-style: solid; 
+  border-radius: 8px 8px 8px 8px; 
+  box-shadow: -2px 19px 25px 0px rgba(76, 0, 0, 1.0); 
+  -webkit-box-shadow: -2px 19px 25px 0px rgba(76, 0, 0, 1.0); 
 }
 
   
@@ -190,37 +195,44 @@
 
 .prussian {
   background-color: #9494b8;
+  color: white;
 }
   
 .austrian {
   background-color: #e6e6e6;
+  color: black;
 }
 
 .russian {
 	background-color: #9fdf9f;
-	}
+  color: black;
+}
 	
 .french {
 	background-color: #66c2ff; 
-	}  
+  color: black;
+}  
 
 .swedish {
 	background-color: #ff66b3; 
+  color: white;
 }
 
 .german {
   background-color: yellow;
+  color: black;
 }
 
 .generic {
   background-color: Gray;
+  color: black;
 }
   
-.cavalry-counter {
+.cavalry-leader {
   background-image: url("img/cavalry-line.png");
 }
 
-.infantry-counter {
+.infantry-leader {
   background-image: url("img/infantry-line.png");
 }
 
@@ -310,15 +322,21 @@ background-image: url("images/Artillery-Division.png")
 
 </style>
 
-<script src="wargame_engine.js"></script>
-
+  <script src="classes.js"></script>
+  <script src="wargame_engine.js"></script>
   
 </head>
 
-<body onload="drawBoard()" background="images/SoN_Map_New-2011_0521.png" onmousemove= "showMousePosition(event)" oncontextmenu="return false;"> 
+<body onload="updateAdminBoard()" background="images/SoN_Map_New-2011_0521.png" onmousemove= "showMousePosition(event)" oncontextmenu="return false;"> 
 
 <div class="menu">
-  <input type="file" id="fileinput"/>
+  <details>
+    <summary>Menu</summary>
+    <input type="file" id="fileinput"/>
+    <p>Switch Player</p>
+    <p>Next Phase</p>
+    <p onclick="endTurn()" >End Turn</p>
+  </details>
 </div>
   
 <div class="admin-board" id="adminBoard">
@@ -360,6 +378,7 @@ background-image: url("images/Artillery-Division.png")
 
 
 </body>
+  <script src="test.js"></script>
 
 
 </html> 
