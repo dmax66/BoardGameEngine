@@ -1,7 +1,7 @@
 'use strict';
 
 
-var stacks = [];
+// var stacks = [];
 var timeTrack = [];
 var leaders = [];
 var currentTurn = 0;
@@ -279,50 +279,6 @@ function updateAdminBoard ()
 
 
 
-function createStackWidget (theStack)
-{
-  var stackWidget = document.createElement ("DIV");
-  
-  stackWidget.id = "stack" + theStack.id;
-  stackWidget.setAttribute ("class", "stack-widget");
-  stackWidget.onmouseover = function() { showStackInfo (theStack); }
-  stackWidget.onmouseout = function() { hideStackInfo (theStack, false); }
-  stackWidget.onclick = function() { theStack.sticky = true; showStackInfo (theStack); }
-  stackWidget.onmousedown =  function(event) { if (event.button==2) { event.cancelBubble=true; event.stopPropagation(); showStackContextMenu (theStack); }}
-
-  document.getElementById("mapContainer").appendChild(stackWidget);
-  
-  var stackIcon = document.createElement ("img");
-  stackIcon.setAttribute ("class", "stack-icon");
-  stackIcon.setAttribute ("class", theStack.units[0].nationality);
-  
-  // This code should be removed as already present in drawStack() 
-  switch (theStack.formation)
-  {
-    case "line":
-      stackIcon.src = theStack.units[0].type == "cavalry" ? "images/cavalry-line.png" : "images/infantry-line.png";
-//      stackIcon.src = "images/infantry-line.png";
-      break;
-      
-    case "column":
-      stackIcon.src = "images/column.png";    
-      break;
-      
-    default:
-      throw ("Invalid formation value");
-  }
-  stackIcon.style.height = "26px";
-  stackIcon.style.width = "60px";  
-  stackWidget.appendChild (stackIcon);
-  
-  // If the stack is in line formation, show leader name to stack - or if multiple leader, add the first leader's name
-  var stackName = document.createElement ("P");
-  stackName.setAttribute ("class", "stack-name");
-  stackName.innerHTML = theStack.units[0].commander;
-  if (theStack.units.length > 1) stackName.innerHTML += "+";
-  stackName.style.visibility = (theStack.formation == "line") ? "visible" : "hidden";
-  stackWidget.appendChild (stackName);
-}
 
 function xMapCoordFromUnitCoord (unitX, unitY)
 {
@@ -352,185 +308,15 @@ function yUnitCoordFromMapCoord (mapX, mapY)
 }
 
 
-// Move a stack one hex
-// direction:
-//  0: move ahead
-// -1: move forward left
-// +1: move forward right
-function moveStack (aStack, direction)
+
+
+
+function showStackContextMenu (leaderWidgetId)  
 {
-  aStack.move (direction);
-}
+  var aLeader = leaders[ findLeaderFromWidgetId (leaderWidgetId) ];
+
   
-
-// Move a line one hex
-// direction:
-// -1: move forward left
-// +1: move forward right
-// function moveLine (aStack, direction)
-// {
-//
-//  aStack.moveAsLine (direction)
-// }
-   
-// Rotate a stack (line) one hex
-// direction:
-// -1: rotate anticlockwise
-// +1: rotate clockwise
-function rotateStack (aStack, direction) 
-{
-  aStack.rotate (direction);
-
-  drawStack (aStack);
-}
-
-// function moveColumn (aStack, direction)
-//{
-//  aStack.moveAsLine (direction);
-//  
-//  drawStack (aStack);
-//}
-
-function flipStack (aStack)
-{
-  aStack.reverseDirection();
   
-  drawStack (aStack);
-}	
-
-function flipLineColumn (aStack)
-{
-  aStack.changeFormation();
-  
-  drawStack (aStack);
-}
-
-
-// Detach the checked units from the stack and move them to a new stack; then move the stack
-function detachUnitsAndMove (theStack, direction)
-{
-  // Create a new stack...
-  var newStack;
-  stacks.push (newStack);
-  
-  // Checked units are copied new stack  
-  for (i=0; i<theStack.length; i++)
-  {
-    var stackWidget = document.getElementById ("SIW:" + theStack.id + ":" + i);
-    if (stackWidget.value == "*")
-      newStack[newStack.length] = theStack.units[i];
-  }
-  
-  // Now remove the units from theStack
-  for (i=0; i<theStack.length; i++)
-  {
-    var stackWidget = document.getElementById ("SIW:" + theStack.id + ":" + i);
-    if (stackWidget.value = "*")
-      theStack.units.splice (i, 1);
-  }
-  
-  // ... and move it
-  moveStack (newStack, direction);
-}
-
-
-function drawStack (theStack)
-{
-  var stackWidget = document.getElementById ("stack" + theStack.id);
-  if (!stackWidget)
-  {
-    // Creates the DIV element
-    stackWidget = document.createElement ("div");
-    stackWidget.id = "stack" + theStack.id;
-    stackWidget.setAttribute ("class", "stack-widget");
-    stackWidget.onmouseover = function() { showStackInfo (theStack); }
-    stackWidget.onmouseout = function() { hideStackInfo (theStack, false); }
-    stackWidget.onclick = function() { theStack.sticky = true; showStackInfo (theStack); }
-    stackWidget.onmousedown =  function(event) { if (event.button==2) { event.cancelBubble=true; event.stopPropagation(); showStackContextMenu (theStack); }}
-    document.getElementById("mapContainer").appendChild(stackWidget);
-  
-    // Set the icon
-    var stackIcon = document.createElement ("IMG");
-    stackIcon.setAttribute ("class", "stack-icon");
-    stackIcon.setAttribute ("class", theStack.leaders[0].nationality);
-    stackIcon.style.height = "26px";
-    stackIcon.style.width = "60px";  
-    stackWidget.appendChild (stackIcon);
-  
-    // If the stack is in line formation, show leaders[0] name to stack
-    var stackName = document.createElement ("P");
-    stackName.setAttribute ("class", "stack-name");
-//    stackName.style.visibility = (theStack.formation == "line") ? "visible" : "hidden";
-    stackWidget.appendChild (stackName);
-  }
-  else
-  {
-    var stackIcon = undefined;
-    var stackName = undefined;
-    var i=0;
-
-    // Find the stack icon object
-    for (i = 0; i < stackWidget.childNodes.length; i++)
-      if (stackWidget.childNodes[i].nodeName == "IMG")
-      {
-        stackIcon = stackWidget.childNodes[i];
-        break;
-      }
-
-    // Find the stack name object
-    for (i = 0; i < stackWidget.childNodes.length; i++)
-      if (stackWidget.childNodes[i].nodeName == "P")
-      {
-        stackName = stackWidget.childNodes[i];
-        break;
-      }
-
-    if (!stackIcon) throw ("Stack icon not found");
-    if (!stackName) throw ("Stack name not found");
-  }
-  
-  stackName.innerHTML = theStack.leaders[0].name + ((theStack.leaders.length > 1) ? "+" : "");
-
-  switch (theStack.formation)
-  {
-    case "line":
-      stackIcon.src = theStack.leaders[0].type == "cavalry" ? "images/cavalry-line.png" : "images/infantry-line.png";
-      stackName.style.visibility = "visible";
-
-      for (i=0; i<6; i++)
-      {
-        if (theStack.direction == lineDrawInfo[i].facing)
-        {
-          stackWidget.style.transform = "rotate(" + lineDrawInfo[i].angle + "deg)";
-          stackWidget.style.left = (lineDrawInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
-          stackWidget.style.top = (lineDrawInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
-          return;
-        }
-      } 
-      throw ("Stack orientation (line mode) invalid");
-
-    case "column":
-      stackIcon.src = "images/column.png";
-      stackName.style.visibility = "hidden";
-      for (i=0; i<6; i++)
-      {
-        if (theStack.direction == columnMovementInfo[i].facing)
-        {
-          stackWidget.style.transform = "rotate(" + columnMovementInfo[i].angle + "deg)";
-          stackWidget.style.left = (columnMovementInfo[i].xOffset + xMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";  
-          stackWidget.style.top = (columnMovementInfo[i].yOffset + yMapCoordFromUnitCoord (theStack.x, theStack.y)) + "px";
-          return;
-        }
-      } 
-      throw ("Stack orientation (column mode) invalid");
-
-    default:
-      throw ("Formation invalid");
-  }
-}
-
-function showStackContextMenu (aUnit)  
-{
   var unitContextMenu; 
   var menuContent = undefined;
   var parentWidget = document.getElementById("mapContainer");
@@ -547,8 +333,8 @@ function showStackContextMenu (aUnit)
   
   parentWidget.appendChild(unitContextMenu);
   
-  unitContextMenu.style.left = (xMapCoordFromUnitCoord (aUnit.x) + 51) + "px";
-  unitContextMenu.style.top = (xMapCoordFromUnitCoord (aUnit.y) - 10) + "px";
+  unitContextMenu.style.left = (xMapCoordFromUnitCoord (aLeader.x) + 51) + "px";
+  unitContextMenu.style.top = (xMapCoordFromUnitCoord (aLeader.y) - 10) + "px";
   unitContextMenu.onclick = function() { this.remove(); }
 
   menuContent = document.createElement ("P");
@@ -560,46 +346,46 @@ function showStackContextMenu (aUnit)
   
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Flip Line-Column";
-  menuContent.onclick = function() { flipLineColumn (aUnit); }
+  menuContent.onclick = function() { aLeader.changeFormation (); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Rotate clockwise";
-  if (aUnit.formation == "column") 
+  if (aLeader.formation == "column") 
     menuContent.style.color = "#323232";
   else
-    menuContent.onclick = function() { rotateStack (aUnit, 1); }
+    menuContent.onclick = function() { aLeader.rotate (1); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Rotate anti-clockwise";
-  if (aUnit.formation == "column") 
+  if (aLeader.formation == "column") 
     menuContent.style.color = "#323232";
   else
-    menuContent.onclick = function() { rotateStack (aUnit, -1); }
+    menuContent.onclick = function() { aLeader.rotate (-1); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Flip direction";
-  menuContent.onclick = function() { flipStack (aUnit); }
+  menuContent.onclick = function() { aLeader.flipDirection (); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Move forward-left";
-  menuContent.onclick = function() { moveStack (aUnit, -1); }
+  menuContent.onclick = function() { aLeader.move (-1); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Move forward";
-  if (aUnit.formation == "line") 
+  if (aLeader.formation == "line") 
     menuContent.style.color = "#323232";
   else  
-    menuContent.onclick = function() { moveStack (aUnit, 0); }
+    menuContent.onclick = function() { aLeader.move (0); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "Move forward-right";
-  menuContent.onclick = function() { moveStack (aUnit, 1); }
+  menuContent.onclick = function() { aLeader.move (1); }
   unitContextMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("P");
@@ -608,150 +394,99 @@ function showStackContextMenu (aUnit)
 }
 
  
-function showLeaderContextMenu (event)
+function findLeaderFromWidgetId (leaderWidgetId)
 {
-  var tokens = event.currentTarget.id.split(":");
+  var tokens = leaderWidgetId.split(":");
   
-  var stackId = tokens[1];
-  var leaderIndex = tokens[2];
+  var i;
+  for (i=0; i<leaders.length; i++)
+    if (leaders[i].id == tokens[1]) break;
+  if (i == leaders.length) throw ("Leader not found: " + leaderWidgetId);
   
-  // find the stack
-  var stackIndex = 0;
-  while (stacks[stackIndex].id != stackId) stackIndex++;
-  if (stackIndex == stacks.length) throw ("Stack with id: " + stackId + " not found");
-
-  // find the leader name
-  var leaderName = stacks[stackIndex].leaders[leaderIndex].name;
-  
-  // Check if the leaderContextMenu for the current stack/leader exists
-  var leaderContextMenu = document.getElementById ("LIW:" + stackId + ":" + leaderIndex);
-  if (leaderContextMenu != null)
-      return;
-
-  // leaderInfoWidget does not exist, create it!
-  // Widget does not exist - create it!
-  leaderContextMenu = document.createElement ("DIV");
-  leaderContextMenu.id = "LIW:" + stackId + ":" + leaderIndex;
-  leaderContextMenu.setAttribute ("class", "context-menu");   
-  leaderContextMenu.style.left = (event.pageX + 10) + "px";
-  leaderContextMenu.style.top  = (event.pageY + 0 ) + "px";
-  document.getElementById("mapContainer").appendChild (leaderContextMenu);
-
-  // Create menu header
-  var menuContent;
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "<b>" + leaderName + "</b>";
-  menuContent.onclick = function () { leaderContextMenu.remove(); }
-  leaderContextMenu.appendChild (menuContent);
-
-  menuContent = document.createElement ("HR");
-  leaderContextMenu.appendChild (menuContent);
-  
-  
-  // Move up
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Move Leader up";
-  menuContent.onclick = function() { stacks[stackIndex].moveLeaderUp (leaderName); leaderContextMenu.remove(); hideStackInfo (stacks[stackIndex], true); drawStack (stacks[stackIndex]); showStackInfo (stacks[stackIndex]); }
-  leaderContextMenu.appendChild (menuContent);
-
-  // Move down
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Move leader down";
-  menuContent.onclick = function() { stacks[stackIndex].moveLeaderDown (leaderName); leaderContextMenu.remove(); hideStackInfo (stacks[stackIndex], true); drawStack (stacks[stackIndex]); showStackInfo (stacks[stackIndex]); }
-  leaderContextMenu.appendChild (menuContent);
-  
-  // Move top
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Move leader to top";
-  menuContent.onclick = function() { stacks[stackIndex].moveLeaderToTop (leaderName); leaderContextMenu.remove();hideStackInfo (stacks[stackIndex], true); drawStack (stacks[stackIndex]); showStackInfo (stacks[stackIndex]); }
-  leaderContextMenu.appendChild (menuContent);
-
-  // Move bottom
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Move leader to bottom";
-  menuContent.onclick = function() { stacks[stackIndex].moveLeaderToBottom (leaderName); leaderContextMenu.remove(); hideStackInfo (stacks[stackIndex], true); drawStack (stacks[stackIndex]); showStackInfo (stacks[stackIndex]); }
-  leaderContextMenu.appendChild (menuContent);
+  return i;
 }
 
 
-
-function showStackInfo (theStack)
+function showLeaderInfo (leaderWidgetId)
 {
-  var stackInfoWidget; 
-  var unitInfoContent = undefined;
+  var aLeader = leaders[ findLeaderFromWidgetId (leaderWidgetId) ];
+  
   
   // Check if the info widget already exists - if so, returns
-  stackInfoWidget = document.getElementById ("SIW:" + theStack.id);
-  if (stackInfoWidget != null)
+  var leaderInfoWidget = document.getElementById ("LIW:" + aLeader.id);
+  if (leaderInfoWidget != null)
       return;
   
   // Widget does not exist - create it!
-  stackInfoWidget= document.createElement ("DIV");
-  stackInfoWidget.id = "SIW:" + theStack.id;
-  stackInfoWidget.setAttribute ("class", "leader-info");   // TODO: rename class
-  stackInfoWidget.style.left = (xMapCoordFromUnitCoord (theStack.x, theStack.y) + 40) + "px";
-  stackInfoWidget.style.top  = (yMapCoordFromUnitCoord (theStack.x, theStack.y) ) + "px";
-  document.getElementById("mapContainer").appendChild(stackInfoWidget);
+  leaderInfoWidget= document.createElement ("DIV");
+  leaderInfoWidget.id = "LIW:" + aLeader.id;
+  leaderInfoWidget.setAttribute ("class", "leader-info");   // TODO: rename class
+  leaderInfoWidget.style.left = (xMapCoordFromUnitCoord (aLeader.x, aLeader.y) + 40) + "px";
+  leaderInfoWidget.style.top  = (yMapCoordFromUnitCoord (aLeader.x, aLeader.y) ) + "px";
+  document.getElementById("mapContainer").appendChild(leaderInfoWidget);
   
 
-  var tableOfLeaders = document.createElement ("TABLE");
-  tableOfLeaders.setAttribute ("class", "leader-table");
-  stackInfoWidget.appendChild (tableOfLeaders);
+  var leaderImgWidget = document.getElementById ("img:" + aLeader.name);
+
+  // Table with units
+  var unitTable = document.createElement ("TABLE");
+  unitTable.setAttribute ("class", "unit-table");
+  leaderInfoWidget.appendChild (unitTable);    
   
-  // Display all the leaders in the stack
-  var j=0;
-  for (j = 0; j < theStack.leaders.length; j++)
+  var tableRow;
+  var tableCell;
+  var i;
+  for (i=0; i < aLeader.units.length; i++) 
   {
-    var tableRow  = document.createElement ("tr");
-    tableRow.id = "SIW:" + theStack.id + ":" + j;
-    tableRow.onclick = function(event) { displayLeaderUnits(event) };
-    tableRow.onmousedown = function(event) { if (event.button==2) { event.cancelBubble=true; event.stopPropagation(); showLeaderContextMenu (event); }}
-    tableOfLeaders.appendChild (tableRow);
-    
-    var tableCell = document.createElement ("td");
-    tableRow.appendChild (tableCell);
-    unitInfoContent = document.createElement ("input");
-    unitInfoContent.type = "checkbox";
-    unitInfoContent.value = "*";
-    tableCell.appendChild (unitInfoContent);
-    
-    // Second cell: the leader's image
-    tableCell = document.createElement ("td");
-    tableRow.appendChild (tableCell);
-    tableCell.appendChild (theStack.leaders[j].picture());
+    tableRow = document.createElement ("tr");
+    unitTable.appendChild (tableRow);
 
-    // Third cell: add the leader's characteristics
-    tableCell = document.createElement ("td");    
-    tableCell.innerHTML = "<b>" + theStack.leaders[j].name + "&nbsp" + theStack.leaders[j].initiative +  
-      (theStack.leaders[j].bonus ? "&nbsp;*&nbsp;" : "&nbsp;") + theStack.leaders[j].commandCapacity + "&nbsp" + theStack.leaders[j].subordinationValue + "</b>"
-    tableRow.appendChild (tableCell);
+    tableCell = document.createElement ("td");
+    tableRow.appendChild (tableCell);    
+
+
+//    unitIcon = document.createElement ("img");
+//    unitIcon.setAttribute ("class", "unit-icon");
+//    unitIcon.setAttribute ("class", stacks[stackIndex].leaders[leaderIndex].units[i].nationality);
+//    unitIcon.src = "images/" + stacks[stackIndex].leaders[leaderIndex].units[i].type + "-" + stacks[stackIndex].leaders[leaderIndex].units[i].size + ".png";
+    tableCell.appendChild (aLeader.units[i].picture());
+
+    tableCell = document.createElement ("td");
+    tableCell.innerHTML = aLeader.units[i].name;
+    tableRow.appendChild (tableCell);    
+
+    tableCell = document.createElement ("td");
+    tableCell.innerHTML = aLeader.units[i].strength;
+    tableRow.appendChild (tableCell);    
   }
-  
+   
   var closeButton = document.createElement ("BUTTON");
   closeButton.setAttribute ("class", "menu-button");  
   closeButton.innerHTML = "Close";
-  closeButton.onclick = function() { theStack.sticky = false; stackInfoWidget.remove(); }
-  stackInfoWidget.appendChild (closeButton);
+  closeButton.onclick = function() { document.getElementById (leaderWidgetId).onmouseout = function() { hideLeaderInfo (this.id, false); }; leaderInfoWidget.remove(); }
+  leaderInfoWidget.appendChild (closeButton);
 }
 
-function hideStackInfo (theStack, forceClose)
+
+function hideLeaderInfo (leaderWidgetId, forceClose)
 {
-  var stackInfoWidget; 
+  var leaderInfoWidget; 
+  var aLeader = leaders[ findLeaderFromWidgetId (leaderWidgetId) ];
 
   if (forceClose)
   {
-    theStack.sticky = false;
-    stackInfoWidget = document.getElementById ("SIW:" + theStack.id);
-    if (stackInfoWidget != null)
-        stackInfoWidget.remove();
+    aLeader.sticky = false;
+    leaderInfoWidget = document.getElementById ("LIW:" + aLeader.id);
+    if (leaderInfoWidget != null)
+        leaderInfoWidget.remove();
   }
-  else if (theStack.sticky) return;
+  else if (aLeader.sticky) return;
     
   
   // Check if the info widget already exists - if so, returns
-  stackInfoWidget = document.getElementById ("SIW:" + theStack.id);
-  if (stackInfoWidget != null)
-      stackInfoWidget.remove();
+  leaderInfoWidget = document.getElementById ("LIW:" + aLeader.id);
+  if (leaderInfoWidget != null)
+      leaderInfoWidget.remove();
 }  
 
 

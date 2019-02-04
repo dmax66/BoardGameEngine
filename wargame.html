@@ -75,7 +75,7 @@
   top: 0px;
 }
 
-.container .stack-widget {
+.container .counter-widget {
   position: absolute;
   width: 60px;
   height: 26px;
@@ -90,7 +90,7 @@
   background-color: transparent;
 }
 
-.container .stack-widget:hover {
+.container .counter-widget:hover {
   border-top: 5px; 
   border-left: 5px; 
   border-right: 5px; 
@@ -102,24 +102,35 @@
   -webkit-box-shadow: -2px 19px 25px 0px rgba(76, 0, 0, 1.0); 
 }
 
-  
-.stack-icon {
+/*
+.counter-widget  {
   position: absolute;
   top: 0px;
+  width: 60px;
+  height: 56px;
+  z-index: 1;
+}  
+
+*/
+  
+.counter-icon {
+  position: absolute;
   left: 0px;
+  top: 0px;
   z-index: 0;
 }
 
-.stack-widget .stack-name {
+.counter-name {
   position: absolute;
   left: 0px;
   top: 0px;
   width: 60px;
   height: 56px;
-  text-align: center;
   z-index: 1;
+  text-align: center;
+  font-size: 10px;
+  font-family: Times, Roman, serif;
 }  
-  
   
 .leader-info {
   position: absolute;
@@ -323,6 +334,7 @@ background-image: url("images/Artillery-Division.png")
 </style>
 
   <script src="classes.js"></script>
+  <script src="leader.js"></script>
   <script src="wargame_engine.js"></script>
   
 </head>
