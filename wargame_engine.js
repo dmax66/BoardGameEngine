@@ -426,7 +426,24 @@ function showLeaderInfo (leaderWidgetId)
   document.getElementById("mapContainer").appendChild(leaderInfoWidget);
   
 
-  var leaderImgWidget = document.getElementById ("img:" + aLeader.name);
+  var leaderImgWidget = document.createElement ("IMG");
+  leaderImgWidget.src = "images/" + aLeader.name + ".png";
+  leaderImgWidget.height = "100";
+  leaderInfoWidget.appendChild (leaderImgWidget);
+
+/* Why doesn't this work? 
+  leaderInfoWidget.appendChild (aLeader.picture());
+*/
+  
+  var leaderNumbers = document.createElement ("P");
+  leaderNumbers.innerHTML = "<b>"
+  leaderNumbers.innerHTML += aLeader.name + "&nbsp;"
+  leaderNumbers.innerHTML += aLeader.initiative;
+  leaderNumbers.innerHTML += (aLeader.bonus ? " * " : " " );
+  leaderNumbers.innerHTML += aLeader.commandCapacity + "&nbsp;"
+  leaderNumbers.innerHTML += aLeader.subordinationValue;
+  leaderNumbers.innerHTML += "</b>";
+  leaderInfoWidget.appendChild (leaderNumbers);
 
   // Table with units
   var unitTable = document.createElement ("TABLE");
@@ -439,16 +456,13 @@ function showLeaderInfo (leaderWidgetId)
   for (i=0; i < aLeader.units.length; i++) 
   {
     tableRow = document.createElement ("tr");
+    tableRow.id = "UIW:" + i;
+    tableRow.onclick =  function (event) { createUnitMenu (aLeader.id, event) } 
     unitTable.appendChild (tableRow);
 
     tableCell = document.createElement ("td");
     tableRow.appendChild (tableCell);    
 
-
-//    unitIcon = document.createElement ("img");
-//    unitIcon.setAttribute ("class", "unit-icon");
-//    unitIcon.setAttribute ("class", stacks[stackIndex].leaders[leaderIndex].units[i].nationality);
-//    unitIcon.src = "images/" + stacks[stackIndex].leaders[leaderIndex].units[i].type + "-" + stacks[stackIndex].leaders[leaderIndex].units[i].size + ".png";
     tableCell.appendChild (aLeader.units[i].picture());
 
     tableCell = document.createElement ("td");
@@ -459,125 +473,181 @@ function showLeaderInfo (leaderWidgetId)
     tableCell.innerHTML = aLeader.units[i].strength;
     tableRow.appendChild (tableCell);    
   }
-   
-  var closeButton = document.createElement ("BUTTON");
-  closeButton.setAttribute ("class", "menu-button");  
-  closeButton.innerHTML = "Close";
-  closeButton.onclick = function() { document.getElementById (leaderWidgetId).onmouseout = function() { hideLeaderInfo (this.id, false); }; leaderInfoWidget.remove(); }
-  leaderInfoWidget.appendChild (closeButton);
+
+  // Close icon
+  var closeIcon = document.createElement ("IMG");
+  closeIcon.setAttribute ("class", "close-icon");
+  closeIcon.src = "images/close.png";
+  closeIcon.onclick = function() { document.getElementById (leaderWidgetId).onmouseout = function() { hideLeaderInfo (this.id); }; leaderInfoWidget.remove(); }
+  leaderInfoWidget.appendChild (closeIcon);
 }
 
 
-function hideLeaderInfo (leaderWidgetId, forceClose)
+function hideLeaderInfo (leaderWidgetId)
 {
   var leaderInfoWidget; 
   var aLeader = leaders[ findLeaderFromWidgetId (leaderWidgetId) ];
 
-  if (forceClose)
-  {
-    aLeader.sticky = false;
-    leaderInfoWidget = document.getElementById ("LIW:" + aLeader.id);
-    if (leaderInfoWidget != null)
-        leaderInfoWidget.remove();
-  }
-  else if (aLeader.sticky) return;
-    
-  
-  // Check if the info widget already exists - if so, returns
+  // Check if the info widget already exists - if so, remove it
   leaderInfoWidget = document.getElementById ("LIW:" + aLeader.id);
   if (leaderInfoWidget != null)
       leaderInfoWidget.remove();
 }  
 
 
-
-// Display the units (infantry, cavalry, artillery, pontoons) commanded by a leader
-function displayLeaderUnits (event)
+function changeCombatUnitStrength (leaderId, unitId)
 {
-  var i=0;
-  var tableRow;
-  var tableCell;
-  var unitIcon;
-  var leaderInfoWidget;
-  var leaderInfoWidgetName;
-  var leaderImgWidget;
+  var l = indexOfLeaderById (leaderId);
+  var u = leaders[l].findUnit (unitId);
+  var strengthBox = document.createElement ("INPUT");
+  var s = leaders[l].units[u].strength;
   
-  // Extract the stack and and the leader
-  // currentTarget.id contains the stack id and leader position within the stack  in the following format: "SIW:<stackid>:<leaderIndex>"
-  var tokens = event.currentTarget.id.split (":");
-  var stackId = tokens[1];
-  var leaderIndex = tokens[2];
+  var dlgWidget = document.createElement ("DIV");
+  dlgWidget.setAttribute ("class", "modal-box");
+  dlgWidget.style.left = "500px";
+  dlgWidget.style.top = "200px";
+  document.getElementById ("mapContainer").appendChild (dlgWidget);
+
+  var unitName = document.createElement ("P");
+  unitName.innerHTML = leaders[l].units[u].name;
+  dlgWidget.appendChild (unitName);
   
-  leaderInfoWidgetName = "LIW:" + myStack.leaders[leaderIndex].name;
-  leaderImgWidget = document.getElementById ("img:" + myStack.leaders[leaderIndex].name);
-
-  // Check the widget doesn't exist already
-  leaderInfoWidget = document.getElementById (leaderInfoWidgetName);
-  if (leaderInfoWidget != null)
-      return;
+  var btnMinus = document.createElement ("BUTTON");
+  btnMinus.setAttribute ("class", "btn-minus");
+  btnMinus.innerHTML = "-";
+  btnMinus.onclick = function () { if (s > 0) s--; strengthBox.value = s; }
+  dlgWidget.appendChild (btnMinus);
   
-  // Widget does not exist - create it!
-  leaderInfoWidget= document.createElement ("DIV");
-  leaderInfoWidget.id = leaderInfoWidgetName;
-  leaderInfoWidget.setAttribute ("class", "unit-info");   
-  leaderInfoWidget.style.left = Number (leaderImgWidget.parentNode.parentNode.parentNode.parentNode.style.left.slice(0, -2)) + Number (leaderImgWidget.style.width.slice (0, -2)) + 100 + "px";
-  leaderInfoWidget.style.top  = Number (leaderImgWidget.parentNode.parentNode.parentNode.parentNode.style.top.slice(0, -2))  + Number (leaderImgWidget.style.height.slice (0, -2)) / 2 +"px";
-  document.getElementById ("mapContainer").appendChild(leaderInfoWidget);
-
-
-  var unitTable = document.createElement ("TABLE");
-  unitTable.setAttribute ("class", "unit-table");
-  leaderInfoWidget.appendChild (unitTable);    
+  strengthBox.setAttribute ("class", "strength-box");
+  strengthBox.id = "SB";
+  strengthBox.value = leaders[l].units[u].strength;
+  dlgWidget.appendChild  (strengthBox);
   
-  // Retrieve the stack
-  var stackIndex;
-  for (stackIndex = 0; stackIndex < stacks.length; stackIndex++)
-    if (stacks[stackIndex].id == stackId) break;
+  var btnPlus = document.createElement ("BUTTON");
+  btnPlus.setAttribute ("class", "btn-plus");
+  btnPlus.innerHTML = "+";
+  btnPlus.onclick = function () { s++; strengthBox.value = s; }
+  dlgWidget.appendChild (btnPlus);
+
+  var okButton = document.createElement ("BUTTON");
+  okButton.innerHTML = "OK";
+  okButton.onclick = function () { leaders[l].units[u].strength = s; dlgWidget.remove() }
+  dlgWidget.appendChild (okButton);
   
-  if (stackIndex == stacks.length) throw ("Stack " + stackId + "not found");
-  
-  for (i=0; i < stacks[stackIndex].leaders[leaderIndex].units.length; i++) 
-  {
-    tableRow = document.createElement ("tr");
-    unitTable.appendChild (tableRow);
-
-    tableCell = document.createElement ("td");
-    tableRow.appendChild (tableCell);    
-
-
-//    unitIcon = document.createElement ("img");
-//    unitIcon.setAttribute ("class", "unit-icon");
-//    unitIcon.setAttribute ("class", stacks[stackIndex].leaders[leaderIndex].units[i].nationality);
-//    unitIcon.src = "images/" + stacks[stackIndex].leaders[leaderIndex].units[i].type + "-" + stacks[stackIndex].leaders[leaderIndex].units[i].size + ".png";
-    tableCell.appendChild (stacks[stackIndex].leaders[leaderIndex].units[i].picture());
-
-    tableCell = document.createElement ("td");
-    tableCell.innerHTML = stacks[stackIndex].leaders[leaderIndex].units[i].name;
-    tableRow.appendChild (tableCell);    
-
-    tableCell = document.createElement ("td");
-    tableCell.innerHTML = stacks[stackIndex].leaders[leaderIndex].units[i].strength;
-    tableRow.appendChild (tableCell);    
-  }
-  
-  var closeButton = document.createElement ("BUTTON");
-  closeButton.setAttribute ("class", "menu-button");  
-  closeButton.style.left = "10px";
-  closeButton.innerHTML = "Close";
-  closeButton.onclick = function() { leaderInfoWidget.remove(); }
-  leaderInfoWidget.appendChild (closeButton);
-
-  var manageButton = document.createElement ("BUTTON");
-  manageButton.setAttribute ("class", "menu-button");  
-  manageButton.style.left = "20px";
-  manageButton.innerHTML = "Manage";
-//  manageButton.onclick = function() { do something }
-  leaderInfoWidget.appendChild (manageButton);
-
 }
 
 
+function doCreateUnitMenu (leaderId, unitId, unitName, x, y, menuEntries)
+{
+  var menuWidget = document.createElement ("DIV");
+  menuWidget.setAttribute ("class", "context-menu");
+  menuWidget.style.left = x + "px";
+  menuWidget.style.top = y + "px";
+  menuWidget.id = ("MU:" + unitId);
+  document.getElementById ("mapContainer").appendChild (menuWidget);
+ 
+  // Menu title
+  var menuTitle = document.createElement ("P");
+  menuTitle.innerHTML = unitName;
+  menuTitle.setAttribute ("class", "context-menu-title");
+  menuWidget.appendChild (menuTitle);
   
+  // Close icon
+  var closeIcon = document.createElement ("IMG");
+  closeIcon.setAttribute ("class", "close-icon");
+  closeIcon.src = "images/close.png";
+  closeIcon.onclick = function () { menuWidget.remove() }
+  menuWidget.appendChild (closeIcon);
+  
+  // A horizontal divider
+  var hr = document.createElement ("HR");
+  hr.setAttribute ("class", "context-menu-hr");
+  menuWidget.appendChild (hr);
+    
+  var i;
+  for (i=0; i < menuEntries.length; i++)
+  {
+    var menuEntry = document.createElement ("P");
+    menuEntry.id = "L:" + leaderId + ".U:" + unitId + ".A:" + menuEntries[i][1];
+    menuEntry.setAttribute ("class", "context-menu-entry");
+    menuEntry.onclick = function (event) { menuDoAction (event) }
+    menuEntry.innerHTML = menuEntries[i][0];
+    
+    menuWidget.appendChild (menuEntry);
+  }
+  
+  return menuWidget;
+}
+
+function menuDoAction (event)
+{
+  var tokens = event.currentTarget.id.split (".");
+  var leaderId = tokens[0].slice(2);
+  var unitId = tokens[1].slice(2);
+  var actionId = tokens[2].slice(2);
+    
+  switch (actionId)
+  {
+    case "ChStr":
+      changeCombatUnitStrength (leaderId, unitId);
+      break;
+      
+    case "MkMajGen":
+      createMajGen (leaderId, unitId);
+      alert ("Maj. General created: " + leaders[leaders.length-1].name);
+      break;
+      
+    case "Transfer":
+      alert (actionId);
+      break;
+      
+    default:
+      throw ("menuDoAction: invalid action " + actionId);
+  }
+}
+  
+
+function createMajGen (leaderId, unitId)
+{
+  var l = indexOfLeaderById (leaderId);
+  var u = leaders[l].units [ leaders[l].findUnit (unitId)] ;
+  var newLeader;
+
+  // Create a new leader
+  switch (u.type)
+  {
+    case "infantry":
+      newLeader = new Leader (leaders.length+1, undefined, u.name, u.nationality, "infantry", 0, false, 1.5, 2, leaders[l].formation, leaders[l].x, leaders[l].y, leaders[l].zOrder+1, leaders[l].direction);
+      break;
+      
+    case "cavalry":
+      newLeader = new Leader (leaders.length+1, undefined, u.name, u.nationality, "cavalry", 4, false, 1, 1, leaders[l].formation, leaders[l].x, leaders[l].y, leaders[l].zOrder+1, leaders[l].direction);
+      break;
+      
+    default:
+      alert ("Cannot create a leader from a unit of type " + leaders[l].units[u].type);
+      return;
+  }
+
+  // Remove the unit from the old leader and put it under the new Maj Gen.
+  leaders[l].removeUnit (unitId);
+  newLeader.addUnit (u);
+  leaders.push (newLeader);
+
+  // Close the unit window menu  
+  var unitMenu = document.getElementById ("MU:" + unitId);
+  if (unitMenu)
+    unitMenu.remove();
+  
+  // Close the previous leader info window, 
+  var leaderInfoWidget = document.getElementById ("LIW:" + leaders[l].id);
+  if (leaderInfoWidget != null)
+    hideLeaderInfo (leaderInfoWidget.id);
+  
+  // Force a redraw of the new leader counter, 
+  newLeader.drawOnMap();
+}
+
 function saveData()
 {
   var jsonData = JSON.stringify (leaders);

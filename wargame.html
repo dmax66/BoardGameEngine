@@ -15,7 +15,7 @@
   color: gray;
   font-size: 14px;
   font-family: Arial, Helvetica, sans-serif;
-  }
+}
   
  .admin-board {
   position: fixed;
@@ -27,7 +27,7 @@
   color: gray;
   font-size: 10px;
   font-family: Arial, Helvetica, sans-serif;
-  }
+}
   
 .admin-board h1 {
   font-size: 14px;
@@ -43,7 +43,7 @@
   background-color: transparent;
   color: white;
   border: 0px;
-  }
+}
   
   
 .position-tracker {
@@ -57,7 +57,7 @@
   color: white;
   font-size: 10px;
   font-family: Arial, Helvetica, sans-serif;
-  }
+}
   
 
 .container {
@@ -102,17 +102,7 @@
   -webkit-box-shadow: -2px 19px 25px 0px rgba(76, 0, 0, 1.0); 
 }
 
-/*
-.counter-widget  {
-  position: absolute;
-  top: 0px;
-  width: 60px;
-  height: 56px;
-  z-index: 1;
-}  
 
-*/
-  
 .counter-icon {
   position: absolute;
   left: 0px;
@@ -139,10 +129,15 @@
   min-width: 2px;
   min-height: 2px;
   font-size: 14px;
-  padding: 1px 1px;
-  border: 1px;
+  padding: 15px 15px 15px 15px; 
+  border-top: 1px; 
+  border-left: 1px; 
+  border-right: 1px; 
+  border-bottom: 1px;   
+  border-color: rgba(0, 0, 0, 1.0); 
+  border-style: double; 
+  border-radius: 8px; 
   cursor: pointer;
-  border-radius: 1px;
   text-align: left;
   background-repeat: no-repeat;
   box-shadow:7px 5px 7px #555555;
@@ -190,16 +185,25 @@
   text-align: left;
   font-size: 10px;
   font-family: Arial, Helvetica, sans-serif;
+  padding: 0px;
+  border: 5px black;
 }
 
 .unit-table tr {
-    border-bottom: 1px solid #aaa;
+  border-bottom: 1px solid #aaa;
+  padding: 0px;
+  border: 5px black;
 }
   
 .unit-table tr:hover {
-    background-color: #A0A0A0;
+  background-color: #A0A0A0;
 }
 
+.unit-table td {
+  padding: 0px;
+  border: 0px;
+}
+  
 
 .unit-icon {
 }
@@ -277,14 +281,14 @@ background-image: url("images/Artillery-Division.png")
 .menu-button {
   position: relative;
   color: black;
-  background-color: lightgray;
-  border: white;
-  cursor: pointer;
-  border-radius: 2px;
+  background-color: #cc9900 ;
+  border: 1px rgba(0, 0, 0, 1.0) double; 
+  border-radius: 6px;
+  cursor:  pointer;
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
   font-family: Arial, Helvetica, sans-serif;
-  min-height: 20px;
+  min-height: 25px;
   min-width: 80px;
 }
   
@@ -300,7 +304,8 @@ background-image: url("images/Artillery-Division.png")
   padding: 1px 1px;
   border: 1px;
   cursor: pointer;
-  border-radius: 1px;
+  border-radius: 10px;
+  padding: 5px;
   background-repeat: no-repeat;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 1;
@@ -310,6 +315,17 @@ background-image: url("images/Artillery-Division.png")
   background-color: Grey;
  }
 
+.close-icon {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background-color: transparent;  
+}
+  
+.close-icon :hover {
+}
+  
+  
 .context-menu hr { 
   display: block;
   margin-top: 0.5em;
@@ -331,6 +347,62 @@ background-image: url("images/Artillery-Division.png")
 }
 
 
+.modal-box
+{
+  position: absolute;
+  top: 100;
+  right: 100px;
+  width: auto;
+  heioght: auto;
+  background-color: #efdf88;  
+  color: black;
+  border-color: black;
+  border-radius: 10px 10px 10px 10px; 
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+  
+.btn-minus
+{
+  position: block;
+  background-color: #efdf88;  
+  color: black;
+  border-color: black;
+  border-radius: 10px 0px 0px 10px; 
+  height: 22px;
+  width: 8px;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+  
+.btn-plus
+{
+  position: block;
+  background-color: #efdf88;  
+  color: black;
+  border-color: black;
+  border-radius: 0px 10px 10px 0px; 
+  height: 22px;
+  width: 8px;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+  
+.strength-box
+{
+  position: block;
+  background-color: #efdf88;  
+  color: black;
+  border-color: black;
+  border-radius: 0px; 
+  height: 15px;
+  width: 16px;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+  
+  
+  
 </style>
 
   <script src="classes.js"></script>

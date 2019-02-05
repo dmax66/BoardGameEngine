@@ -2,13 +2,12 @@
 // Leader.prototype = Object.create (CombatUnit.prototype);
 Leader.prototype.type = "leader";
 Leader.prototype.movAllowance = 9;
-// Leader.prototype.parent = undefined;
 
-function Leader (id, name, nationality, type, initiative, bonus, commandCapacity, subordinationValue, formation, x, y, direction)
+function Leader (id, parent, name, nationality, type, initiative, bonus, commandCapacity, subordinationValue, formation, x, y, zOrder, direction)
 {
 //  CombatUnit.call (id, name, "corps", nationality, 0);
   this.id = id;
-//  this.parentId
+  this.parent = parent;
   this.name = name;
   this.nationality = nationality;
   this.initiative = initiative;
@@ -21,9 +20,26 @@ function Leader (id, name, nationality, type, initiative, bonus, commandCapacity
   this.formation = formation;
   this.x = x;
   this.y = y;
+  this.zOrder = zOrder;
   this.direction = direction;
 }
 Leader.prototype.constructor = Leader;
+
+
+function indexOfLeaderById (leaderId)
+{
+  var k;
+
+  /* This part of code has to be moved out. Replace with "findLeaderById" */
+  for (k=0; k<leaders.length; k++)
+    if (leaders[k].id == leaderId)
+      break;
+
+  if (k == leaders.length) 
+    throw ("Leader not found");
+
+  return k;
+}
 
 
 // Returns an "img" HTML element containing the image of the leader
@@ -51,20 +67,20 @@ Leader.prototype.findUnit = function (unitId)
 
 Leader.prototype.addUnit = function (aUnit)
 {
-//  aUnit.parent = this;
+  aUnit.parent = this;
   this.units.push (aUnit);
 }
 
 // Remove the unit identified by unitId. Returns the unit itself
 Leader.prototype.removeUnit = function (unitId)
 {
-  if (units.length == 0) throw ("Cannot remove unit from a leader with no units");
+  if (this.units.length == 0) throw ("Cannot remove unit from a leader with no units");
   
   var unitIndex = this.findUnit (unitId);
-  if (unitIndex)
+  if (unitIndex != undefined)
   {
-    var unit = this.units.splice (i, 1);
-//    unit.parent = undefined;
+    var unit = this.units.splice (unitIndex, 1);
+    unit.parent = undefined;
     return unit;
   }
   else
@@ -149,16 +165,6 @@ Leader.prototype.artilleryStrength = function ()
   return s;
 }
 
-// Leader.prototype.moveToStack (newStack)
-// {
-//   var i = this.parent.leaders.indexOf (this);
-//  
-//  this.parent.leaders.splice (i, 1) 
-//  newStack.leaders.push (this);
-//  this.parent = newStack;
-//}
-
-
 Leader.prototype.createWidgetForMap = function ()
 {
   var leaderWidget = document.createElement ("div");
@@ -235,15 +241,6 @@ Leader.prototype.drawOnMap = function ()
   if (!leaderIcon) throw ("Leader icon element not found");
   if (!leaderName) throw ("Leader name element not found");
   
-  // Count how many other leaders are in the same hex and the highest z-Order value
-  var j=0;
-  var numLeadersInSameHex = 0;
-
-/*
-  while (j < leaders.length)
-    if (leaders[j].parent == undefined &&  leaders[j].x == this.x && leaders[j].y == this.y)
-      numLeadersInSameHex++;  
-*/  
   switch (this.formation)
   {
     case "line":
@@ -255,9 +252,8 @@ Leader.prototype.drawOnMap = function ()
         if (this.direction == lineDrawInfo[i].facing)
         {
           leaderWidget.style.transform = "rotate(" + lineDrawInfo[i].angle + "deg)";
-          leaderWidget.style.left = (lineDrawInfo[i].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";  
-          leaderWidget.style.top = (lineDrawInfo[i].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";
-//          leaderWidget.style.zOrder = numLeadersInSameHex;
+          leaderWidget.style.left = (lineDrawInfo[i].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";  
+          leaderWidget.style.top = (lineDrawInfo[i].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";
           return;
         }
       } 
@@ -273,7 +269,6 @@ Leader.prototype.drawOnMap = function ()
           leaderWidget.style.transform = "rotate(" + columnMovementInfo[i].angle + "deg)";
           leaderWidget.style.left = (columnMovementInfo[i].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";  
           leaderWidget.style.top = (columnMovementInfo[i].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";
-//          leaderWidget.style.zOrder = numLeadersInSameHex;
           return;
         }
       } 
@@ -384,6 +379,19 @@ Leader.prototype.move = function (direction)
   }
 }
 
+function numOfLeadersInHex (x, y)
+{
+  var i;
+  var n=0;
+  
+  for (i = 0; i < leaders.length; i++)
+    if (leaders[i].x == x && leaders[i].y == y) 
+      n++;
+      
+  return n;
+}
+
+
 Leader.prototype.moveAsLine = function (direction)
 {
   var i=0;
@@ -406,8 +414,12 @@ Leader.prototype.moveAsLine = function (direction)
       throw ("Invalid value for 'direction'");
   }    
     
+  // Calculate the new coordinates (grid units)
   this.x += (this.y % 2 == 0) ? lineMovementInfo[i].xOffsetYEven[direction] : lineMovementInfo[i].xOffsetYOdd[direction];
   this.y += lineMovementInfo[i].yOffset[direction];
+  
+  // Set the zOrder so that the leader is at the top of the stack
+  this.zOrder = numOfLeadersInHex (this.x, this.y) - 1;
   
   this.drawOnMap();
 }
@@ -429,6 +441,9 @@ Leader.prototype.moveAsColumn = function (direction)
   // Advance one hex
   this.x += (this.y % 2 == 0) ? columnMovementInfo[i].movement.xMoveWhenYEven : columnMovementInfo[i].movement.xMoveWhenYOdd;
   this.y += columnMovementInfo[i].movement.yMove;
+
+  // Set the zOrder so that the leader is at the top of the stack
+  this.zOrder = numOfLeadersInHex (this.x, this.y) - 1;
 
   this.drawOnMap();
 }
@@ -544,11 +559,5 @@ Leader.prototype.rotate = function  (direction)
   }
 }
 
-// Move a leader with name "leaderName" from this stack to another stack with name "stackName". If "stackName" does not exist, it creates a new stack
-// The new stack (or the stack identified by "stackName" is returned
-// 
-//Stack.prototype.moveLeaderToNewStack (leaderName, stackName) = function ()
-// {
-// }
 
 
