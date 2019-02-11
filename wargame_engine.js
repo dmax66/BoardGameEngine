@@ -598,7 +598,8 @@ function menuDoAction (event)
       break;
       
     case "Transfer":
-      alert (actionId);
+      transferUnit (leaderId, unitId);
+//      alert ("Unit transferred");
       break;
       
     default:
@@ -646,6 +647,102 @@ function createMajGen (leaderId, unitId)
   
   // Force a redraw of the new leader counter, 
   newLeader.drawOnMap();
+}
+
+function transferUnit (leaderId, unitId)
+{
+  var iOldLeader = indexOfLeaderById (leaderId);
+  var theUnit = leaders[iOldLeader].units [ leaders[iOldLeader].findUnit (unitId)] ;
+  var candidateLeaderIndexes = [];
+
+  // Find the candidate leaders (must be in the same hex as leaderId)
+  var i;
+  for (i=0; i < leaders.length; i++)
+    if (i != iOldLeader)
+      if (leaders[i].x == leaders[iOldLeader].x && leaders[i].y == leaders[iOldLeader].y)
+        candidateLeaderIndexes.push (i);
+  
+  // Create a new DIV in front of the map to prevent events going to the map, and dim it
+  var menuDiv = document.createElement ("DIV");
+  menuDiv.style.position = "absolute";
+  menuDiv.style.top = 0;
+  menuDiv.style.left = 0;
+  menuDiv.style.height = "2791px";
+  menuDiv.style.width = "4474px";
+  menuDiv.style.zIndex = 100;
+  menuDiv.style.backgroundColor = "grey";
+  menuDiv.style.opacity = 0.5;
+  document.body.appendChild (menuDiv);
+  
+  // Create the main widget
+  var menuWidget = document.createElement ("DIV");
+  menuWidget.setAttribute ("class", "modal-box");
+  menuWidget.id = ("TU:" + unitId);
+  menuWidget.style.opacity = 1;
+  menuWidget.style.zIndex = 101;
+  document.body.appendChild (menuWidget);
+
+  // Explanation
+  var para = document.createElement ("P");
+  para.innerHTML = "Transfer unit " + theUnit.name + " to:"
+  menuWidget.appendChild (para);
+
+
+  // Create the form
+  var form = document.createElement ("FORM");
+  menuWidget.appendChild (form);
+  
+  // Create the list of candidate leaders
+  for (i=0; i < candidateLeaderIndexes.length; i++)
+  {
+    var dest = document.createElement ("INPUT");
+//    dest.setAttribute ("class", "xfer-2-list");
+    dest.type = "radio";
+    dest.name = "leader";
+    dest.value = leaders[ candidateLeaderIndexes[i]].id;
+    form.appendChild (dest);
+    
+    form.innerHTML += "&nbsp;" + leaders[ candidateLeaderIndexes[i]].name + "<br>";
+  }
+  
+  // OK button
+  var okButton = document.createElement ("BUTTON");
+  okButton.innerHTML = "OK";
+  okButton.onclick = function () { doTransferUnit (leaderId, unitId, dest.value); menuWidget.remove(); menuDiv.remove(); }
+  menuWidget.appendChild (okButton);
+  
+  
+  // Close icon
+  var closeIcon = document.createElement ("IMG");
+  closeIcon.src = "images/close.png";
+  closeIcon.setAttribute ("class", "close-icon");
+  closeIcon.onclick = function () { menuWidget.remove(); menuDiv.remove(); }
+  menuWidget.appendChild (closeIcon);
+
+  // 
+//  document.querySelector(".modal").classList.toggle ("show-modal");
+}
+
+                           
+
+function doTransferUnit (oldLeaderId, unitId, newLeaderId)
+{
+  var iOldLeader = indexOfLeaderById (oldLeaderId);
+  var iNewLeader = indexOfLeaderById (newLeaderId);
+  var theUnit = leaders[iOldLeader].units [ leaders[iOldLeader].findUnit (unitId)] ;
+
+  leaders[iOldLeader].removeUnit (unitId);
+  leaders[iNewLeader].addUnit (theUnit);
+
+  // Close the unit window menu  
+  var unitMenu = document.getElementById ("MU:" + unitId);
+  if (unitMenu)
+    unitMenu.remove();
+  
+  // Close the previous leader info window, 
+  var leaderInfoWidget = document.getElementById ("LIW:" + leaders[iOldLeader].id);
+  if (leaderInfoWidget != null)
+    hideLeaderInfo (leaderInfoWidget.id);
 }
 
 function saveData()
