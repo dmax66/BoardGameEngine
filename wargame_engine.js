@@ -269,12 +269,13 @@ var turnInfo =
 
 function updateAdminBoard ()
 {
-  document.getElementById ("turnIndicator").innerHTML = turnInfo.turnNumber;
-  document.getElementById ("weatherIndicator").innerHTML = turnInfo.weather;  
-  document.getElementById ("playerIndicator").innerHTML = turnInfo.phasingPlayer;  
-  document.getElementById ("phaseIndicator").innerHTML = turnInfo.phase + " Segment: " + turnInfo.segment;
-
-  document.getElementById('fileinput').addEventListener('change', readScenarioFile, false);
+  document.getElementById ("turnIndicator").innerHTML = "Turn: " + gameTurn;
+  document.getElementById ("playerIndicator").innerHTML = "Player: " + sequenceOfPlay[gameSequenceTracker][0];  
+  document.getElementById ("phaseIndicator").innerHTML = "Phase: " + sequenceOfPlay[gameSequenceTracker][1]+ " Segment: " + sequenceOfPlay[gameSequenceTracker][2];
+  document.getElementById ("weatherIndicator").innerHTML = "Weather: " + turnInfo.weather;  
+  document.getElementById ("adminPoints").innerHTML = "Admin Points";
+  document.getElementById ("moraleLevel").innerHTML = "Morale";
+  document.getElementById ("reinforcementPoints").innerHTML = "Reinforcement Points";
 }
 
 
@@ -313,11 +314,8 @@ function yUnitCoordFromMapCoord (mapX, mapY)
 
 function showStackContextMenu (leaderWidgetId)  
 {
-  var aLeader = leaders[ findLeaderFromWidgetId (leaderWidgetId) ];
-
-  
-  
-  var unitContextMenu; 
+  var aLeader = leaders[ findLeaderFromWidgetId (leaderWidgetId) ]; 
+    var unitContextMenu; 
   var menuContent = undefined;
   var parentWidget = document.getElementById("mapContainer");
   
@@ -392,6 +390,7 @@ function showStackContextMenu (leaderWidgetId)
   menuContent.innerHTML = "Manage unit";
   unitContextMenu.appendChild (menuContent);
 }
+
 
  
 function findLeaderFromWidgetId (leaderWidgetId)
@@ -508,6 +507,13 @@ function changeCombatUnitStrength (leaderId, unitId)
   dlgWidget.style.top = "200px";
   document.getElementById ("mapContainer").appendChild (dlgWidget);
 
+  // Close icon
+  var closeIcon = document.createElement ("IMG");
+  closeIcon.setAttribute ("class", "close-icon");
+  closeIcon.src = "images/close.png";
+  closeIcon.onclick = function () { dlgWidget.remove() }
+  dlgWidget.appendChild (closeIcon);
+  
   var unitName = document.createElement ("P");
   unitName.innerHTML = leaders[l].units[u].name;
   dlgWidget.appendChild (unitName);
@@ -718,9 +724,6 @@ function transferUnit (leaderId, unitId)
   closeIcon.setAttribute ("class", "close-icon");
   closeIcon.onclick = function () { menuWidget.remove(); menuDiv.remove(); }
   menuWidget.appendChild (closeIcon);
-
-  // 
-//  document.querySelector(".modal").classList.toggle ("show-modal");
 }
 
                            
@@ -841,6 +844,22 @@ function endTurn()
   }
 }
 
+function advanceGame()
+{
+  var okToProceed = confirm ("Are you sure you want to advance the game?");
+  if (!okToProceed)
+    return;
+  
+  gameSequenceTracker++;
+    
+  if (gameSequenceTracker == sequenceOfPlay.length)
+  {
+     gameTurn++;
+     gameSequenceTracker = 0;
+  }
+  
+  updateAdminBoard();
+}
 
 
 
