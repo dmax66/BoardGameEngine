@@ -240,12 +240,7 @@ var columnMovementInfo =
 
 var turnInfo = 
 {
-  turnNumber: 0,
   phasingPlayer: "French",
-  phase: "",
-  segment: "",  
-  weather: "",
-
   
   frenchInfo : 
   {
@@ -271,11 +266,24 @@ function updateAdminBoard ()
 {
   document.getElementById ("turnIndicator").innerHTML = "Turn: " + gameTurn;
   document.getElementById ("playerIndicator").innerHTML = "Player: " + sequenceOfPlay[gameSequenceTracker][0];  
-  document.getElementById ("phaseIndicator").innerHTML = "Phase: " + sequenceOfPlay[gameSequenceTracker][1]+ " Segment: " + sequenceOfPlay[gameSequenceTracker][2];
+  document.getElementById ("phaseIndicator").innerHTML = "Phase: " + sequenceOfPlay[gameSequenceTracker][1];
+  document.getElementById ("segmentIndicator").innerHTML  = " Segment: " + sequenceOfPlay[gameSequenceTracker][2];
   document.getElementById ("weatherIndicator").innerHTML = "Weather: " + turnInfo.weather;  
-  document.getElementById ("adminPoints").innerHTML = "Admin Points";
   document.getElementById ("moraleLevel").innerHTML = "Morale";
-  document.getElementById ("reinforcementPoints").innerHTML = "Reinforcement Points";
+ 
+  document.getElementById ("adminPoints").innerHTML = "Admin Points"  + "<br>" ;
+  document.getElementById ("reinforcementPoints").innerHTML = "Reinforcement Points" + "<br>";
+
+  var i;
+  var player = sequenceOfPlay[gameSequenceTracker][0];
+  for (i = 0; i < supplyInfo.length; i++)
+  {
+    if (supplyInfo[i].player == player)
+    {
+      document.getElementById ("adminPoints").innerHTML += supplyInfo[i].nationality + ":&nbsp;" + supplyInfo[i].AP + "<br>";
+      document.getElementById ("reinforcementPoints").innerHTML += supplyInfo[i].nationality + ":&nbsp;" + supplyInfo[i].accumulatedReinforcementPoints + "<br>";
+    }
+  }
 }
 
 

@@ -23,10 +23,10 @@
   
 .admin-board {
   position: fixed;
-  top: 0;
+  bottom: 0;
   right: 0;
-  width: 95%;
-  height: 2em;
+  width: 100%;
+  min-height: 2em;
   z-index: 2;
   background-color: black;
   color: lightgray;
@@ -442,14 +442,15 @@ background-image: url("images/Artillery-Division.png")
 </div>
   
 <div class="admin-board" id="adminBoard">
-  <table>
+  <table width=100% >
     <tr>
       <td id="turnIndicator">&nbsp; </td>
-      <td id="phaseIndicator">&nbsp; </td>
       <td id="weatherIndicator">&nbsp; </td>
-      <td id="adminPoints">&nbsp;</td>
+      <td id="phaseIndicator">&nbsp; </td>
+      <td id="segmentIndicator">&nbsp; </td>   
       <td id="playerIndicator">&nbsp;</td>
       <td id="moraleLevel">Morale Level: </td>
+      <td id="adminPoints">&nbsp;</td>
       <td id="reinforcementPoints">Reinforcement Points</td>
     </tr>
   </table>

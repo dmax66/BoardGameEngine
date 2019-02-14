@@ -3,22 +3,52 @@ var gameSequenceTracker = 0;
 var gameTurn = 0;
 
 var sequenceOfPlay = [
-  [ 0, "Command Phase", "Administrative Segment" ],
-  [ 0, "Command Phase", "Organization Segment" ],
-  [ 0, "Movement Phase", "Movement Command Segment" ],
-  [ 0, "Movement Phase", "Individual Initiative Segment" ],
-  [ 0, "Movement Phase", "Bridge Segment" ],
-  [ 0, "Combat Phase", "Forced March Segment" ],
-  [ 0, "Combat Phase", "Battle Resolution Segment" ],
-  [ 0, "Combat Phase", "Disorganization and Rally Segment" ],
+  [ "French", "Command Phase", "Administrative Segment" ],
+  [ "French", "Command Phase", "Organization Segment" ],
+  [ "French", "Movement Phase", "Movement Command Segment" ],
+  [ "French", "Movement Phase", "Individual Initiative Segment" ],
+  [ "French", "Movement Phase", "Bridge Segment" ],
+  [ "French", "Combat Phase", "Forced March Segment" ],
+  [ "French", "Combat Phase", "Battle Resolution Segment" ],
+  [ "French", "Combat Phase", "Disorganization and Rally Segment" ],
 
-  [ 1, "Command Phase", "Administrative Segment" ],
-  [ 1, "Command Phase", "Organization Segment" ],
-  [ 1, "Movement Phase", "Movement Command Segment" ],
-  [ 1, "Movement Phase", "Individual Initiative Segment" ],
-  [ 1, "Movement Phase", "Bridge Segment" ],
-  [ 1, "Combat Phase", "Forced March Segment" ],
-  [ 1, "Combat Phase", "Battle Resolution Segment" ],
-  [ 1, "Combat Phase", "Disorganization and Rally Segment" ],
+  [ "Allied", "Command Phase", "Administrative Segment" ],
+  [ "Allied", "Command Phase", "Organization Segment" ],
+  [ "Allied", "Movement Phase", "Movement Command Segment" ],
+  [ "Allied", "Movement Phase", "Individual Initiative Segment" ],
+  [ "Allied", "Movement Phase", "Bridge Segment" ],
+  [ "Allied", "Combat Phase", "Forced March Segment" ],
+  [ "Allied", "Combat Phase", "Battle Resolution Segment" ],
+  [ "Allied", "Combat Phase", "Disorganization and Rally Segment" ],
+];
+
+
+/* Keeps track of the supply-related info during the game */
+var supplyInfo = 
+[
+  { 
+    player: "French", 
+    nationality: "French", 
+    AP: 0, 
+    accumulatedReinforcementPoints: 0
+  },
+  { 
+    player: "Allied", 
+    nationality: "Austrian", 
+    AP: 0, 
+    accumulatedReinforcementPoints: 0
+  },
+  { 
+    player: "Allied", 
+    nationality: "Prussian", 
+    AP: 0, 
+    accumulatedReinforcementPoints: 0
+  },
+  { 
+    player: "Allied", 
+    nationality: "Swedish", 
+    AP: 0, 
+    accumulatedReinforcementPoints: 0
+  }
 ];
 
