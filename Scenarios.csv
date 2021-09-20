@@ -1,0 +1,4 @@
+"ID","Name","StartTurn","EndTurn","NumberOfTurns","FrenchAdminPoints","ArmyOfSilesiaAdminPoints","armyOfBohemiaAdminPoints","ArmyOfTheNorthAdminPoints","FrenchReinforcementPoints","RussianReinforcementPoints","PrussianReinforcementPoints","AustrianReinforcementPoints","SwedishReinforcementPoints"
+"D","Dresden",34,44,1,45,45,21,16,0,0,0,0,0
+"L","Leipzig",55,55,55,39,52,39,16,0,0,0,0,0
+"S","Spring",1,23,23,21,11,0,0,0,0,0,0,0

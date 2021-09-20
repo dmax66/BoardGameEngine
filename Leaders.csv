@@ -1,0 +1,118 @@
+"ID","Name","Commanding","Nation","Type","Initiative","HasBonus","CommandSpan","CommandDrag"
+"Arr","Arrighi","III Cavalry","f","c","5",0,2,1
+"Aug","Augereau","IX Corps","f","i","2",0,3,2
+"Benn","Bennigsen","I Corps","r","i","2",0,4,4
+"Ber","Betrand","IV Corps","f","i","3",1,6,2
+"Berna","Bernadotte","XXXX","s","i","1",0,4,4
+"Bess","Bessieres","Guard Cavalry","f","c","5",0,2,1
+"Bluch","Bluecher","I Corps","p","i","4",1,8,3
+"Bul","Bulow","III Corps","p","i","2",0,5,2
+"Chem","Unknown","Chemnitz Garr","f","i","0",0,0,0
+"Collo","Colloredo","I Corps","a","i","1",0,3,2
+"Cyr","St. Cyr","XIV Corps","f","i","5",0,6,2
+"Doc","Doctorov","I Corps","r","i","1",0,6,3
+"Dru","Drouot","Old Guard","f","i","4",0,6,3
+"Duro","Durosnel","Dresden Garr","f","i","0",0,0,0
+"Eug","Eugene","Armee de l'Elbe","f","i","2",0,5,2
+"Eugen","Eugen","II Infantry","r","i","2",0,2,1
+"fMG_A","Maj Gen A","","f","i","0",0,3,4
+"fMG_B","Maj Gen B","","f","i","0",0,3,4
+"fMG_C","Maj Gen C","","f","i","0",0,3,4
+"fMG_D","Maj Gen D","","f","i","0",0,3,4
+"fMG_E","Maj Gen E","","f","i","0",0,3,4
+"fMG_F","Maj Gen F","","f","i","0",0,3,4
+"fMG_G","Maj Gen G","","f","i","0",0,3,4
+"fMG_H","Maj Gen H","","f","i","0",0,3,4
+"fMG_I","Maj Gen I","","f","i","0",0,3,4
+"fMG_J","Maj Gen J","","f","i","0",0,3,4
+"fMG_K","Maj Gen K","","f","i","0",0,3,4
+"fMG_L","Maj Gen L","","f","i","0",0,3,4
+"fMG_R","Maj Gen R","","f","i","0",0,3,4
+"fMG_T","Maj Gen T","`","f","c","4",0,2,2
+"fMG_U","Maj Gen U","","f","c","4",0,2,2
+"fMG_V","Maj Gen V","","f","c","4",0,2,2
+"fMG_W","Maj Gen W","","f","c","4",0,2,2
+"fMG_X","Maj Gen X","","f","c","4",0,2,2
+"fMG_Y","Maj Gen Y","","f","c","4",0,2,2
+"fMG_Z","Maj Gen Z","","f","c","4",0,2,2
+"Gali","Galitzin","II Cuirassiers","r","c","4",0,4,1
+"Ger","Gerard","XI Corps","f","i","3",0,4,2
+"Gir","Girard","Ad Hoc","f","i","3",0,3,2
+"Glog","Kosen","Kosen","r","i","0",0,0,0
+"Gortch","Gortchakow","I Infantry","r","i","1",0,3,2
+"Gyu","Gyulai","III Corps","a","i","1",0,3,2
+"HHomb","Hesse Homburg","Reserve","a","i","2",0,6,3
+"Kapz","Kapzewitsch","X Corps","r","i","1",0,3,2
+"Kell","Kellerman","IV Cavalry","f","c","4",0,1,1
+"Kle","Kleist","II Corps","p","i","2",0,5,2
+"Klen","Klenau","IV Corps","a","i","1",0,4,2
+"Konst","Konstantin","Guards+Reserve","r","i","2",0,4,2
+"Kor","Korff","I Cavalry","p","c","4",0,3,1
+"Lang","Langeron","","r","i","2",0,5,4
+"Lanu","Lanusse","Magdeburg Garr","f","i","0",0,0,0
+"Lat","Latour-Maubourg","I Cavalry","f","c","5",0,2,1
+"Lau","Lauriston","V Corps","f","i","2",0,5,2
+"Lauer","Lauer","Torgau Garr","f","i","0",0,0,0
+"Lheri","L'Heritier","V Cavalry","f","c","4",0,2,1
+"Mac","MacDonald","XI Corps","f","i","4",1,6,3
+"Magde","Lemoine","Magdeburg Garr","f","i","0",0,0,0
+"Marg","Margaron","Leipzig Garr","f","i","0",0,0,0
+"Markow","Markow","IV Infantry","r","i","4",0,2,1
+"Marm","Marmont","VI Corps","f","i","3",0,6,3
+"Meer","Meerveldt","II Corps","a","i","1",0,2,1
+"Milo","Miloradowitch","II Corps","r","i","2",0,4,2
+"Mor","Mortier","II Young Guard","f","i","3",1,6,2
+"Mur","Murat","Cavalry Reserve","f","c","4",0,6,3
+"Nans","Nansouty","Guard Cavalry","f","c","5",0,2,1
+"Nap","Napoleon","Emperor","f","i","4",1,10,6
+"Ney","Ney","III Corps","f","i","3",0,6,3
+"Ols","Olsufiew","IX Corps","r","i","1",0,2,1
+"Oud","Oudinot","I Young Guard","f","i","2",0,6,3
+"Oud2","Oudinot","XII Corps","f","i","2",0,6,3
+"Pahlen","Pahlen","IV Cavalry","r","c","4",0,3,1
+"pMG_A","Maj Gen A","","p","i","0",0,3,4
+"pMG_B","Maj Gen B","","p","i","0",0,3,4
+"pMG_C","Maj Gen C","","p","i","0",0,3,4
+"pMG_D","Maj Gen D","","p","i","0",0,3,4
+"pMG_E","Maj Gen E","","p","i","0",0,3,4
+"pMG_F","Maj Gen F","","p","i","0",0,3,4
+"pMG_G","Maj Gen G","","p","i","0",0,3,4
+"pMG_H","Maj Gen H","","p","i","0",0,3,4
+"pMG_I","Maj Gen I","","p","i","0",0,3,4
+"pMG_J","Maj Gen J","","p","i","0",0,3,4
+"pMG_K","Maj Gen K","","p","i","0",0,3,4
+"pMG_L","Maj Gen L","","p","i","0",0,3,4
+"pMG_M","Maj Gen M","","p","i","0",0,3,4
+"pMG_N","Maj Gen N","","p","i","0",0,3,4
+"pMG_T","Maj Gen T","","p","c","4",0,2,2
+"pMG_U","Maj Gen U","","p","c","4",0,2,2
+"pMG_V","Maj Gen V","","p","c","4",0,2,2
+"pMG_W","Maj Gen W","","p","c","4",0,2,2
+"pMG_X","Maj Gen X","","p","c","4",0,2,2
+"pMG_Y","Maj Gen Y","","p","c","4",0,2,2
+"pMG_Z","Maj Gen Z","","p","c","4",0,2,2
+"Pon","Poniatowski","VIII Corps","f","i","4",0,3,2
+"Priest","St Priest","VII Corps","r","i","2",0,4,2
+"Raj","Rajewski","III Grenadiers","r","i","1",0,2,1
+"Rey","Reynier","VII Corps","f","i","4",1,6,2
+"Rosen","Rosen","Rosen","p","i","0",0,0,0
+"Sacken","Osten-Sacken","XI Corps","r","i","3",1,6,2
+"Scherb","Scherbatow","VI Corps","r","i","1",0,2,1
+"Schwarz","Schwarzenberg","XXXX","a","i","2",1,6,4
+"Seb","Sebastiani","II Cavalry","f","c","5",0,3,1
+"Sou","Soult","Old Guard","f","i","4",0,6,3
+"Souh","Souham","III Corps","f","i","2",0,6,2
+"Stedi","Stedingk","I Corps","s","i","1",0,5,2
+"Tau","Tauenzien","IV Corps","p","i","2",0,5,2
+"Tolly","Barclay de Tolly","","r","i","3",1,6,2
+"Tolst","Ostermann-Tolstoj","Militia","r","i","1",0,3,2
+"Treu","Treubezkov","III Cavalry","p","c","4",0,3,1
+"Van","Vandamme","I Corps","f","i","2",1,4,2
+"Vic","Victor","II Corps","f","i","2",0,6,2
+"Wasi","Wasiltchikow","IV Cavalry","r","c","4",0,3,1
+"Winzi","Winzingerode","II Corps","r","i","2",0,4,2
+"Witten","Lapoype","Wittenberg Garr","f","i","0",0,0,0
+"Wittg","Wittgenstein","","r","i","2",0,5,3
+"Woro","Woronzow","XIV Corps","r","i","1",0,4,2
+"Yermo","Yermolow","V Guards","r","i","1",0,3,1
+"Yor","Yorck","II Corps","p","i","2",0,5,2

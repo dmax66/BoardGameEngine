@@ -1,0 +1,53 @@
+API for Boardgame Engine
+
+UNIT MANAGEMENT
+./update_unit_data (game_id, unit_id, strength, commander). Returns OK/FAIL - Update combat unit details
+./update_leader_data (game_id, leader_id, position, orientation, mode, commander). Returns OK/FAIL - Update leader details
+./create_leader (game_id, nation, type, name). Returns leader_id or nil - Create new leader (maj gen). New position is (0,0), mode is column, and orientation is E 
+./create_unit (game_id, nation, type, name). Returns unit_id or nil - Create new combat unit. Strength is 0, commander is nil.
+./remove_unit (game_id, unit_id). Returns OK/FAIL. Remove combat unit
+./remove_leader (game_id, leader_id). Returns OK/FAIL. Remove leader
+./transfer_strength (game_id, source_unit_id, target_unit_id, points) - Returns OK/FAIL. Transfer strength. Checks that units have the same Nation
+
+
+SCENARIO MANAGEMENT
+Get list of units in game (leaders and combat units)
+
+
+
+
+
+LOGISTICS MANAGEMENT
+Accrue Administrative Points
+Get Administrative Points
+Update Administrative Points
+
+
+REINFORCEMENT MANAGEMENT
+Get reinforcement points
+Transfer reinforcement points
+
+GAME MANAGEMENT
+./init_game (game_id, scenario_id). Returns OK/FAIL. game_id must not be a duplicate - Populate a new game with data from the selected scenario
+
+Load Game (not an API - more a sequence of calls)
+./get_units (game_id) - Get list of combat units
+./get_leaders (game_id). Returns a JSON object with an array of leaders with their static data - Get list of leaders
+./get_unit_data (game_id, unit_id). Returns a JSON object - Get details of a single combat unit
+./get_leader_data (game_id, leader_id). Returns a JSON object - Get details of a single leader
+* Get phase
+* Get turn
+* Get admin points
+* Get reinforcement points
+
+
+Save Game (not an API - more a sequence of calls) - this is not necessary, as the database holds the current status of the game. 
+
+Advance phase
+Advance turn
+
+
+LOG MANAGEMENT (not exposed)
+Every action must be logged for replaying -  this is done at the server side whenever an update/create/delete affecting the game status is performed.
+
+
