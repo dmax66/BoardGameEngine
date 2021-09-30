@@ -1,27 +1,30 @@
 
+
+let leaders = null;
+
 // Leader.prototype = Object.create (CombatUnit.prototype);
 Leader.prototype.type = "leader";
 Leader.prototype.movAllowance = 9;
 
-function Leader (id, parent, name, nationality, type, initiative, bonus, commandCapacity, subordinationValue, formation, x, y, zOrder, direction)
+
+function Leader (id, name, nation, army, unitName, type, initiative, hasBonus, commandCapacity, subordinationValue, parent, mode, x, y, zOrder, orientation)
 {
-//  CombatUnit.call (id, name, "corps", nationality, 0);
+//  CombatUnit.call (id, name, "corps", nation, 0);
   this.id = id;
   this.parent = parent;
   this.name = name;
-  this.nationality = nationality;
+  this.nation = nation;
   this.initiative = initiative;
-  this.bonus = bonus;
+  this.hasBonus = hasBonus;
   this.commandCapacity = commandCapacity;
   this.subordinationValue = subordinationValue;
-  this.usedCommandSpan = 0;
   this.units = [];
 //  this.type = type;
-  this.formation = formation;
+  this.mode = mode;
   this.x = x;
   this.y = y;
   this.zOrder = zOrder;
-  this.direction = direction;
+  this.orientation = orientation;
 }
 Leader.prototype.constructor = Leader;
 
@@ -47,7 +50,7 @@ Leader.prototype.picture = function ()
 {
   var leaderImg = document.createElement ("img");
   leaderImg.id = "img:" + this. name;
-  leaderImg.src ="images/" + this.name + ".png";
+  leaderImg.src ="img/" + this.name + ".png";
   leaderImg.style.width = "50px";
 
   return leaderImg;
@@ -179,30 +182,30 @@ Leader.prototype.createWidgetForMap = function ()
   
   var leaderIcon = document.createElement ("img");
   leaderIcon.setAttribute ("class", "counter-icon");
-  leaderIcon.setAttribute ("class", this.nationality);
+  leaderIcon.setAttribute ("class", this.nation);
   
-  switch (this.formation)
+  switch (this.mode)
   {
     case "line":
-      leaderIcon.src = this.type == "cavalry" ? "images/cavalry-line.png" : "images/infantry-line.png";
+      leaderIcon.src = this.type == "cavalry" ? "img/cavalry-line.png" : "img/infantry-line.png";
       break;
       
     case "column":
-      leaderIcon.src = "images/column.png";    
+      leaderIcon.src = "img/column.png";    
       break;
       
     default:
-      throw ("Invalid formation value");
+      throw ("Invalid mode value");
   }
   leaderIcon.style.height = "26px";
   leaderIcon.style.width = "60px";  
   leaderWidget.appendChild (leaderIcon);
   
-  // Add the leader name (if in line formation)
+  // Add the leader name (if in line mode)
   var leaderName = document.createElement ("p");
   leaderName.setAttribute ("class", "counter-name");
   leaderName.innerHTML = this.name;
-  leaderName.style.visibility = (this.formation == "line") ? "visible" : "hidden";
+  leaderName.style.visibility = (this.mode == "line") ? "visible" : "hidden";
   leaderWidget.appendChild (leaderName);
   
   return leaderWidget;
@@ -241,15 +244,15 @@ Leader.prototype.drawOnMap = function ()
   if (!leaderIcon) throw ("Leader icon element not found");
   if (!leaderName) throw ("Leader name element not found");
   
-  switch (this.formation)
+  switch (this.mode)
   {
     case "line":
-      leaderIcon.src = this.type == "cavalry" ? "images/cavalry-line.png" : "images/infantry-line.png";
+      leaderIcon.src = this.type == "cavalry" ? "img/cavalry-line.png" : "img/infantry-line.png";
       leaderName.style.visibility = "visible";
 
       for (i=0; i<6; i++)
       {
-        if (this.direction == lineDrawInfo[i].facing)
+        if (this.orientation == lineDrawInfo[i].facing)
         {
           leaderWidget.style.transform = "rotate(" + lineDrawInfo[i].angle + "deg)";
           leaderWidget.style.left = (lineDrawInfo[i].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";  
@@ -260,11 +263,11 @@ Leader.prototype.drawOnMap = function ()
       break;
 
     case "column":
-      leaderIcon.src = "images/column.png";
+      leaderIcon.src = "img/column.png";
       leaderName.style.visibility = "hidden";
       for (i=0; i<6; i++)
       {
-        if (this.direction == columnMovementInfo[i].facing)
+        if (this.orientation == columnMovementInfo[i].facing)
         {
           leaderWidget.style.transform = "rotate(" + columnMovementInfo[i].angle + "deg)";
           leaderWidget.style.left = (columnMovementInfo[i].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";  
@@ -275,107 +278,107 @@ Leader.prototype.drawOnMap = function ()
       throw ("Leader orientation (column mode) invalid");
 
     default:
-      throw ("Formation invalid");
+      throw ("mode invalid");
   }
 }
 
 
 
-Leader.prototype.changeFormation = function ()
+Leader.prototype.changemode = function ()
 {
-  if (this.formation == "line") 
+  if (this.mode == "line") 
   {
-    switch (this.direction)
+    switch (this.orientation)
     {
       case "N":
-        this.direction = "E";
+        this.orientation = "E";
         break;
         
       case "S":
-        this.direction = "W";
+        this.orientation = "W";
         break;
         
       case "NE":
-        this.direction = "SE";
+        this.orientation = "SE";
         break;
         
       case "NW":
-        this.direction = "NE";
+        this.orientation = "NE";
         break;
         
       case "SW":
-        this.direction = "NW";
+        this.orientation = "NW";
         break;
         
       case "SE":
-        this.direction = "SW";
+        this.orientation = "SW";
         break;
         
       default:
-        throw ("Invalid direction of leader: " + this.direction);
+        throw ("Invalid orientation of leader: " + this.orientation);
     }
     
-    this.formation = "column";
+    this.mode = "column";
     this.drawOnMap();
   }
-  else if (this.formation == "column")
+  else if (this.mode == "column")
   {
-    switch (this.direction)
+    switch (this.orientation)
     {
       case "W":
         this.facing = "S";
         break;
         
       case "E":
-        this.direction = "N";
+        this.orientation = "N";
         break;
         
       case "NE":
-        this.direction = "NW";
+        this.orientation = "NW";
         break;
         
       case "NW":
-        this.direction = "SW";
+        this.orientation = "SW";
         break;
         
       case "SW":
-        this.direction = "SE";
+        this.orientation = "SE";
         break;
         
       case "SE":
-        this.direction = "NE";
+        this.orientation = "NE";
         break;
         
       default:
-        throw ("Invalid direction of column stack: " + this.direction);
+        throw ("Invalid orientation of column stack: " + this.orientation);
     }
     
-    this.formation = "line";
+    this.mode = "line";
     this.drawOnMap();
   }
   else 
-    throw ("Invalid stack formation: " + this.formation);
+    throw ("Invalid stack mode: " + this.mode);
 }
 
 // Move a stack one hex
-// direction:
+// orientation:
 //  0: move ahead
 // -1: move forward left
 // +1: move forward right
-Leader.prototype.move = function (direction)
+Leader.prototype.move = function (orientation)
 {
-  switch (this.formation)
+  switch (this.mode)
   {
     case "line":
-      this.moveAsLine (direction);
+      this.moveAsLine (orientation);
       break;
       
     case "column":
-      this.moveAsColumn (direction);
+      this.moveAsColumn (orientation);
       break;
       
     default:
-      throw ("Invalid stack formation: " + this.formation);
+      throw ("Invalid stack mode: " + this.mode);
   }
 }
 
@@ -392,31 +395,31 @@ function numOfLeadersInHex (x, y)
 }
 
 
-Leader.prototype.moveAsLine = function (direction)
+Leader.prototype.moveAsLine = function (orientation)
 {
   var i=0;
   for (i=0; i<6; i++)
-    if (this.direction == lineMovementInfo[i].facing) break;
+    if (this.orientation == lineMovementInfo[i].facing) break;
 
-  if (i==6) throw ("Invalid orientation of line stack: " + this.direction);
+  if (i==6) throw ("Invalid orientation of line stack: " + this.orientation);
    
-  // A little hack to convert direction to either 0 (forward left) or 1 (forward right) to use the elements of the array xOffsetYEven / xOffsetYOdd
-  switch (direction)
+  // A little hack to convert orientation to either 0 (forward left) or 1 (forward right) to use the elements of the array xOffsetYEven / xOffsetYOdd
+  switch (orientation)
   {
     case -1:
-      direction = 0;
+      orientation = 0;
       break;
       
     case 1:
       break;
       
     default:
-      throw ("Invalid value for 'direction'");
+      throw ("Invalid value for 'orientation'");
   }    
     
   // Calculate the new coordinates (grid units)
-  this.x += (this.y % 2 == 0) ? lineMovementInfo[i].xOffsetYEven[direction] : lineMovementInfo[i].xOffsetYOdd[direction];
-  this.y += lineMovementInfo[i].yOffset[direction];
+  this.x += (this.y % 2 == 0) ? lineMovementInfo[i].xOffsetYEven[orientation] : lineMovementInfo[i].xOffsetYOdd[orientation];
+  this.y += lineMovementInfo[i].yOffset[orientation];
   
   // Set the zOrder so that the leader is at the top of the stack
   this.zOrder = numOfLeadersInHex (this.x, this.y) - 1;
@@ -424,19 +427,19 @@ Leader.prototype.moveAsLine = function (direction)
   this.drawOnMap();
 }
 
-Leader.prototype.moveAsColumn = function (direction)
+Leader.prototype.moveAsColumn = function (orientation)
 {
   // Find the current orientation in the RotationInfo array
   var i=0;
-  while (i < 6 && this.direction != columnMovementInfo[i].facing) i++;
+  while (i < 6 && this.orientation != columnMovementInfo[i].facing) i++;
   if (i == 6) throw ("Incorrect column facing");
 
-  // Calc the new direction by adding 'direction' to the current index. 
+  // Calc the new orientation by adding 'orientation' to the current index. 
   // Treat the array as circular, managing the overflow
-  i += direction;
+  i += orientation;
   if (i < 0) i += 6;
   if (i >= 6) i -= 6;
-  this.direction = columnMovementInfo[i].facing;      
+  this.orientation = columnMovementInfo[i].facing;      
     
   // Advance one hex
   this.x += (this.y % 2 == 0) ? columnMovementInfo[i].movement.xMoveWhenYEven : columnMovementInfo[i].movement.xMoveWhenYOdd;
@@ -449,18 +452,18 @@ Leader.prototype.moveAsColumn = function (direction)
 }
 
 
-Leader.prototype.flipDirection = function (direction)
+Leader.prototype.fliporientation = function (orientation)
 {
   var i;
   
-  switch (this.formation)
+  switch (this.mode)
   {
     case "line":
       for (i=0; i<6; i++)
       {
-        if (this.direction == lineDrawInfo[i].facing)
+        if (this.orientation == lineDrawInfo[i].facing)
         {
-          this.direction = lineDrawInfo[i].flip.newFacing;
+          this.orientation = lineDrawInfo[i].flip.newFacing;
           this.x += (this.y % 2 ==0) ? lineDrawInfo[i].flip.xOffsetEven : lineDrawInfo[i].flip.xOffsetOdd;
           this.y += lineDrawInfo[i].flip.yOffset;
           this.drawOnMap();
@@ -472,9 +475,9 @@ Leader.prototype.flipDirection = function (direction)
     case "column":
       for (i=0; i<6; i++)
       {
-        if (this.direction == columnMovementInfo[i].facing)
+        if (this.orientation == columnMovementInfo[i].facing)
         {
-          this.direction = columnMovementInfo[i].flip.newFacing;
+          this.orientation = columnMovementInfo[i].flip.newFacing;
           this.x += (this.y % 2 ==0) ? columnMovementInfo[i].flip.xOffsetEven : columnMovementInfo[i].flip.xOffsetOdd;
           this.y += columnMovementInfo[i].flip.yOffset;
           this.drawOnMap();
@@ -484,69 +487,69 @@ Leader.prototype.flipDirection = function (direction)
       throw ("Error");
       
     default:
-      throw ("Invalid stack formation");
+      throw ("Invalid stack mode");
   }
 }
 
 // Rotate a stack (line) one hex
-// direction:
+// orientation:
 // -1: rotate anticlockwise
 // +1: rotate clockwise
-Leader.prototype.rotate = function  (direction) 
+Leader.prototype.rotate = function  (orientation) 
 {
   var i=0;
   
-  switch (direction) 
+  switch (orientation) 
   {
     case 1:
       for (i=0; i<6; i++)
       {
-        if (this.direction == lineDrawInfo[i].facing) break;
+        if (this.orientation == lineDrawInfo[i].facing) break;
       }
       if (i==6)
-        throw ("Invalid stack (line) orientation: " + this.direction);
+        throw ("Invalid stack (line) orientation: " + this.orientation);
         
-      i += direction;
+      i += orientation;
       if (i < 0) i += 6;
       if (i >= 6) i -= 6;
 
-      this.direction = lineDrawInfo[i].facing;
+      this.orientation = lineDrawInfo[i].facing;
       this.drawOnMap();
       break;
             
     case -1:
-      switch (this.direction)
+      switch (this.orientation)
       {
         case "N":
-          this.direction="NW";
+          this.orientation="NW";
           if (this.y % 2 == 0) this.x--;
           this.y--;
           break;
 
         case "NW":
-          this.direction="SW";
+          this.orientation="SW";
           this.x--;
           break;
 
         case "SW":
-          this.direction="S";
+          this.orientation="S";
           if (this.y % 2 == 0) this.x--;
           this.y++;
           break;
 
         case "S":
-          this.direction="SE";
+          this.orientation="SE";
           if (this.y % 2 == 1) this.x++;
           this.y++;
           break;
 
         case "SE":
-          this.direction="NE";
+          this.orientation="NE";
           this.x++;
           break;
 
         case "NE":
-          this.direction="N";
+          this.orientation="N";
           if (this.y % 2 == 1) this.x++;
           this.y--;
           break;
@@ -555,9 +558,19 @@ Leader.prototype.rotate = function  (direction)
       break;  
       
     default:
-      throw ("Invalid direction when rotating line");
+      throw ("Invalid orientation when rotating line");
   }
 }
 
 
+function createLeaders(leaderJSONdata)
+{
+  leaderJSONdata.forEach (createSingleLeader);
+}
+
+
+function createSingleLeader (v, index, array) {
+  var newLeader = Leader (v.id, v.name, v.nation, v.army, v.unitName, v.type, v.initiative, v.hasBonus, v.commandCapacity, v.subordinationValue, v.parent, v.mode, v.x, v.y, v.zOrder, v.orientation);
+  leaders.push (newLeader);
+}
 

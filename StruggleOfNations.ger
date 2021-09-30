@@ -1,0 +1,58 @@
+StruggleOfNations
+/home/dmax/Projects/StruggleOfNations.ger
+Massimo Dulisse
+4
+2
+0 0 1024 768
+2
+Leader
+67.0
+69.0
+14
+PositionX int
+Name text
+ID int
+Parent_ID int
+Type int
+Nickname text
+PositionY int
+Nation text
+CommanderOf text
+Direction text
+Mode text
+Initiative int
+CommandCapability int
+Starred int
+1
+ID
+1
+Command
+Unit
+618
+142
+8
+ID text
+Name text
+Commander text
+Nation text
+Strength int
+Type text
+Size text
+CommandedBy int
+1
+ID
+1
+Command
+1
+Command
+0
+336
+194
+0
+2
+Leader
+1
+N
+Unit
+1
+1

@@ -434,7 +434,7 @@ function showLeaderInfo (leaderWidgetId)
   
 
   var leaderImgWidget = document.createElement ("IMG");
-  leaderImgWidget.src = "images/" + aLeader.name + ".png";
+  leaderImgWidget.src = "img/" + aLeader.name + ".png";
   leaderImgWidget.height = "100";
   leaderInfoWidget.appendChild (leaderImgWidget);
 
@@ -484,7 +484,7 @@ function showLeaderInfo (leaderWidgetId)
   // Close icon
   var closeIcon = document.createElement ("IMG");
   closeIcon.setAttribute ("class", "close-icon");
-  closeIcon.src = "images/close.png";
+  closeIcon.src = "img/close.png";
   closeIcon.onclick = function() { document.getElementById (leaderWidgetId).onmouseout = function() { hideLeaderInfo (this.id); }; leaderInfoWidget.remove(); }
   leaderInfoWidget.appendChild (closeIcon);
 }
@@ -518,7 +518,7 @@ function changeCombatUnitStrength (leaderId, unitId)
   // Close icon
   var closeIcon = document.createElement ("IMG");
   closeIcon.setAttribute ("class", "close-icon");
-  closeIcon.src = "images/close.png";
+  closeIcon.src = "img/close.png";
   closeIcon.onclick = function () { dlgWidget.remove() }
   dlgWidget.appendChild (closeIcon);
   
@@ -569,7 +569,7 @@ function doCreateUnitMenu (leaderId, unitId, unitName, x, y, menuEntries)
   // Close icon
   var closeIcon = document.createElement ("IMG");
   closeIcon.setAttribute ("class", "close-icon");
-  closeIcon.src = "images/close.png";
+  closeIcon.src = "img/close.png";
   closeIcon.onclick = function () { menuWidget.remove() }
   menuWidget.appendChild (closeIcon);
   
@@ -728,7 +728,7 @@ function transferUnit (leaderId, unitId)
   
   // Close icon
   var closeIcon = document.createElement ("IMG");
-  closeIcon.src = "images/close.png";
+  closeIcon.src = "img/close.png";
   closeIcon.setAttribute ("class", "close-icon");
   closeIcon.onclick = function () { menuWidget.remove(); menuDiv.remove(); }
   menuWidget.appendChild (closeIcon);

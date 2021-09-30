@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+ <html>
+ <meta charset="utf-8"/>
+
+
+<style>
+.title_area { grid-area: header; }
+.menu_area { grid-area: menu; }
+.main_area { grid-area: main; }
+.right_area { grid-area: right; }
+.footer_area { grid-area: footer; }
+
+.grid-container {
+  display: grid;
+  grid-template-areas:
+    'header header header header header header header header'
+    'menu main main main main main main right'
+    'footer footer footer footer footer footer footer footer';
+  grid-gap: 20px;
+  background-color: black;
+  padding: 20px;
+  grid-column-gap: 50px;
+  grid-row-gap: 50px;
+}
+
+.grid-container > div {
+  background-color: rgba(0, 0, 0, 0.8);
+  text-align: center;
+  padding: 20px 0;
+  font-size: 30px;
+}
+
+
+<style> 
+
+body {font-family: Arial, Helvetica, sans-serif;}
+
+/* The Modal (background) */
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 400px; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+
+/* The Close Button */
+.close {
+  color: #aaaaaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+}
+</style>
+
+<script src="common.js"></script>
+
+
+<script type="text/javascript">
+
+function newGame()
+{
+    // Open a pop up menu to ask: game name, scenario
+    document.getElementById("newgame_box").style.display = "block";   
+    
+    // Load the list of scenarios
+    call_server_api_get ("app/get_scenarios.php", populate_scenario_list);
+}
+
+
+function beginGame()
+{
+  game_mode = "On";    
+
+  // Show the main map
+  document.getElementById("board").src = "img/SoN_Map_New-2011_0521.png";
+
+  // Initialise admin points, morale, reinforcement points
+  frenchPlayerStatus.setAdminPoints(scenario_data.FrenchAdminPoints);
+  frenchPlayerStatus.setMorale(scenario_data.FrenchMorale);
+  frenchPlayerStatus.setReinforcementPoints(scenario_data.FrenchReinforcementPoints);
+
+  alliedPlayerStatus.setAdminPoints(scenario_data.ArmyOfSilesiaAdminPoints);
+  alliedPlayerStatus.setMorale(scenario_data.AlliedMorale);
+  alliedPlayerStatus.setReinforcementPoints(scenario_data.PrussianReinforcementPoints);
+
+  frenchPlayerStatus.drawSelf();  
+}
+
+
+function loadGame()
+{
+
+}
+
+function populate_scenario_list(xhttp_obj)
+{
+  const scenarios = JSON.parse(xhttp_obj.responseText); 
+
+  const scenario_list = document.getElementById("scenario_list");
+
+  for (let i=0; i<scenarios.length; i++)
+  {
+    let new_elem = document.createElement ("option");
+    new_elem.value = scenarios[i].id;
+    new_elem.innerHTML = scenarios[i].name;
+
+    scenario_list.appendChild (new_elem);
+  }
+}
+
+
+function init_game_from_scenario()
+{
+  const url = "app/get_scenario_data.php?scenario_id=" + document.getElementById("scenario_list").value;
+
+  // Get scenario data from DB and populate internal structures
+  call_server_api_get (url, populate_scenario_data);
+
+  // Get leader and unit data from DB and populate internal structures
+  loadLeaderData();
+  loadUnitData();
+
+  // Close the load game modal box
+  document.getElementById("newgame_box").style.display="none";
+  
+  // And get the game begin
+  beginGame();
+}
+
+
+function populate_scenario_data (xhttp_obj)
+{
+   let json_response = JSON.parse (xhttp_obj.responseText);
+   
+   scenario_data = json_response[0];
+}
+
+
+
+</script>
+
+
+<body>
+
+<font color="Silver">
+
+<!-- New game modal box -->
+<div id="newgame_box" class="modal">
+
+  <!-- Modal content -->
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <label for="scenario_list"><h3>Select a scenario</h3></label>
+    <select id="scenario_list" name="scenarios">
+        <option value=""></option>
+    </select> 
+    <br><input type="button" value="Load" onclick="init_game_from_scenario()">
+  </div>
+
+</div>
+
+
+<div class="grid-container">
+    <div class="title_area">
+      <div class="grid-item"><label for "admin_points">Admin Points</label><input type="text" id="admin_points" readonly="1"> </div>
+      <div class="grid-item"><label for "reinforcement_points">Reinforcement Points</label><input type="text" id="reinforcement_points" readonly="1"></div>
+      <div class="grid-item"><label for "morale">Morale</label><input type="text" id="morale" readonly="1"></div>
+    </div>
+    <div class="menu_area"><h2><font color="Silver">Menu</font></h2>
+        <div class="grid-item">  <input type="button" value="New Game" onclick="newGame()" class="menu_button">   </div>
+        <div class="grid-item">  <input type="button" value="Load Game" onclick="" class="menu_button">  </div>
+    </div>
+    <div class="main_area"><img id="board" src="img/The_Struggle_of_Nations_Box.jpeg"></div>
+
+    <div class="right_area">This is ome text</div>
+    <div class="footer_area"> &copy Massimo Dulisse</div>
+</div>
+
+</font>
+
+<script>
+
+// Get the <span> element that closes the modal
+const close_button = document.getElementsByClassName("close")[0];
+
+// When the user clicks on <span> (x), close the modal
+close_button.onclick = function() {
+  document.getElementById("newgame_box").style.display = "none";
+}  
+  
+var newgame_box = document.getElementById("newgame_box");
+
+
+</script>
+
+
+</body>
+
+</html>

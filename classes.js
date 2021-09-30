@@ -13,7 +13,7 @@ CombatUnit.prototype.picture = function ()
   var unitIcon = document.createElement ("img");
   unitIcon.setAttribute ("class", "unit-icon");
   unitIcon.setAttribute ("class", this.nationality);
-  unitIcon.src = "images/" + this.type + "-" + this.size + ".png";
+  unitIcon.src = "img/" + this.type + "-" + this.size + ".png";
 
   return unitIcon;
 }
