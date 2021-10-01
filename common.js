@@ -35,7 +35,7 @@ let scenario_data = null;
 
 
 
-
+let db_result="";
 
 function call_server_api_get (url, handler_func)
 {
