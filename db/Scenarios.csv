@@ -1,4 +1,4 @@
-"ID","Name","StartTurn","EndTurn","NumberOfTurns","FrenchAdminPoints","ArmyOfSilesiaAdminPoints","armyOfBohemiaAdminPoints","ArmyOfTheNorthAdminPoints","FrenchReinforcementPoints","RussianReinforcementPoints","PrussianReinforcementPoints","AustrianReinforcementPoints","SwedishReinforcementPoints"
-"D","Dresden",34,44,1,45,45,21,16,0,0,0,0,0
-"L","Leipzig",55,55,55,39,52,39,16,0,0,0,0,0
-"S","Spring",1,23,23,21,11,0,0,0,0,0,0,0
+"ID","Name","StartTurn","EndTurn","StartPhase","Weather","FrenchAdminPoints","ArmyOfSilesiaAdminPoints","ArmyOfBohemiaAdminPoints","ArmyOfTheNorthAdminPoints","FrenchReinforcementPoints","FrenchGuardReinforcementPoints","RussianReinforcementPoints","PrussianReinforcementPoints","AustrianReinforcementPoints","SwedishReinforcementPoints","FrenchMorale","AlliedMorale"
+"D","Dresden",34,44,0,"",45,45,21,16,0,0,0,0,0,0,0,0
+"L","Leipzig",55,55,0,"",39,52,39,16,0,0,0,0,0,0,0,0
+"S","Spring",1,23,0,"",21,11,0,0,0,0,0,0,0,0,0,0
