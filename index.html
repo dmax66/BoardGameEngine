@@ -13,7 +13,7 @@
 .grid-container {
   display: grid;
   grid-template-areas:
-    'header header header header header header header header'
+    'menu header header header header header header header'
     'menu main main main main main main right'
     'footer footer footer footer footer footer footer footer';
   grid-gap: 20px;
@@ -73,12 +73,46 @@ body {font-family: Arial, Helvetica, sans-serif;}
   text-decoration: none;
   cursor: pointer;
 }
+
+.game_map {
+  position: absolute;
+  top: 20px;
+  left: 0px;
+  width: 100%;
+  clip: rect(0px, 1800px, 1000x, 0px);
+}
+
+.status_bar {
+  position: absolute;
+  width: 100%;
+  top: 0;
+  left: 0;
+  height: 20px;  
+}
+
+.div1 {
+  float: left;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+.body_style {
+  overflow: hidden;
+}
+
 </style>
 
 <script src="common.js"></script>
+<script src="map_geometry_funcs.js"></script>
 <script src="game.js"></script>
 <script src="leaders.js"></script>
 <script src="units.js"></script>
+
+
+
 
 
 <script type="text/javascript">
@@ -101,7 +135,7 @@ function populate_scenario_list(xhttp_obj) {
 
   const scenario_list = document.getElementById("scenario_list");
 
-  for (let i=0; i<scenarios.length; i++)
+  for (let i=0; i < scenarios.length; i++)
   {
     let new_elem = document.createElement ("option");
     new_elem.value = scenarios[i].id;
@@ -117,19 +151,20 @@ function createLoadGameDialog () {
   document.getElementById("loadgame_box").style.display = "block";   
   
   // Load the list of scenarios
-  call_server_api_get ("app/load_games.php", populate_game_list);
+  call_server_api_get ("app/get_games.php", populate_game_list);
 }
+
 
 function populate_game_list(xhttp_obj) {
   const games = JSON.parse(xhttp_obj.responseText); 
 
   const game_list = document.getElementById("game_list");
 
-  for (let i=0; i<games.length; i++)
+  for (let i=0; i < games.length; i++)
   {
     let new_elem = document.createElement ("option");
-    new_elem.value = games[i].id;
-    new_elem.innerHTML = games[i].name;
+    new_elem.value = games[i].ID;
+    new_elem.innerHTML = games[i].Name + " (Scenario: " + games[i].Description + ")";
 
     game_list.appendChild (new_elem);
   }
@@ -142,8 +177,6 @@ function populate_game_list(xhttp_obj) {
 
 
 function load_game_data (game_id) {
-  alert ("New game ID: " + game_id);
-
   call_server_api_get ("app/load_game.php?game_id=" + game_id, createGame);
   call_server_api_get ("app/load_leaders.php?game_id=" + game_id, createLeaders);
   call_server_api_get ("app/load_units.php?game_id=" + game_id, createUnits);
@@ -158,7 +191,7 @@ function load_game_data (game_id) {
 
 function beginGame() {
   // Show the main map
-  document.getElementById("board").src = "img/SoN_Map_New-2011_0521.png";
+  document.getElementById("mapContainer").src = "img/SoN_Map_New-2011_0521.png";
 
   // Initialise admin points, morale, reinforcement points
   frenchPlayerStatus.setAdminPoints         (game.FrenchAdminPoints);
@@ -169,7 +202,11 @@ function beginGame() {
   alliedPlayerStatus.setMorale              (game.AlliedMorale);
   alliedPlayerStatus.setReinforcementPoints (game.PrussianReinforcementPoints);
 
-  frenchPlayerStatus.drawSelf();  
+  frenchPlayerStatus.drawSelf();
+
+  for (i=0; i < leaders.length; i++) {
+    leaders[i].drawSelf();
+  }
 }
 
 
@@ -193,13 +230,12 @@ let new_game_id = '';
 function get_game_id (xhttp_obj)
 {
   new_game_id = xhttp_obj.responseText;
-  alert ("New game ID - JS variable: " + new_game_id);
-
 }
+
 
 function init_game_from_scenario(scenario_id, game_name)
 {
-  // Get scenario data from DB and populate internal structures
+ // Get scenario data from DB and populate internal structures
 //  const url = "app/get_scenario_data.php?scenario_id=" + scenario_id;
 //  call_server_api_get (url, get_scenario_data);
 
@@ -217,11 +253,28 @@ function init_game_from_scenario(scenario_id, game_name)
 }
 
 
+function load_game (game_id) {
+  load_game_data (game_id);
+  
+  // Close the load game modal box
+  document.getElementById("loadgame_box").style.display="none";
+  
+  // And get the game begin
+  beginGame();  
+}
+
 
 </script>
 
 
-<body>
+<script type="text/javascript">
+function resize_map() {
+  document.getElementById("game_map_frame").height = window.innerHeight  - document.getElementById("StatusBar").clientHeight;
+  document.getElementById("game_map_frame").width = window.innerWidth;
+}
+
+</script>
+<body class="body_style" onresize="resize_map()" onload="resize_map()">
 
 <font color="Silver">
 
@@ -234,8 +287,8 @@ function init_game_from_scenario(scenario_id, game_name)
     <select id="scenario_list" name="scenarios">
         <option value=""></option>
     </select> 
-    <br><label for="game_name"><input type="text" id="game_name"></label>
-    <br><input type="button" value="Load" onclick="init_game_from_scenario (document.getElementById ('scenario_list').value, document.getElementById ('game_name').value)">
+    <br>Enter the game name: <input type="text" id="game_name">
+    <br><input type="button" value="Create Game" onclick="init_game_from_scenario (document.getElementById ('scenario_list').value, document.getElementById ('game_name').value)">
   </div>
 
 </div>
@@ -248,31 +301,47 @@ function init_game_from_scenario(scenario_id, game_name)
     <span class="close">&times;</span>
     <label for="game_list"><h3>Select a game</h3></label>
     <select id="game_list" name="games">
-        <option value=""></option>
     </select> 
-    <br><input type="button" value="Load" onclick="load_game (document.getElementById ('game_list').value))">
+    <br><input type="button" value="Load" onclick="load_game (document.getElementById ('game_list').value)">
   </div>
 
 </div>
 
+<!-- MAIN WINDOW -->
 
 
+
+<div id="StatusBar" class="status_bar" >
+      <input type="button" value="New Game" onclick="createNewGameDialog()" class="menu_button" hidden="0">
+      <input type="button" value="Load Game" onclick="createLoadGameDialog()" class="menu_button" >       
+      Status Bar
+</div>
+<iframe id="game_map_frame" src="game_map.html" class="game_map">
+
+</iframe>
+</div>
+
+
+
+<!--
 
 <div class="grid-container">
     <div class="title_area">
-      <div class="grid-item"><label for "admin_points">Admin Points</label><input type="text" id="admin_points" readonly="1"> </div>
-      <div class="grid-item"><label for "reinforcement_points">Reinforcement Points</label><input type="text" id="reinforcement_points" readonly="1"></div>
-      <div class="grid-item"><label for "morale">Morale</label><input type="text" id="morale" readonly="1"></div>
+      <div class="grid-item">
+        <label for "admin_points">Admin Points</label><input type="text" id="admin_points" readonly="1">
+        <label for "reinforcement_points">Reinforcement Points</label><input type="text" id="reinforcement_points" readonly="1">
+        <label for "morale">Morale</label><input type="text" id="morale" readonly="1">
     </div>
     <div class="menu_area"><h2><font color="Silver">Menu</font></h2>
         <div class="grid-item">  <input type="button" value="New Game" onclick="createNewGameDialog()" class="menu_button">   </div>
         <div class="grid-item">  <input type="button" value="Load Game" onclick="createLoadGameDialog()" class="menu_button">  </div>
     </div>
-    <div class="main_area"><img id="board" src="img/The_Struggle_of_Nations_Box.jpeg"></div>
+    <div class="main_area"><img id="mapContainer" src="img/The_Struggle_of_Nations_Box.jpeg"></div>
 
-    <div class="right_area">This is ome text</div>
+    <div class="right_area"></div>
     <div class="footer_area"> &copy Massimo Dulisse</div>
 </div>
+-->
 
 </font>
 
