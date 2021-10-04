@@ -74,33 +74,70 @@ body {font-family: Arial, Helvetica, sans-serif;}
   cursor: pointer;
 }
 
-.game_map {
+.game_ymap {
   position: absolute;
-  top: 20px;
+  top: 30px;
   left: 0px;
-  width: 100%;
-  clip: rect(0px, 1800px, 1000x, 0px);
+  overflow: scroll;
 }
 
 .status_bar {
-  position: absolute;
+  position: fixed;
   width: 100%;
-  top: 0;
-  left: 0;
-  height: 20px;  
+  top: 0px;
+  left: 0px;
+  height: 30px;  
+  background-color: black;
+  z-index: 1;
 }
 
-.div1 {
-  float: left;
+
+.menu_symbol {
+  font-size: 15px;
+  color: silver; 
+  background-color: black;
+  height: 30px;
 }
 
-/* width */
-::-webkit-scrollbar {
-  width: 10px;
+.menu_symbol:hover {
+  background-color: silver;
+  color: black;
+  cursor: default;
 }
 
-.body_style {
-  overflow: hidden;
+
+
+.main_menu {
+  position: fixed;
+  font-size:15px;
+  color:silver; 
+  background-color: black;
+  top: 30px;
+  width: 200px;
+  cursor: default;
+  visibility: hidden;
+  z-index: 2;
+}
+
+.menu_item {
+  font-size: 15px;
+  color:silver; 
+  background-color: black;
+  cursor: default;
+}
+
+.menu_item:hover, .menu_item:focus {
+  font-size:15px;
+  color: black; 
+  background-color: silver;
+}
+
+.game_map {
+  position: absolute;
+  top: 30px;
+  vertical-align: 100px;
+  z-index: 0;
+  overflow: scroll;
 }
 
 </style>
@@ -268,18 +305,29 @@ function load_game (game_id) {
 
 
 <script type="text/javascript">
-function resize_map() {
-  document.getElementById("game_map_frame").height = window.innerHeight  - document.getElementById("StatusBar").clientHeight;
-  document.getElementById("game_map_frame").width = window.innerWidth;
+
+
+function show_menu (flag) {
+  var menu_obj = document.getElementById("main_menu_id");
+  
+  menu_obj.style.visibility = (flag == true) ? "visible" : "hidden";
+}
+
+function toggle_menu () {
+  var menu_obj = document.getElementById("main_menu_id");
+  
+  menu_obj.style.visibility = (menu_obj.style.visibility != "visible") ? "visible" : "hidden";
 }
 
 </script>
-<body class="body_style" onresize="resize_map()" onload="resize_map()">
+
+
+<body>
+
 
 <font color="Silver">
 
 <!-- New game modal box -->
-
 <div id="newgame_box" class="modal">
   <div class="modal-content">
     <span class="close">&times;</span>
@@ -295,7 +343,6 @@ function resize_map() {
 
 
 <!-- Load game modal box -->
-
 <div id="loadgame_box" class="modal">
   <div class="modal-content">
     <span class="close">&times;</span>
@@ -307,42 +354,23 @@ function resize_map() {
 
 </div>
 
+
+<!-- Main manu -->
+<div id="main_menu_id" class="main_menu">
+  <div id="menu_items_id" class="menu_items"> 
+    <div id="new_game_entry" class="menu_item" onclick="createNewGameDialog();" >New Game</div>
+    <div id="load_game_entry" class="menu_item" onclick="createLoadGameDialog();" >Load Game</div>
+    <div id="quit_game_entry" class="menu_item">Quit Game</div>
+  </div>
+</div>
+
+
 <!-- MAIN WINDOW -->
-
-
-
 <div id="StatusBar" class="status_bar" >
-      <input type="button" value="New Game" onclick="createNewGameDialog()" class="menu_button" hidden="0">
-      <input type="button" value="Load Game" onclick="createLoadGameDialog()" class="menu_button" >       
-      Status Bar
-</div>
-<iframe id="game_map_frame" src="game_map.html" class="game_map">
-
-</iframe>
+  <span id="menu_symbol" class="menu_symbol" onclick="toggle_menu();" >&nbsp;&#9776;&nbsp; Main menu</span>
 </div>
 
-
-
-<!--
-
-<div class="grid-container">
-    <div class="title_area">
-      <div class="grid-item">
-        <label for "admin_points">Admin Points</label><input type="text" id="admin_points" readonly="1">
-        <label for "reinforcement_points">Reinforcement Points</label><input type="text" id="reinforcement_points" readonly="1">
-        <label for "morale">Morale</label><input type="text" id="morale" readonly="1">
-    </div>
-    <div class="menu_area"><h2><font color="Silver">Menu</font></h2>
-        <div class="grid-item">  <input type="button" value="New Game" onclick="createNewGameDialog()" class="menu_button">   </div>
-        <div class="grid-item">  <input type="button" value="Load Game" onclick="createLoadGameDialog()" class="menu_button">  </div>
-    </div>
-    <div class="main_area"><img id="mapContainer" src="img/The_Struggle_of_Nations_Box.jpeg"></div>
-
-    <div class="right_area"></div>
-    <div class="footer_area"> &copy Massimo Dulisse</div>
-</div>
--->
-
+<img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" > 
 </font>
 
 <script>
