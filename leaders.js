@@ -1,6 +1,8 @@
+'use strict';
 
 
 let leaders = [];
+const numLeadersInSameHex=1;
 
 class Leader {
   constructor (id, name, nation, army, unitName, type, initiative, hasBonus, commandCapacity, subordinationValue, parent, mode, x, y, zOrder, orientation) {
@@ -23,19 +25,19 @@ class Leader {
 
 
   indexOfLeaderById (leaderId)
-{
-  var k;
-
-  /* This part of code has to be moved out. Replace with "findLeaderById" */
-  for (k=0; k<leaders.length; k++)
-    if (leaders[k].id == leaderId)
-      break;
-
-  if (k == leaders.length) 
-    throw ("Leader not found");
-
-  return k;
-}
+  {
+    var k;
+  
+    /* This part of code has to be moved out. Replace with "findLeaderById" */
+    for (k=0; k<leaders.length; k++)
+      if (leaders[k].id == leaderId)
+        break;
+  
+    if (k == leaders.length) 
+      throw ("Leader not found");
+  
+    return k;
+  }
 
   picture () {
     let leaderImg = document.createElement ("img");
@@ -152,11 +154,13 @@ class Leader {
     return s;
   }
 
+
   createWidgetForMap () {
-    var leaderWidget = document.createElement ("div");
-    
+    var leaderWidget = document.createElement ("div");  
     leaderWidget.id = "L:" + this.id;
     leaderWidget.setAttribute ("class", "counter-widget");
+    leaderWidget.style.height = "26px";
+    leaderWidget.style.width = "60px";  
     leaderWidget.onmouseover = function() { showLeaderInfo (this.id); }
     leaderWidget.onmouseout = function() { hideLeaderInfo (this.id, false); }
     leaderWidget.onclick = function() { this.onmouseout = function () {}; showLeaderInfo (this.id); }
@@ -166,14 +170,15 @@ class Leader {
     var leaderIcon = document.createElement ("img");
     leaderIcon.setAttribute ("class", "counter-icon");
     leaderIcon.setAttribute ("class", this.nation);
-    
+ 
+ /*   
     switch (this.mode)
     {
-      case "line":
+      case "l":
         leaderIcon.src = this.type == "cavalry" ? "img/cavalry-line.png" : "img/infantry-line.png";
         break;
         
-      case "column":
+      case "c":
         leaderIcon.src = "img/column.png";    
         break;
         
@@ -181,23 +186,25 @@ class Leader {
         throw ("Invalid mode value");
     }
     leaderIcon.style.height = "26px";
-    leaderIcon.style.width = "60px";  
+    leaderIcon.style.width = "60px";
+*/
+  
     leaderWidget.appendChild (leaderIcon);
     
     // Add the leader name (if in line mode)
     var leaderName = document.createElement ("p");
     leaderName.setAttribute ("class", "counter-name");
     leaderName.innerHTML = this.name;
-    leaderName.style.visibility = (this.mode == "line") ? "visible" : "hidden";
+    leaderName.style.visibility = (this.mode == "l") ? "visible" : "hidden";
     leaderWidget.appendChild (leaderName);
     
     return leaderWidget;
   }
 
-  drawOnMap () {
+
+  drawSelf () {
     var leaderWidget = document.getElementById ("L:" + this.id);
-    if (!leaderWidget)
-    {
+    if (!leaderWidget) {
         leaderWidget = this.createWidgetForMap();
         document.getElementById ("mapContainer").appendChild (leaderWidget);  
     }
@@ -206,7 +213,7 @@ class Leader {
     var leaderName = undefined;
     var i=0;
   
-    // Find the stack icon object
+    // Find the icon object in the list of child nodes of the leader div block
     for (i = 0; i < leaderWidget.childNodes.length; i++)
       if (leaderWidget.childNodes[i].nodeName == "IMG")
       {
@@ -214,7 +221,7 @@ class Leader {
         break;
       }
   
-    // Find the stack name object
+    // Find the Leader name object
     for (i = 0; i < leaderWidget.childNodes.length; i++)
       if (leaderWidget.childNodes[i].nodeName == "P")
       {
@@ -224,11 +231,12 @@ class Leader {
   
     if (!leaderIcon) throw ("Leader icon element not found");
     if (!leaderName) throw ("Leader name element not found");
-    
+   
+      
     switch (this.mode)
     {
       case "l":
-        leaderIcon.src = this.type == "cavalry" ? "img/cavalry-line.png" : "img/infantry-line.png";
+        leaderIcon.src = this.type == "c" ? "img/cavalry-line.png" : "img/infantry-line.png";
         leaderName.style.visibility = "visible";
   
         for (i=0; i<6; i++)
@@ -238,9 +246,11 @@ class Leader {
             leaderWidget.style.transform = "rotate(" + lineDrawInfo[i].angle + "deg)";
             leaderWidget.style.left = (lineDrawInfo[i].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";  
             leaderWidget.style.top = (lineDrawInfo[i].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";
+
             return;
           }
         } 
+        console.log ("Cannot find match for orientation in line mode");
         break;
   
       case "c":
@@ -539,15 +549,32 @@ function numOfLeadersInHex (x, y)
 }
 
 
-function createLeaders(xhttp)
+function createLeaders (xhttp)
 {
   const leaderJSONdata = JSON.parse (xhttp.responseText);
-  leaderJSONdata.forEach (createSingleLeader);
+
+  for (var i=0; i<leaderJSONdata.length; i++)
+  {
+    var newLeader = new Leader (
+      leaderJSONdata[i].id, 
+      leaderJSONdata[i].name, 
+      leaderJSONdata[i].nation, 
+      leaderJSONdata[i].army, 
+      leaderJSONdata[i].unitName, 
+      leaderJSONdata[i].type, 
+      leaderJSONdata[i].initiative, 
+      leaderJSONdata[i].hasBonus, 
+      leaderJSONdata[i].commandCapacity, 
+      leaderJSONdata[i].subordinationValue, 
+      leaderJSONdata[i].parent, 
+      leaderJSONdata[i].mode, 
+      leaderJSONdata[i].x, 
+      leaderJSONdata[i].y, 
+      leaderJSONdata[i].zOrder, 
+      leaderJSONdata[i].orientation);
+    leaders.push (newLeader);
+  }
 }
 
 
-function createSingleLeader (v, index, array) {
-  var newLeader = new Leader (v.id, v.name, v.nation, v.army, v.unitName, v.type, v.initiative, v.hasBonus, v.commandCapacity, v.subordinationValue, v.parent, v.mode, v.x, v.y, v.zOrder, v.orientation);
-  array.push (newLeader);
-}
 

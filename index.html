@@ -30,16 +30,295 @@
   font-size: 30px;
 }
 
+.position-tracker {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 50px;
+  height: 35px;
+  z-index: 2;
+  background-color: black;
+  color: white;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+  
 
-<style> 
+.container {
+  width: 4474px;
+  height: 2791px;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
 
-body {font-family: Arial, Helvetica, sans-serif;}
+.container .img {
+  height: auto;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+}
+
+.container .counter-widget {
+  position: absolute;
+  width: 60px;
+  height: 26px;
+  padding: 0px 0px;
+  border: none;
+  cursor: pointer;
+  border-radius: 0px;
+  text-align: center;
+  font-size: 10px;
+  font-family: Times, Roman, serif;
+  background-repeat: no-repeat;
+  background-color: transparent;
+}
+
+.container .counter-widget:hover {
+  border-top: 5px; 
+  border-left: 5px; 
+  border-right: 5px; 
+  border-bottom: 5px; 
+  border-color: rgba(239, 0, 0, 0.4); 
+  border-style: solid; 
+  border-radius: 8px 8px 8px 8px; 
+  box-shadow: -2px 19px 25px 0px rgba(76, 0, 0, 1.0); 
+  -webkit-box-shadow: -2px 19px 25px 0px rgba(76, 0, 0, 1.0); 
+}
+
+
+.counter-icon {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  z-index: 0;
+}
+
+.counter-name {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 60px;
+  height: 56px;
+  z-index: 1;
+  text-align: center;
+  font-size: 10px;
+  font-family: Times, Roman, serif;
+  color: black;
+}  
+  
+.leader-info {
+  position: absolute;
+  color: black;
+  background-color: #efdf88;
+  min-width: 2px;
+  min-height: 2px;
+  font-size: 14px;
+  padding: 15px 15px 15px 15px; 
+  border-top: 1px; 
+  border-left: 1px; 
+  border-right: 1px; 
+  border-bottom: 1px;   
+  border-color: rgba(0, 0, 0, 1.0); 
+  border-style: double; 
+  border-radius: 8px; 
+  cursor: pointer;
+  text-align: left;
+  background-repeat: no-repeat;
+  box-shadow:7px 5px 7px #555555;
+  border-radius: 5px;
+  z-index: 1;
+}
+  
+.leader-table {
+  text-align: left;
+  font-size: 12px;
+  font-family: Times, Roman, serif;
+}
+
+.leader-table tr {
+    border-bottom: 1px solid #aaa;
+}
+  
+.leader-table tr:hover {
+    background-color: #A0A0A0;
+}
+  
+  
+  
+.unit-info {
+  position: absolute;
+  color: black;
+  background-color: #efdf88;
+  min-width: 200px;
+  min-height: 10px;
+  padding: 1px 1px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  background-repeat: no-repeat;
+  box-shadow:7px 5px 7px #555555;
+  border: 1px;
+  border-radius: 5px;
+  border-top: 1px solid #DDDDDD;
+  border-left: 1px solid #DDDDDD;
+  z-index: 1;
+}
+  
+.unit-table {
+  text-align: left;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 0px;
+  border: 5px black;
+}
+
+.unit-table tr {
+  border-bottom: 1px solid #aaa;
+  padding: 0px;
+  border: 5px black;
+}
+  
+.unit-table tr:hover {
+  background-color: #A0A0A0;
+}
+
+.unit-table td {
+  padding: 0px;
+  border: 0px;
+}
+  
+
+.unit-icon {
+}
+
+.p {
+  background-color: #9494b8;
+  color: white;
+}
+  
+.a {
+  background-color: #e6e6e6;
+  color: black;
+}
+
+.r {
+	background-color: #9fdf9f;
+  color: black;
+}
+	
+.f {
+	background-color: #66c2ff; 
+  color: black;
+}  
+
+.s {
+	background-color: #ff66b3; 
+  color: white;
+}
+
+.g {
+  background-color: yellow;
+  color: black;
+}
+
+.generic {
+  background-color: Gray;
+  color: black;
+}
+  
+.cavalry-leader {
+  background-image: url("img/cavalry-line.png");
+}
+
+.infantry-leader {
+  background-image: url("img//infantry-line.png");
+}
+
+.cop-counter {
+  background-image: url("img/center-operations.png");
+}
+
+.supply-counter {
+  background-image:url("img/active-supply.png");
+}
+
+.bridge-counter {
+  background-image: url ("img/bridge-train.png");
+}
+
+.cavalry-unit-division {
+  background-image: url ("img/Cavalry-Division.png");
+}
+
+.infantry-unit-division {
+  background-image: url ("img//Infantry-Division.png");
+}
+
+.artillery-unit {
+background-image: url ("img/Artillery-Division.png")
+;}
+
+/* Dropdown Content (Hidden by Default) */
+.unitInfoWidget-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+
+.btn-minus
+{
+  position: block;
+  background-color: #efdf88;  
+  color: black;
+  border-color: black;
+  border-radius: 10px 0px 0px 10px; 
+  height: 22px;
+  width: 8px;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+  
+.btn-plus
+{
+  position: block;
+  background-color: #efdf88;  
+  color: black;
+  border-color: black;
+  border-radius: 0px 10px 10px 0px; 
+  height: 22px;
+  width: 8px;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+  
+.strength-box
+{
+  position: block;
+  background-color: #efdf88;  
+  color: black;
+  border-color: black;
+  border-radius: 0px; 
+  height: 15px;
+  width: 16px;
+  font-size: 10px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+  
+  
+
+
 
 /* The Modal (background) */
 .modal {
   display: none; /* Hidden by default */
   position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
+  z-index: 10; /* Sit on top */
   padding-top: 100px; /* Location of the box */
   left: 0;
   top: 0;
@@ -74,12 +353,6 @@ body {font-family: Arial, Helvetica, sans-serif;}
   cursor: pointer;
 }
 
-.game_ymap {
-  position: absolute;
-  top: 30px;
-  left: 0px;
-  overflow: scroll;
-}
 
 .status_bar {
   position: fixed;
@@ -140,6 +413,28 @@ body {font-family: Arial, Helvetica, sans-serif;}
   overflow: scroll;
 }
 
+.indicators {
+  font-size:15px;
+}
+
+.pos_tracker {
+  position: fixed;
+  width: 100px;
+  top: 0px;
+  right: 0;
+  height: 30px;  
+  background-color: black;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  z-index: 1;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+
 </style>
 
 <script src="common.js"></script>
@@ -153,6 +448,8 @@ body {font-family: Arial, Helvetica, sans-serif;}
 
 
 <script type="text/javascript">
+
+let new_game_id = '';
 
 
 // 
@@ -208,11 +505,6 @@ function populate_game_list(xhttp_obj) {
 }
 
 
-
-
-
-
-
 function load_game_data (game_id) {
   call_server_api_get ("app/load_game.php?game_id=" + game_id, createGame);
   call_server_api_get ("app/load_leaders.php?game_id=" + game_id, createLeaders);
@@ -220,16 +512,7 @@ function load_game_data (game_id) {
 }
 
 
-
-
-
-
-
-
 function beginGame() {
-  // Show the main map
-  document.getElementById("mapContainer").src = "img/SoN_Map_New-2011_0521.png";
-
   // Initialise admin points, morale, reinforcement points
   frenchPlayerStatus.setAdminPoints         (game.FrenchAdminPoints);
   frenchPlayerStatus.setMorale              (game.FrenchMorale);
@@ -252,7 +535,7 @@ function beginGame() {
 
 function get_scenario_data (xhttp_obj)
 {
-   let json_response = JSON.parse (xhttp_obj.responseText);
+   const json_response = JSON.parse (xhttp_obj.responseText);
    
    scenario_data = json_response[0];
 }
@@ -262,7 +545,6 @@ function do_nothing()
 {
 }
 
-let new_game_id = '';
 
 function get_game_id (xhttp_obj)
 {
@@ -301,11 +583,6 @@ function load_game (game_id) {
 }
 
 
-</script>
-
-
-<script type="text/javascript">
-
 
 function show_menu (flag) {
   var menu_obj = document.getElementById("main_menu_id");
@@ -318,6 +595,18 @@ function toggle_menu () {
   
   menu_obj.style.visibility = (menu_obj.style.visibility != "visible") ? "visible" : "hidden";
 }
+
+
+function showMousePosition (ev)
+{
+  const x = xUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
+  const y = yUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
+  
+  document.getElementById ("position-tracker").innerHTML = ev.offsetX + "," + ev.offsetY + "<br>" + x + ", " + y;
+}
+
+
+
 
 </script>
 
@@ -368,9 +657,24 @@ function toggle_menu () {
 <!-- MAIN WINDOW -->
 <div id="StatusBar" class="status_bar" >
   <span id="menu_symbol" class="menu_symbol" onclick="toggle_menu();" >&nbsp;&#9776;&nbsp; Main menu</span>
+  <span>
+    Turn:                  <input type="text" id="turn_id"                 class="indicators" readonly style="width:20px">
+    Phase:                 <input type="text" id="phase_id"                class="indicators" readonly style="width:80px">
+    Weather:               <input type="text" id="weather_id"              class="indicators" readonly style="width:50px">
+    Player:                <input type="text" id="player_id"               class="indicators" readonly style="width:80px">
+    Administrative Points: <input type="text" id="admin_points_id"         class="indicators" readonly style="width:20px">
+    Reinforcement Points:  <input type="text" id="reinforcement_points_id" class="indicators" readonly style="width:20px">
+    Morale:                <input type="text" id="morale_id"               class="indicators" readonly style="width:20px">
 </div>
 
-<img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" > 
+<div class="pos_tracker" id="position-tracker">
+Position tracker
+</div>
+
+<div id="mapContainer">
+<img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="showMousePosition(event)">
+</div>
+ 
 </font>
 
 <script>
