@@ -3,49 +3,47 @@
 
     
     
-const lineMovementInfo = [
-  {
-    facing: "N",      // Facing of unit when starting the movement
+const lineMovementInfo = [];
+
+lineMovementInfo["N"] =   {
     xOffsetYEven: [-1, 0],    // index 0 = increment when moving forward left
     xOffsetYOdd: [0, 1],    // index 0 = increment when moving forward left
-    yOffset: [-1, -1]     // index 1 = increment when moving forward right
-  }, 
-  {
-    facing: "NW",      // Facing of unit when starting the movement
+    yOffset: [-1, -1],     // index 1 = increment when moving forward right
+  };
+  
+lineMovementInfo["NW"] =   {
     xOffsetYEven: [-1, -1],    // index 0 = increment when moving forward left
     xOffsetYOdd: [-1,0],    // index 0 = increment when moving forward left
     yOffset: [0, -1]     // index 1 = increment when moving forward right
-  },
-  {
-    facing: "SW",      // Facing of unit when starting the movement
+  };
+
+lineMovementInfo["SW"] =   {
     xOffsetYEven: [-1,-1],    // index 0 = increment when moving forward left
     xOffsetYOdd: [0,-1],    // index 0 = increment when moving forward left
     yOffset: [1, 0]     // index 1 = increment when moving forward right
-  },
-  {
-    facing: "S",      // Facing of unit when starting the movement
+  };
+
+lineMovementInfo["S"] =   {
     xOffsetYEven: [0,-1],    // index 0 = increment when moving forward left
     xOffsetYOdd: [1,0],    // index 0 = increment when moving forward left
     yOffset: [1, 1]     // index 1 = increment when moving forward right
-  },
-  {
-    facing: "SE",      // Facing of unit when starting the movement
+  };
+
+lineMovementInfo["SE"] =   {
     xOffsetYEven: [1,0],    // index 0 = increment when moving forward left
     xOffsetYOdd: [1,1],    // index 0 = increment when moving forward left
-    yOffset: [0,1]     // index 1 = increment when moving forward right
-  },
-  {
-    facing: "NE",      // Facing of unit when starting the movement
+    yOffset: [0, 1]     // index 1 = increment when moving forward right
+  };
+
+lineMovementInfo["NE"] =   {
     xOffsetYEven: [0,1],    // index 0 = increment when moving forward left
     xOffsetYOdd: [1,1],    // index 0 = increment when moving forward left
-    yOffset: [-1,0]     // index 1 = increment when moving forward right
-  }
-];
+    yOffset: [-1, 0]     // index 1 = increment when moving forward right
+  };
 
-const lineDrawInfo = 
-[
-  {
-    facing: "N",
+const lineDrawInfo = [];
+
+lineDrawInfo["N"] = {
     angle: 0,
     xOffset: -29,
     yOffset: 7,
@@ -55,9 +53,10 @@ const lineDrawInfo =
       xOffsetOdd: -1,
       yOffset: 0
     }
-  },
-  {
-    facing: "NE",
+  };
+  
+  
+lineDrawInfo["NE"] = {
     angle: -300,
     xOffset: -22,
     yOffset: -3,
@@ -67,9 +66,9 @@ const lineDrawInfo =
       xOffsetOdd: 0,
       yOffset: -1
     }
-  },
-  {
-    facing: "SE",
+  };
+  
+lineDrawInfo["SE"] = {
     angle: -240,
     xOffset: -5,
     yOffset: -7,
@@ -79,9 +78,9 @@ const lineDrawInfo =
       xOffsetOdd: 1,
       yOffset: -1
     }
-  },
-  {
-    facing: "S",
+  };
+
+lineDrawInfo["S"] = {
     angle: -180,
     xOffset: 2,
     yOffset: 3,
@@ -91,9 +90,9 @@ const lineDrawInfo =
       xOffsetOdd: 1,
       yOffset: 0
     }
-  },
-  {
-    facing: "SW",
+  };
+
+lineDrawInfo["SW"] = {
     angle: -120,
     xOffset: -3,
     yOffset: 18,
@@ -103,9 +102,9 @@ const lineDrawInfo =
       xOffsetOdd: 1,
       yOffset: 1
     }
-  },
-  {
-    facing: "NW",
+  };
+  
+lineDrawInfo["NW"] = {
     angle: -60,
     xOffset: -19,
     yOffset: 21,
@@ -115,14 +114,12 @@ const lineDrawInfo =
       xOffsetOdd: 0,
       yOffset: 1
     }
-  }
-];
+  };
 
 
-const columnMovementInfo = 
-[
-  {
-    facing: "NE",
+const columnMovementInfo = [];
+
+columnMovementInfo["NE"]  {
     angle: -60,
     xOffset: -23, 
     yOffset: 22,
@@ -137,9 +134,9 @@ const columnMovementInfo =
       xMoveWhenYOdd: 1,
       yMove: -1
     }
-  },
-  {
-    facing: "E",
+};
+  
+columnMovementInfo["E"]  {
     angle: 0,
     xOffset: -29,
     yOffset: 6,
@@ -154,9 +151,9 @@ const columnMovementInfo =
       xMoveWhenYOdd: 1,
       yMove: 0
     }
-  },
-  {
-    facing: "SE",
+};
+
+columnMovementInfo["SE"]  {
     angle: 60,
     xOffset: -21, 
     yOffset: -8,
@@ -171,10 +168,9 @@ const columnMovementInfo =
       xMoveWhenYOdd: 1,
       yMove: 1
     }
-
-  },
-  {     
-    facing: "SW",
+};
+  
+columnMovementInfo["SW"]  {
     angle: 120,
     xOffset: 0,
     yOffset: -10,
@@ -189,9 +185,9 @@ const columnMovementInfo =
       xMoveWhenYOdd: 0,
       yMove: 1
     }
-  },
-  {        
-    facing: "W",
+};
+
+columnMovementInfo["W"]  {
     angle: 180,
     xOffset: 4,   
     yOffset: 4,
@@ -206,9 +202,9 @@ const columnMovementInfo =
       xMoveWhenYOdd: -1,
       yMove: 0
     }
-  },
-  {
-    facing: "NW",
+};
+  
+columnMovementInfo["NW"]  {
     angle: 240,
     xOffset: -4,
     yOffset: 20,
@@ -223,9 +219,7 @@ const columnMovementInfo =
       xMoveWhenYOdd: 0,
       yMove: -1
     }
-
-  }        
-];
+};
   
   
 
