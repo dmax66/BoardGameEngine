@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `Scenario_Leaders_Data` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk2`
     FOREIGN KEY (`parentId`)
-    REFERENCES `Scenario_Leaders_Data` (`id`)
+    REFERENCES `Leaders_Static_Data` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk3`
