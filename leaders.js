@@ -276,73 +276,13 @@ class Leader {
   flipMode () {
     if (this.mode == "l") 
     {
-      switch (this.orientation)
-      {
-        case "N":
-          this.orientation = "E";
-          break;
-          
-        case "S":
-          this.orientation = "W";
-          break;
-          
-        case "NE":
-          this.orientation = "SE";
-          break;
-          
-        case "NW":
-          this.orientation = "NE";
-          break;
-          
-        case "SW":
-          this.orientation = "NW";
-          break;
-          
-        case "SE":
-          this.orientation = "SW";
-          break;
-          
-        default:
-          throw ("Invalid orientation of leader: " + this.orientation);
-      }
-      
+      this.orientation = lineMovementInfo[this.orientation].flipOrientation;
       this.mode = "c";
-      this.drawOnMap();
     }
     else if (this.mode == "c")
     {
-      switch (this.orientation)
-      {
-        case "W":
-          this.facing = "S";
-          break;
-          
-        case "E":
-          this.orientation = "N";
-          break;
-          
-        case "NE":
-          this.orientation = "NW";
-          break;
-          
-        case "NW":
-          this.orientation = "SW";
-          break;
-          
-        case "SW":
-          this.orientation = "SE";
-          break;
-          
-        case "SE":
-          this.orientation = "NE";
-          break;
-          
-        default:
-          throw ("Invalid orientation of column stack: " + this.orientation);
-      }
-      
+      this.orientation = columnMovementInfo[this.orientation].flipOrientation;  
       this.mode = "l";
-      this.drawOnMap();
     }
     else 
       throw ("Invalid stack mode: " + this.mode);
@@ -350,9 +290,9 @@ class Leader {
 
 // Move a stack one hex
 // orientation:
-//  0: move ahead
-// -1: move forward left
-// +1: move forward right
+//  "ahead": move ahead (only for columns)
+// "FL": move forward left
+// "FR: move forward right
   move (orientation) {
     switch (this.mode)
     {
@@ -369,93 +309,71 @@ class Leader {
     }
   }
 
-  moveAsLine (orientation) {
-    var i=0;
-    for (i=0; i<6; i++)
-      if (this.orientation == lineMovementInfo[i].facing) break;
-  
-    if (i==6) throw ("Invalid orientation of line stack: " + this.orientation);
-     
-    // A little hack to convert orientation to either 0 (forward left) or 1 (forward right) to use the elements of the array xOffsetYEven / xOffsetYOdd
-    switch (orientation)
-    {
-      case -1:
-        orientation = 0;
+  moveAsLine (direction) {
+// "FL": move forward left
+// "FR: move forward right
+
+    switch (direction) {
+      case "FL":
+        this.x += lineMovementInfo [this.direction].moveForwardLeft[ this.y % 2].x;
+        this.y += lineMovementInfo [this.direction].moveForwardLeft[ this.y % 2].y;
         break;
         
-      case 1:
+      case "FR":
+        this.x += lineMovementInfo [this.direction].moveForwardRight[ this.y % 2].x;
+        this.y += lineMovementInfo [this.direction].moveForwardRight[ this.y % 2].y;
+        break;
+    
+      default:
+        throw ("moveAsLine: incorrect direction: " + direction ;
+    } 
+ 
+    // Set the zOrder so that the leader is at the top of the stack
+    this.zOrder = numOfLeadersInHex (this.x, this.y) - 1;
+  }
+
+  moveAsColumn (deltaDir) {
+    // Calc the new orientation by adding 'orientation' to the current index. 
+    // Treat the array as circular, managing the overflow
+    switch (deltaDir) {
+      case "CCW":
+        this.orientation = columnMovementInfo[this.orientation].nextCCW;
+        break;
+        
+      case "CW":
+        this.orientation = columnMovementInfo[this.orientation].nextCW;
+        break;
+        
+      case "ahead":
         break;
         
       default:
-        throw ("Invalid value for 'orientation'");
-    }    
-      
-    // Calculate the new coordinates (grid units)
-    this.x += (this.y % 2 == 0) ? lineMovementInfo[i].xOffsetYEven[orientation] : lineMovementInfo[i].xOffsetYOdd[orientation];
-    this.y += lineMovementInfo[i].yOffset[orientation];
-    
-    // Set the zOrder so that the leader is at the top of the stack
-    this.zOrder = numOfLeadersInHex (this.x, this.y) - 1;
-    
-    this.drawOnMap();
-  }
-
-  moveAsColumn (orientation) {
-    // Find the current orientation in the RotationInfo array
-    var i=0;
-    while (i < 6 && this.orientation != columnMovementInfo[i].facing) i++;
-    if (i == 6) throw ("Incorrect column facing");
-  
-    // Calc the new orientation by adding 'orientation' to the current index. 
-    // Treat the array as circular, managing the overflow
-    i += orientation;
-    if (i < 0) i += 6;
-    if (i >= 6) i -= 6;
-    this.orientation = columnMovementInfo[i].facing;      
-      
+        throw ("Incorrect value in this.orientation @ moveAsColumn: " + deltaDir)   
+    }
+        
     // Advance one hex
-    this.x += (this.y % 2 == 0) ? columnMovementInfo[i].movement.xMoveWhenYEven : columnMovementInfo[i].movement.xMoveWhenYOdd;
-    this.y += columnMovementInfo[i].movement.yMove;
+    this.x += columnMovementInfo[this.orientation].movement[y % 2].x;
+    this.y += columnMovementInfo[this.orientation].movement[y % 2].y;
   
     // Set the zOrder so that the leader is at the top of the stack
     this.zOrder = numOfLeadersInHex (this.x, this.y) - 1;
-  
-    this.drawOnMap();
   }
 
 
-  flipOrientation (orientation) {
-    var i;
-    
+  uTurn () {
     switch (this.mode)
     {
       case "l":
-        for (i=0; i<6; i++)
-        {
-          if (this.orientation == lineDrawInfo[i].facing)
-          {
-            this.orientation = lineDrawInfo[i].flip.newFacing;
-            this.x += (this.y % 2 ==0) ? lineDrawInfo[i].flip.xOffsetEven : lineDrawInfo[i].flip.xOffsetOdd;
-            this.y += lineDrawInfo[i].flip.yOffset;
-            this.drawOnMap();
-            return;
-          }
-        }
-        throw ("Error");
-        
+        this.orientation = lineMovementInfo [this.orientation].uTurn.newOrientation;
+        this.x += lineMovementInfo[this.orientation].uTurn.offset [this.y % 2].x;
+        this.y += lineMovementInfo[this.orientation].uTurn.offset [this.y % 2].y;
+        return;
+                    
       case "c":
-        for (i=0; i<6; i++)
-        {
-          if (this.orientation == columnMovementInfo[i].facing)
-          {
-            this.orientation = columnMovementInfo[i].flip.newFacing;
-            this.x += (this.y % 2 ==0) ? columnMovementInfo[i].flip.xOffsetEven : columnMovementInfo[i].flip.xOffsetOdd;
-            this.y += columnMovementInfo[i].flip.yOffset;
-            this.drawOnMap();
-            return;
-          }
-        }
-        throw ("Error");
+        this.orientation = columnMovementInfo [this.orientation].flip.newOrientation;
+        this.x += (this.y % 2 ==0) ? columnMovementInfo[this.orientation].flip.xOffsetEven : columnMovementInfo[this.orientation].flip.xOffsetOdd;
+        this.y += columnMovementInfo[this.orientation].flip.yOffset;
+        return;
         
       default:
         throw ("Invalid stack mode");
@@ -464,30 +382,16 @@ class Leader {
   
   // Rotate a stack (line) one hex
   // orientation:
-  // -1: rotate anticlockwise
-  // +1: rotate clockwise
-  rotate (orientation) {
-    var i=0;
-    
-    switch (orientation) 
+  // "CCW": rotate anticlockwise
+  // "CW: rotate clockwise
+  rotate (deltaDir) {
+    switch (deltaDir) 
     {
-      case 1:
-        for (i=0; i<6; i++)
-        {
-          if (this.orientation == lineDrawInfo[i].facing) break;
-        }
-        if (i==6)
-          throw ("Invalid stack (line) orientation: " + this.orientation);
-          
-        i += orientation;
-        if (i < 0) i += 6;
-        if (i >= 6) i -= 6;
-  
-        this.orientation = lineDrawInfo[i].facing;
-        this.drawOnMap();
+      case "CW":
+        this.orientation = lineMovementInfo[this.orientation].nextCW;
         break;
               
-      case -1:
+      case "CCW":
         switch (this.orientation)
         {
           case "N":

@@ -1,224 +1,293 @@
 'use strict';
 
 
-    
-    
 const lineMovementInfo = [];
 
-lineMovementInfo["N"] =   {
-    xOffsetYEven: [-1, 0],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [0, 1],    // index 0 = increment when moving forward left
-    yOffset: [-1, -1],     // index 1 = increment when moving forward right
-  };
-  
-lineMovementInfo["NW"] =   {
-    xOffsetYEven: [-1, -1],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [-1,0],    // index 0 = increment when moving forward left
-    yOffset: [0, -1]     // index 1 = increment when moving forward right
-  };
+lineMovementInfo["N"] = {
+  moveForwardLeft: [
+    { x: -1, y: -1 },
+    { x:  0, y: -1 }
+  ],
+  moveForwardRight: [
+    { x: 0, y: -1 },
+    { x: 1, y: -1 }
+  ],
+  uTurn: {
+    newOrientation: "S",
+    offset: [
+      { x: -1, y: 0}   // When on even x
+      { x: -1, y:0 }   // When on odd x
+    ]
+  },
+  flipOrientation: "E";
+  nextCW: "NE",
+  nextCCW: "NW"
+};  
 
-lineMovementInfo["SW"] =   {
-    xOffsetYEven: [-1,-1],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [0,-1],    // index 0 = increment when moving forward left
-    yOffset: [1, 0]     // index 1 = increment when moving forward right
-  };
+lineMovementInfo["NW"] = {
+  moveForwardLeft: [
+    { x: -1, y: 0 },
+    { x: -1, y: 0 }
+  ],
+  moveForwardRight: [
+    { x: -1, y: -1 },
+    { x:  0, y: -1 }
+  ],
+  uTurn: {
+    newOrientation: "SE",
+    offset: [
+      { x: -1, y: 1 },
+      { x:  0, y: 1 }
+    ]
+  },
+  flipOrientation: "NE",
+  nextCW: "N",
+  nextCCW: "SW"
+};
 
-lineMovementInfo["S"] =   {
-    xOffsetYEven: [0,-1],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [1,0],    // index 0 = increment when moving forward left
-    yOffset: [1, 1]     // index 1 = increment when moving forward right
-  };
+lineMovementInfo["SW"] = {
+  moveForwardLeft: [
+    { x: , y: 1 },
+    { x: , y: 1 }
+  ],
+  moveForwardRight: [
+    { x: -1, y: 0 },
+    { x: -1, y: 0 }
+  ], 
+  uTurn: {
+    newOrientation: "NE",
+    offset: [
+      { x: 0, y: 1 },
+      { x: 1, y: 1 }
+    ]
+  },
+  flipOrientation: "NW",
+  nextCW: "NW",
+  nextCCW: "S"
+};
 
-lineMovementInfo["SE"] =   {
-    xOffsetYEven: [1,0],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [1,1],    // index 0 = increment when moving forward left
-    yOffset: [0, 1]     // index 1 = increment when moving forward right
-  };
+lineMovementInfo["S"] = {
+  moveForwardLeft: [
+    { x: 0, y: 1 },
+    { x: 1, y: 1 }
+  ],
+  moveForwardRight: [
+    { x: -1, y: 1 },
+    { x: 0, y: 1 }
+  ],
+  uTurn: {
+    newOrientation: "N",
+    offset: [
+      { x: 1, y: 0 },
+      { x: 1, y: 0 }
+    ]
+  },
+  flipOrientation: "W",
+  nextCW: "SW",
+  nextCCW: "SE"
+};
 
-lineMovementInfo["NE"] =   {
+lineMovementInfo["SE"] = {
+  moveForwardLeft: [
+    { x: 1, y: 0 },
+    { x: 1, y: 0 }
+  ],
+  moveForwardRight: [
+    { x: 0, y: },
+    { x: 1, y: }
+  ], 
+  uTurn: {
+    newOrientation: "NW",
+    offset: [
+      { x: 0, y: -1},
+      { x: 1, y: -1}
+    ]
+  },
+  flipOrientation: "SW",
+  nextCW: "S",
+  nextCCW: "NE"
+};
+
+lineMovementInfo["NE"] = {
+  moveForwardLeft: [
+    { x: , y: },
+    { x: , y: }
+  ],
+  moveForwardRight: [
+    { x: , y: },
+    { x: , y: }
+  ],
     xOffsetYEven: [0,1],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [1,1],    // index 0 = increment when moving forward left
-    yOffset: [-1, 0]     // index 1 = increment when moving forward right
-  };
+  xOffsetYOdd: [1,1],    // index 0 = increment when moving forward left
+  yOffset: [-1,0],     // index 1 = increment when moving forward right
+  uTurn: {
+    newOrientation: "SW",
+    offset: [
+      { x: -1, y: -1},  // Even x
+      { x: 0, y: -1}    // Odd x
+    ],
+  },
+  flipOrientation: "SE",
+  nextCW: "SE",
+  nextCCW: "N"
+};
 
 const lineDrawInfo = [];
 
-lineDrawInfo["N"] = {
-    angle: 0,
-    xOffset: -29,
-    yOffset: 7,
-    flip: {
-      newFacing: "S",
-      xOffsetEven: -1,
-      xOffsetOdd: -1,
-      yOffset: 0
-    }
-  };
-  
-  
+lineDrawInfo ["N"] = {
+  angle: 0,
+  xOffset: -29,
+  yOffset: 7,
+
+};
+
 lineDrawInfo["NE"] = {
-    angle: -300,
-    xOffset: -22,
-    yOffset: -3,
-    flip: {
-      newFacing: "SW",
-      xOffsetEven: -1,
-      xOffsetOdd: 0,
-      yOffset: -1
-    }
-  };
-  
+  angle: -300,
+  xOffset: -22,
+  yOffset: -3,
+};
+
 lineDrawInfo["SE"] = {
-    angle: -240,
-    xOffset: -5,
-    yOffset: -7,
-    flip: {
-      newFacing: "NW",
-      xOffsetEven: 0,
-      xOffsetOdd: 1,
-      yOffset: -1
-    }
-  };
+  angle: -240,
+  xOffset: -5,
+  yOffset: -7,
+
+};
 
 lineDrawInfo["S"] = {
-    angle: -180,
-    xOffset: 2,
-    yOffset: 3,
-    flip: {
-      newFacing: "N",
-      xOffsetEven: 1,
-      xOffsetOdd: 1,
-      yOffset: 0
-    }
-  };
+  angle: -180,
+  xOffset: 2,
+  yOffset: 3,
+};
 
 lineDrawInfo["SW"] = {
-    angle: -120,
-    xOffset: -3,
-    yOffset: 18,
-    flip: {
-      newFacing: "NE",
-      xOffsetEven: 0,
-      xOffsetOdd: 1,
-      yOffset: 1
-    }
-  };
-  
+  angle: -120,
+  xOffset: -3,
+  yOffset: 18,
+};
+
 lineDrawInfo["NW"] = {
-    angle: -60,
-    xOffset: -19,
-    yOffset: 21,
-    flip: {
-      newFacing: "SE",
-      xOffsetEven: -1,
-      xOffsetOdd: 0,
-      yOffset: 1
-    }
-  };
+  angle: -60,
+  xOffset: -19,
+  yOffset: 21,
+};
 
 
 const columnMovementInfo = [];
 
-columnMovementInfo["NE"]  {
-    angle: -60,
-    xOffset: -23, 
-    yOffset: 22,
-    flip: {
-      newFacing: "SW",
-      xOffsetEven: -1,
-      xOffsetOdd: 0,
-      yOffset: 1
-    },
-    movement: {
-      xMoveWhenYEven: 0,
-      xMoveWhenYOdd: 1,
-      yMove: -1
-    }
+columnMovementInfo ["NE"] = {
+  angle: -60,
+  xOffset: -23, 
+  yOffset: 22,
+  uTurn: {
+    newOrientation: "SW",
+    xOffsetEven: -1,
+    xOffsetOdd: 0,
+    yOffset: 1
+  },
+  flipOrientation: "NW",
+  movement: [
+    { x: 0, y: -1 },
+    { x: 1, y: -1 }
+  ],
+  nextCW: "E",
+  nextCCW: "NW"
 };
   
-columnMovementInfo["E"]  {
-    angle: 0,
-    xOffset: -29,
-    yOffset: 6,
-    flip: {
-      newFacing: "W",
-      xOffsetEven: -1,
-      xOffsetOdd: -1,
-      yOffset: 0
-    },
-    movement: {
-      xMoveWhenYEven: 1,
-      xMoveWhenYOdd: 1,
-      yMove: 0
-    }
+ columnMovementInfo ["E"] = {
+  angle: 0,
+  xOffset: -29,
+  yOffset: 6,
+  uTurn: {
+    newOrientation: "W",
+    xOffsetEven: -1,
+    xOffsetOdd: -1,
+    yOffset: 0
+  },
+  flipOrientation: "N",
+  movement: [
+    { x: 1, y: 0 },
+    { x: 1, y: 0 }
+  ],
+  nextCW: "SE",
+  nextCCW: "NE"
 };
 
-columnMovementInfo["SE"]  {
-    angle: 60,
-    xOffset: -21, 
-    yOffset: -8,
-    flip: {
-      newFacing: "NW",
-      xOffsetEven: -1,
-      xOffsetOdd: 0,
-      yOffset: -1
-    },
-    movement: {
-      xMoveWhenYEven: 0,
-      xMoveWhenYOdd: 1,
-      yMove: 1
-    }
-};
-  
-columnMovementInfo["SW"]  {
-    angle: 120,
-    xOffset: 0,
-    yOffset: -10,
-    flip: {
-      newFacing: "NE",
-      xOffsetEven: 0,
-      xOffsetOdd: 1,
-      yOffset: -1
-    },
-    movement: {
-      xMoveWhenYEven: -1,
-      xMoveWhenYOdd: 0,
-      yMove: 1
-    }
+columnMovementInfo ["SE"] = {
+  angle: 60,
+  xOffset: -21, 
+  yOffset: -8,
+  uTurn: {
+    newOrientation: "NW",
+    xOffsetEven: -1,
+    xOffsetOdd: 0,
+    yOffset: -1
+  },
+  flipOrientation: "NE",
+  movement: [
+    { x: 0, y: 1 },
+    { x: 1, y: 1 }
+  ],
+  nextCW: "SW",
+  nextCCW: "NE"
 };
 
-columnMovementInfo["W"]  {
-    angle: 180,
-    xOffset: 4,   
-    yOffset: 4,
-    flip: {
-      newFacing: "E",
-      xOffsetEven: 1,
-      xOffsetOdd: 1,
-      yOffset: 0
-    },
-    movement: {
-      xMoveWhenYEven: -1,
-      xMoveWhenYOdd: -1,
-      yMove: 0
-    }
+columnMovementInfo["SW"] = {
+  angle: 120,
+  xOffset: 0,
+  yOffset: -10,
+  uTurn: {
+    newOrientation: "NE",
+    xOffsetEven: 0,
+    xOffsetOdd: 1,
+    yOffset: -1
+  },
+  flipOrientation: "SE",
+  movement: [
+    { x: -1, y: 1 },
+    { x:  0, y: 1 }
+  ],
+  nextCW: "W",
+  nextCCW: "SE"
 };
-  
-columnMovementInfo["NW"]  {
-    angle: 240,
-    xOffset: -4,
-    yOffset: 20,
-    flip: {
-      newFacing: "SE",
-      xOffsetEven: 0,
-      xOffsetOdd: 1,
-      yOffset: 1
-    },
-    movement: {
-      xMoveWhenYEven: -1,
-      xMoveWhenYOdd: 0,
-      yMove: -1
-    }
+
+columnMovementInfo ["W"] = {
+  angle: 180,
+  xOffset: 4,   
+  yOffset: 4,
+  uTurn: {
+    newOrientation: "E",
+    xOffsetEven: 1,
+    xOffsetOdd: 1,
+    yOffset: 0
+  },
+  flipOrientation: "S",
+  movement: [
+    { x: -1, y: 0 },
+    { x: -1. y: 0 }
+  ],
+  nextCW: "NW",
+  nextCCW: "SW"
+};
+
+columnMovementInfo ["NW"] = {
+  angle: 240,
+  xOffset: -4,
+  yOffset: 20,
+  uTurn: {
+    newOrientation: "SE",
+    xOffsetEven: 0,
+    xOffsetOdd: 1,
+    yOffset: 1
+  },
+  flipOrientation: "SW",
+  movement: [
+    { x: -1, y: -1 },
+    { x:  0, y: -1 }
+  ],
+
+  nextCW: "NW",
+  nextCCW: "W"
 };
   
   
