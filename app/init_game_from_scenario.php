@@ -1,5 +1,7 @@
 <?php
-// Load from the database a list of scenarios and return the values
+//
+// init_game_from_scenario.php (scenario_id) -- Load from the database the init data associated with a scenario
+//
 
 $servername = "localhost";
 $username = "game_engine_user";
@@ -20,7 +22,7 @@ $conn = new mysqli($servername, $username, $password);
 if ($conn->connect_error)
 {
 	fwrite ($logfile, "failed\n");
-	die();
+	die("ERROR");
 }
 else fwrite ($logfile, "success\n");
 

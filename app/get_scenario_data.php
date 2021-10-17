@@ -1,33 +1,21 @@
 <?php
 // Load from the database a list of scenarios and return the values
 
-$servername = "localhost";
-$username = "game_engine_user";
-$password = "3etomerG";
-
-$logfile = fopen("../../log/app.log", "a+") or die ();
-$debug = 1;
-
-if ($debug) fwrite ($logfile, "Entering get_scenario_data\n");
-
-// var_dump ($_GET);
+include 'db_params.php';
+include 'log.php';
 
 
-	$scenario_id = $_GET['scenario_id'];
+$scenario_id = $_GET['scenario_id'];
 
-if ($debug) fwrite ($logfile, "scenario_id=" . $scenario_id . "\n");
-
-// Get the GET request parameter (Scenario ID)
+if ($loglevel > 0) fprintf ($logfile, "Entering %s, scenario_id=%s", __FILE__, $scenario_id);
 
 // Create database connection
-if ($debug) fwrite ($logfile, "Opening connection...");
-
+if ($loglevel) fwrite ($logfile, "Opening connection...");
 $conn = new mysqli($servername, $username, $password);
-
 if ($conn->connect_error)
 {
 	fwrite ($logfile, "failed\n");
-	die();
+	die("ERROR: can't open connection");
 }
 else fwrite ($logfile, "success\n");
 
@@ -35,17 +23,13 @@ else fwrite ($logfile, "success\n");
 $sql = "USE game_engine";
 $result = mysqli_query($conn, $sql);
 
-
-if ($debug) fwrite($logfile, "Launching query...");
-
-$sql = "SELECT * FROM Scenarios WHERE ID='" . $scenario_id . "'";
-
-if ($debug) fwrite($logfile, "done\n");
-if ($debug) fwrite($logfile, "Querying result...");
+$sql = sprintf ("SELECT * FROM Scenarios WHERE ID='%s'", $scenario_id);
+if ($loglevel > 1) fprintf($logfile, "SQL=%s\n", $sql);
+if ($loglevel > 0) fwrite($logfile, "Querying result...");
 
 $result = mysqli_query($conn, $sql);
 
-if ($debug) fwrite($logfile, "done\n");
+if ($loglevel > 0) fwrite($logfile, "done\n");
 
 
 if (mysqli_num_rows($result) > 0) 
@@ -53,13 +37,12 @@ if (mysqli_num_rows($result) > 0)
 	$outp = $result->fetch_all(MYSQLI_ASSOC);
 	echo json_encode($outp);
 	
-	if ($debug) fwrite($logfile, "Result set OK\n");
+	if ($loglevel > 0) fwrite($logfile, "Result set OK\n");
 } 
 else
 {
-	echo "";
-
-	if ($debug) fwrite($logfile, "No rows\n");
+	echo "ERROR: no rows";
+	if ($loglevel > 0) fwrite($logfile, "No rows\n");
 }
 
 mysqli_close($conn);
