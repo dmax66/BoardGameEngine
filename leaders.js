@@ -4,41 +4,46 @@
 let leaders = [];
 const numLeadersInSameHex=1;
 
+
+
+
+
+
+
 class Leader {
   constructor (id, name, nation, army, unitName, type, initiative, hasBonus, commandCapacity, subordinationValue, parent, mode, x, y, zOrder, orientation) {
     this.id = id;
     this.parent = parent;
     this.name = name;
     this.nation = nation;
-    this.initiative = initiative;
+    this.initiative = 1 * initiative;
     this.hasBonus = hasBonus;
-    this.commandCapacity = commandCapacity;
-    this.subordinationValue = subordinationValue;
+    this.commandCapacity = 1 * commandCapacity;
+    this.subordinationValue = 1 * subordinationValue;
     this.units = [];
     this.type = type;
     this.mode = mode;
-    this.x = x;
-    this.y = y;
-    this.zOrder = zOrder;
+    this.x = 1 * x;
+    this.y = 1 * y;
+    this.zOrder = 1 * zOrder;
     this.orientation = orientation;
   }
+    
+static possibleActions = [
+  { action: "Flip Line-Column",      func: function(aLeader) { aLeader.flipMode(); }},
+  { action: "Rotate clockwise",      func: function(aLeader) { aLeader.rotateCW(); }},
+  { action: "Rotate anti-clockwise", func: function(aLeader) { aLeader.rotateCCW(); }},
+  { action: "Flip direction",        func: function(aLeader) { aLeader.flipDirection(); }},
+  { action: "Move forward-left",     func: function(aLeader) { aLeader.moveFL(); }},
+  { action: "Move forward",          func: function(aLeader) { aLeader.moveF(); }},
+  { action: "Move forward-right",    func: function(aLeader) { aLeader.moveFR(); }},
+  { action: "Manage units",          func: function(aLeader) {  }}
+];
 
 
-  indexOfLeaderById (leaderId)
-  {
-    var k;
-  
-    /* This part of code has to be moved out. Replace with "findLeaderById" */
-    for (k=0; k<leaders.length; k++)
-      if (leaders[k].id == leaderId)
-        break;
-  
-    if (k == leaders.length) 
-      throw ("Leader not found");
-  
-    return k;
-  }
 
+
+  // Not correct here - mixing data model and UI
   picture () {
     let leaderImg = document.createElement ("img");
     leaderImg.id = "img:" + this. name;
@@ -57,7 +62,6 @@ class Leader {
   
     return undefined;
   }
-    
 
   addUnit (aUnit) {
     aUnit.parent = this;
@@ -83,194 +87,27 @@ class Leader {
   }
   
   
-  infantryStrength () {
+  // Return the strength of all controlled units (both directly and indirectly) of type t
+  strength (t) {
     var i;
-    var s = 0;
+    let s = 0;
     
-    for (i = 0; i < this.units.length; i++)
-      switch (this.units[i].type)
-      {
-        case "i":
-          s += this.units[i].strength;
-          break;
-          
-        case "infantry-leader":
-        case "cavalry-leader":
-          s += this.units[i].infantryStrength();
-          break;
-          
-        default:
-          throw ("Invalid unit type: " + this.units[i].type);
-      }
-    
+    // Units directly commanded
+    for (i = 0; i < units.length; i++)
+      if (units[i].commandedBy == this.id && units[i].type == t)
+          s += 1 * units[i].strength;  // Force conversion to number
+
+    // Subordinate Leaders
+    for (i = 0; i < leaders.length; i++)
+      if (leaders[i].parent == this.id)
+          s += leaders[i].strength(t);
+
     return s;
-  }
-
-
-  cavalryStrength () {
-    var i;
-    var s = 0;
-    
-    for (i = 0; i < this.units.length; i++)
-      switch (this.units[i].type)
-      {
-        case "cavalry":
-          s += this.units[i].strength;
-          break;
-          
-        case "infantry-leader":
-        case "cavalry-leader":
-          s += this.units[i].cavalryStrength();
-          break;
-          
-        default:
-          throw ("Invalid unit type: " + this.units[i].type);
-      }
-  
-    return s;
-  }
-
-
-  artilleryStrength () {
-    var i;
-    var s = 0;
-  
-      for (i = 0; i < this.units.length; i++)
-        switch (this.units[i].type)
-        {
-          case "artillery":
-            s += this.units[i].strength;
-            break;
-  
-          case "infantry-leader":
-          case "cavalry-leader":
-            s += this.units[i].artilleryStrength();
-            break;
-  
-          default:
-            throw ("Invalid unit type: " + this.units[i].type);
-        }
-  
-    return s;
-  }
-
-
-  createWidgetForMap () {
-    var leaderWidget = document.createElement ("div");  
-    leaderWidget.id = "L:" + this.id;
-    leaderWidget.setAttribute ("class", "counter-widget");
-    leaderWidget.style.height = "26px";
-    leaderWidget.style.width = "60px";  
-    leaderWidget.onmouseover = function() { showLeaderInfo (this.id); }
-    leaderWidget.onmouseout = function() { hideLeaderInfo (this.id, false); }
-    leaderWidget.onclick = function() { this.onmouseout = function () {}; showLeaderInfo (this.id); }
-    leaderWidget.onmousedown =  function(event) { if (event.button==2) { event.cancelBubble=true; event.stopPropagation(); showStackContextMenu (this.id); }}
-  
-    
-    var leaderIcon = document.createElement ("img");
-    leaderIcon.setAttribute ("class", "counter-icon");
-    leaderIcon.setAttribute ("class", this.nation);
- 
- /*   
-    switch (this.mode)
-    {
-      case "l":
-        leaderIcon.src = this.type == "cavalry" ? "img/cavalry-line.png" : "img/infantry-line.png";
-        break;
-        
-      case "c":
-        leaderIcon.src = "img/column.png";    
-        break;
-        
-      default:
-        throw ("Invalid mode value");
-    }
-    leaderIcon.style.height = "26px";
-    leaderIcon.style.width = "60px";
-*/
-  
-    leaderWidget.appendChild (leaderIcon);
-    
-    // Add the leader name (if in line mode)
-    var leaderName = document.createElement ("p");
-    leaderName.setAttribute ("class", "counter-name");
-    leaderName.innerHTML = this.name;
-    leaderName.style.visibility = (this.mode == "l") ? "visible" : "hidden";
-    leaderWidget.appendChild (leaderName);
-    
-    return leaderWidget;
   }
 
 
   drawSelf () {
-    var leaderWidget = document.getElementById ("L:" + this.id);
-    if (!leaderWidget) {
-        leaderWidget = this.createWidgetForMap();
-        document.getElementById ("mapContainer").appendChild (leaderWidget);  
-    }
-  
-    var leaderIcon = undefined;
-    var leaderName = undefined;
-    var i=0;
-  
-    // Find the icon object in the list of child nodes of the leader div block
-    for (i = 0; i < leaderWidget.childNodes.length; i++)
-      if (leaderWidget.childNodes[i].nodeName == "IMG")
-      {
-        leaderIcon = leaderWidget.childNodes[i];
-        break;
-      }
-  
-    // Find the Leader name object
-    for (i = 0; i < leaderWidget.childNodes.length; i++)
-      if (leaderWidget.childNodes[i].nodeName == "P")
-      {
-        leaderName = leaderWidget.childNodes[i];
-        break;
-      }
-  
-    if (!leaderIcon) throw ("Leader icon element not found");
-    if (!leaderName) throw ("Leader name element not found");
-   
-      
-    switch (this.mode)
-    {
-      case "l":
-        leaderIcon.src = this.type == "c" ? "img/cavalry-line.png" : "img/infantry-line.png";
-        leaderName.style.visibility = "visible";
-  
-        for (i=0; i<6; i++)
-        {
-          if (this.orientation == lineDrawInfo[i].facing)
-          {
-            leaderWidget.style.transform = "rotate(" + lineDrawInfo[i].angle + "deg)";
-            leaderWidget.style.left = (lineDrawInfo[i].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";  
-            leaderWidget.style.top = (lineDrawInfo[i].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";
-
-            return;
-          }
-        } 
-        console.log ("Cannot find match for orientation in line mode");
-        break;
-  
-      case "c":
-        leaderIcon.src = "img/column.png";
-        leaderName.style.visibility = "hidden";
-        for (i=0; i<6; i++)
-        {
-          if (this.orientation == columnMovementInfo[i].facing)
-          {
-            leaderWidget.style.transform = "rotate(" + columnMovementInfo[i].angle + "deg)";
-            leaderWidget.style.left = (columnMovementInfo[i].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";  
-            leaderWidget.style.top = (columnMovementInfo[i].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";
-            return;
-          }
-        } 
-        throw ("Leader orientation (column mode) invalid");
-  
-      default:
-        throw ("mode invalid");
-    }
+    UIRenderLeader (this);
   }
   
   flipMode () {
@@ -307,7 +144,6 @@ class Leader {
       }
       
       this.mode = "c";
-      this.drawOnMap();
     }
     else if (this.mode == "c")
     {
@@ -342,11 +178,23 @@ class Leader {
       }
       
       this.mode = "l";
-      this.drawOnMap();
     }
     else 
       throw ("Invalid stack mode: " + this.mode);
   }
+
+  moveFL () {
+    this.move (-1);
+  }
+
+  moveF () {
+    this.move (0);
+  }
+
+  moveFR () {
+    this.move (1);
+  }
+
 
 // Move a stack one hex
 // orientation:
@@ -396,8 +244,6 @@ class Leader {
     
     // Set the zOrder so that the leader is at the top of the stack
     this.zOrder = numOfLeadersInHex (this.x, this.y) - 1;
-    
-    this.drawOnMap();
   }
 
   moveAsColumn (orientation) {
@@ -419,12 +265,9 @@ class Leader {
   
     // Set the zOrder so that the leader is at the top of the stack
     this.zOrder = numOfLeadersInHex (this.x, this.y) - 1;
-  
-    this.drawOnMap();
   }
 
-
-  flipOrientation (orientation) {
+  flipDirection (orientation) {
     var i;
     
     switch (this.mode)
@@ -437,7 +280,6 @@ class Leader {
             this.orientation = lineDrawInfo[i].flip.newFacing;
             this.x += (this.y % 2 ==0) ? lineDrawInfo[i].flip.xOffsetEven : lineDrawInfo[i].flip.xOffsetOdd;
             this.y += lineDrawInfo[i].flip.yOffset;
-            this.drawOnMap();
             return;
           }
         }
@@ -451,7 +293,6 @@ class Leader {
             this.orientation = columnMovementInfo[i].flip.newFacing;
             this.x += (this.y % 2 ==0) ? columnMovementInfo[i].flip.xOffsetEven : columnMovementInfo[i].flip.xOffsetOdd;
             this.y += columnMovementInfo[i].flip.yOffset;
-            this.drawOnMap();
             return;
           }
         }
@@ -462,6 +303,14 @@ class Leader {
     }
   }
   
+  rotateCW () {
+    this.rotate (1);
+  }
+  
+  rotateCCW () {
+    this.rotate (-1);
+  }
+
   // Rotate a stack (line) one hex
   // orientation:
   // -1: rotate anticlockwise
@@ -484,7 +333,6 @@ class Leader {
         if (i >= 6) i -= 6;
   
         this.orientation = lineDrawInfo[i].facing;
-        this.drawOnMap();
         break;
               
       case -1:
@@ -524,7 +372,6 @@ class Leader {
             this.y--;
             break;
         }
-        this.drawOnMap();
         break;  
         
       default:
@@ -532,29 +379,17 @@ class Leader {
     }
   }
   
-}
+} // End of Class
 
 
   
-function numOfLeadersInHex (x, y)
-{
-  var i;
-  var n=0;
-  
-  for (i = 0; i < leaders.length; i++)
-    if (leaders[i].x == x && leaders[i].y == y) 
-      n++;
-      
-  return n;
-}
 
 
 function createLeaders (xhttp)
 {
   const leaderJSONdata = JSON.parse (xhttp.responseText);
 
-  for (var i=0; i<leaderJSONdata.length; i++)
-  {
+  for (var i=0; i<leaderJSONdata.length; i++) {
     var newLeader = new Leader (
       leaderJSONdata[i].id, 
       leaderJSONdata[i].name, 
@@ -574,6 +409,24 @@ function createLeaders (xhttp)
       leaderJSONdata[i].orientation);
     leaders.push (newLeader);
   }
+}
+
+
+//
+// Returns i, where leaders[i].id == leaderId 
+//
+function findLeaderById (leaderId) {
+  var k;
+
+  /* This part of code has to be moved out. Replace with "findLeaderById" */
+  for (k = 0; k < leaders.length; k++)
+    if (leaders[k].id == leaderId)
+      break;
+
+  if (k == leaders.length) 
+    throw ("Leader not found");
+
+  return k;
 }
 
 

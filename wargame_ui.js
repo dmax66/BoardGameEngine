@@ -1,86 +1,55 @@
 'use strict';
 
 
-function showStackContextMenu (leaderWidgetId)  
+function numOfLeadersInHex (x, y)
 {
-  var aLeader = leaders[ findLeaderFromWidgetId (leaderWidgetId) ]; 
-    var unitContextMenu; 
-  var menuContent = undefined;
-  var parentWidget = document.getElementById("mapContainer");
+  var i;
+  var n=0;
   
-  // Check if the info widget already exists - if so, close the previous one
-  unitContextMenu = document.getElementById ("unitContextMenu");
-  if (unitContextMenu != null) 
-    unitContextMenu.remove();
-  
-  // Now the menu does not exist - create it!
-  unitContextMenu= document.createElement ("DIV");
-  unitContextMenu.id = "unitContextMenu";
-  unitContextMenu.setAttribute ("class", "context-menu");
-  
-  parentWidget.appendChild(unitContextMenu);
-  
-  unitContextMenu.style.left = (xMapCoordFromUnitCoord (aLeader.x) + 51) + "px";
-  unitContextMenu.style.top = (xMapCoordFromUnitCoord (aLeader.y) - 10) + "px";
-  unitContextMenu.onclick = function() { this.remove(); }
-
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "<b>Context Menu</b>"
-  unitContextMenu.appendChild (menuContent);
-
-  menuContent = document.createElement ("HR");
-  unitContextMenu.appendChild (menuContent);
-  
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Flip Line-Column";
-  menuContent.onclick = function() { aLeader.changeFormation (); }
-  unitContextMenu.appendChild (menuContent);
-
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Rotate clockwise";
-  if (aLeader.formation == "column") 
-    menuContent.style.color = "#323232";
-  else
-    menuContent.onclick = function() { aLeader.rotate (1); }
-  unitContextMenu.appendChild (menuContent);
-
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Rotate anti-clockwise";
-  if (aLeader.formation == "column") 
-    menuContent.style.color = "#323232";
-  else
-    menuContent.onclick = function() { aLeader.rotate (-1); }
-  unitContextMenu.appendChild (menuContent);
-
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Flip direction";
-  menuContent.onclick = function() { aLeader.flipDirection (); }
-  unitContextMenu.appendChild (menuContent);
-
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Move forward-left";
-  menuContent.onclick = function() { aLeader.move (-1); }
-  unitContextMenu.appendChild (menuContent);
-
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Move forward";
-  if (aLeader.formation == "line") 
-    menuContent.style.color = "#323232";
-  else  
-    menuContent.onclick = function() { aLeader.move (0); }
-  unitContextMenu.appendChild (menuContent);
-
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Move forward-right";
-  menuContent.onclick = function() { aLeader.move (1); }
-  unitContextMenu.appendChild (menuContent);
-
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "Manage unit";
-  unitContextMenu.appendChild (menuContent);
+  for (i = 0; i < leaders.length; i++)
+    if (leaders[i].x == x && leaders[i].y == y) 
+      n++;
+      
+  return n;
 }
 
 
+
+function showLeaderActionMenu (aLeader)  
+{
+  // Check if the info widget already exists - if so, close the previous one
+  let leaderActionMenu = document.getElementById ("leaderActionMenu");
+  if (leaderActionMenu != null) 
+    leaderActionMenu.remove();
+  
+  // Now the menu does not exist - create it!
+  leaderActionMenu = document.createElement ("DIV");
+  leaderActionMenu.id = "leaderActionMenu";
+  leaderActionMenu.setAttribute ("class", "popup-menu");
+  leaderActionMenu.style.left = (xMapCoordFromUnitCoord (aLeader.x) + 51) + "px";
+  leaderActionMenu.style.top = (xMapCoordFromUnitCoord (aLeader.y) - 10) + "px";
+  document.getElementById("mapContainer").appendChild(leaderActionMenu);
+
+  let menuContent = undefined;
+  
+  menuContent = document.createElement ("P");
+  menuContent.innerHTML = "<b>" + aLeader.name + "</b>";
+  leaderActionMenu.appendChild (menuContent);
+
+  menuContent = document.createElement ("HR");
+  leaderActionMenu.appendChild (menuContent);
+  
+  for (let i=0; i < Leader.possibleActions.length; i++) {
+    menuContent = document.createElement ("INPUT");
+    menuContent.type = "BUTTON";
+    menuContent.value = Leader.possibleActions[i].action;
+    menuContent.onclick = function () { Leader.possibleActions[i].func (aLeader); UIRenderLeader(aLeader); }
+    leaderActionMenu.appendChild (menuContent);
+  }
+}
+
+
+ 
  
 function findLeaderFromWidgetId (leaderWidgetId)
 {
@@ -95,38 +64,84 @@ function findLeaderFromWidgetId (leaderWidgetId)
 }
 
 
-function showLeaderInfo (leaderWidgetId) {
-  var aLeader = leaders[ findLeaderFromWidgetId (leaderWidgetId) ];
+//
+// Returns an array of indices for leaders who occupy hex (x,y) 
+//
+function getLeadersInHex (x, y)
+{
+  let result = [];
   
-  // Check if the info widget already exists - if so, returns
-  var leaderInfoWidget = document.getElementById ("LIW:" + aLeader.id);
-  if (leaderInfoWidget != null)
+  for (var i=0; i<leaders.length; i++)
+    if (leaders[i].x == x && leaders[i].y == y) 
+      result.push (i);
+  
+  // TODO: each leader occupies two hexes!
+
+
+  return result;
+}
+
+
+
+
+function showStackContent (x, y) {
+  let stackInfoWidget = document.getElementById("stackInfoWidget");
+  if (stackInfoWidget != null)
+    stackInfoWidget.remove();
+    
+  const setOfLeaders = getLeadersInHex (x, y);
+  if (setOfLeaders.length == 0)
+    return;
+  
+  const mapContainer = document.getElementById("mapContainer");  
+  
+ 
+  stackInfoWidget = document.createElement("DIV");
+  stackInfoWidget.id = "stackInfoWidget";
+  stackInfoWidget.setAttribute("class", "stack_info");
+  stackInfoWidget.style.left = (xMapCoordFromUnitCoord (x, y) + 40) + "px";
+  stackInfoWidget.style.top  = (yMapCoordFromUnitCoord (x, y) + 0) + "px";
+  mapContainer.appendChild(stackInfoWidget);
+    
+  
+  for (var i=0; i < setOfLeaders.length; i++) {
+    let lineWidget = document.createElement("P");
+    lineWidget.innerHTML = leaders [setOfLeaders[i]].name; 
+    stackInfoWidget.appendChild(lineWidget);
+  }
+}
+
+
+
+function showLeaderInfo (aLeader) {
+  // Check if the info pop-up window already exists - if so, returns
+  var leaderInfoWindow = document.getElementById ("LIW:" + aLeader.id);
+  if (leaderInfoWindow != null)
       return;
   
   // Widget does not exist - create it!
-  leaderInfoWidget= document.createElement ("DIV");
-  leaderInfoWidget.id = "LIW:" + aLeader.id;
-  leaderInfoWidget.setAttribute ("class", "leader-info");   // TODO: rename class
-  leaderInfoWidget.style.left = (xMapCoordFromUnitCoord (aLeader.x, aLeader.y) + 40) + "px";
-  leaderInfoWidget.style.top  = (yMapCoordFromUnitCoord (aLeader.x, aLeader.y) ) + "px";
-  document.getElementById("mapContainer").appendChild(leaderInfoWidget);
+  leaderInfoWindow= document.createElement ("DIV");
+  leaderInfoWindow.id = "LIW:" + aLeader.id;
+  leaderInfoWindow.setAttribute ("class", "leader-info");   // TODO: rename class
+  leaderInfoWindow.style.left = (xMapCoordFromUnitCoord (aLeader.x, aLeader.y) + 40) + "px";
+  leaderInfoWindow.style.top  = (yMapCoordFromUnitCoord (aLeader.x, aLeader.y) ) + "px";
+  document.getElementById("mapContainer").appendChild(leaderInfoWindow);
   
-
   // Close icon
   var closeIcon = document.createElement ("IMG");
-  leaderInfoWidget.appendChild (closeIcon);
+  leaderInfoWindow.appendChild (closeIcon);
   closeIcon.setAttribute ("class", "close-icon");
   closeIcon.src = "img/close.png";
-  closeIcon.onclick = function() { document.getElementById (leaderWidgetId).onmouseout = function() { hideLeaderInfo (this.id); }; leaderInfoWidget.remove(); }
+  closeIcon.onclick = function() { leaderInfoWindow.onmouseout = function() { hideLeaderInfo (aLeader.id); }; leaderInfoWindow.remove(); }
 
   var leaderImgWidget = document.createElement ("IMG");
-  leaderInfoWidget.appendChild (leaderImgWidget);
+  leaderInfoWindow.appendChild (leaderImgWidget);
   leaderImgWidget.src = "img/" + aLeader.name + ".png";
+  leaderImgWidget.style.display = "block";  
+  leaderImgWidget.style.marginLeft = "auto";
+  leaderImgWidget.style.marginRight = "auto";
   leaderImgWidget.height = "100";
 
-/* Why doesn't this work? 
-  leaderInfoWidget.appendChild (aLeader.picture());
-*/
   
   var leaderData = document.createElement ("P");
   leaderData.innerHTML = "<b>"
@@ -136,172 +151,66 @@ function showLeaderInfo (leaderWidgetId) {
   leaderData.innerHTML += aLeader.commandCapacity + "-"
   leaderData.innerHTML += aLeader.subordinationValue;
   leaderData.innerHTML += "</b>";
-  leaderInfoWidget.appendChild (leaderData);
+  leaderInfoWindow.appendChild (leaderData);
+
+  // Strength
+  var corpStrengthWidget = document.createElement ("P");
+  corpStrengthWidget.innerHTML = 
+    "Infantry: " + aLeader.strength("i")*1000 + "<br>" +
+    "Cavalry: " + aLeader.strength("c")*1000 + "<br>" +
+    "Artillery: " + aLeader.strength("a")*1000;
+  leaderInfoWindow.appendChild (corpStrengthWidget);
+  
+  
 
   // Table with units
   var unitTable = document.createElement ("TABLE");
   unitTable.setAttribute ("class", "unit-table");
-  leaderInfoWidget.appendChild (unitTable);    
+  leaderInfoWindow.appendChild (unitTable);    
   
-  var tableRow;
-  var tableCell;
-  var i;
-  for (i=0; i < units.length; i++) {
+  for (let i=0; i < units.length; i++) {
     if (units[i].commandedBy == aLeader.id) {
-      tableRow = document.createElement ("tr");
-      tableRow.id = "UIW:" + i;
-      tableRow.onclick =  function (event) { createUnitMenu (aLeader.id, event) } 
+      var tableCell;
+
+      const tableRow = document.createElement ("TR");
+      tableRow.id = "UIdxW:" + i;
+      tableRow.onclick =  function (event) { createUnitMenu (event) } 
       unitTable.appendChild (tableRow);
   
-      tableCell = document.createElement ("td");
+      tableCell = document.createElement ("TD");
       tableRow.appendChild (tableCell);    
+
+      const unitIcon = document.createElement("IMG");
+      tableCell.appendChild (unitIcon);
+      unitIcon.src = "img/" + units[i].iconFileName();        
+      unitIcon.setAttribute ("class", units[i].nation); 
   
- //     tableCell.appendChild (units[i].picture());
-  
-      tableCell = document.createElement ("td");
-      tableCell.innerHTML = units[i].Name;
+      tableCell = document.createElement ("TD");
+      tableCell.innerHTML = units[i].name + "(" + units[i].commander + ")";
       tableRow.appendChild (tableCell);    
-  
-      tableCell = document.createElement ("td");
-      tableCell.innerHTML = units[i].strength;
+
+      tableCell = document.createElement ("TD");
+      tableCell.innerHTML = units[i].strength * 1000;
       tableRow.appendChild (tableCell);    
+
     }
   }
-  
 }
 
 
 function hideLeaderInfo (leaderWidgetId)
 {
-  var leaderInfoWidget; 
+  var leaderInfoWindow; 
   var aLeader = leaders[ findLeaderFromWidgetId (leaderWidgetId) ];
 
   // Check if the info widget already exists - if so, remove it
-  leaderInfoWidget = document.getElementById ("LIW:" + aLeader.id);
-  if (leaderInfoWidget != null)
-      leaderInfoWidget.remove();
+  leaderInfoWindow = document.getElementById ("LIW:" + aLeader.id);
+  if (leaderInfoWindow != null)
+    leaderInfoWindow.remove();
 }  
 
 
-function changeCombatUnitStrength (leaderId, unitId)
-{
-  var l = indexOfLeaderById (leaderId);
-  var u = leaders[l].findUnit (unitId);
-  var strengthBox = document.createElement ("INPUT");
-  var s = leaders[l].units[u].strength;
-  
-  var dlgWidget = document.createElement ("DIV");
-  dlgWidget.setAttribute ("class", "modal-box");
-  dlgWidget.style.left = "500px";
-  dlgWidget.style.top = "200px";
-  document.getElementById ("mapContainer").appendChild (dlgWidget);
 
-  // Close icon
-  var closeIcon = document.createElement ("IMG");
-  closeIcon.setAttribute ("class", "close-icon");
-  closeIcon.src = "img/close.png";
-  closeIcon.onclick = function () { dlgWidget.remove() }
-  dlgWidget.appendChild (closeIcon);
-  
-  var unitName = document.createElement ("P");
-  unitName.innerHTML = leaders[l].units[u].name;
-  dlgWidget.appendChild (unitName);
-  
-  var btnMinus = document.createElement ("BUTTON");
-  btnMinus.setAttribute ("class", "btn-minus");
-  btnMinus.innerHTML = "-";
-  btnMinus.onclick = function () { if (s > 0) s--; strengthBox.value = s; }
-  dlgWidget.appendChild (btnMinus);
-  
-  strengthBox.setAttribute ("class", "strength-box");
-  strengthBox.id = "SB";
-  strengthBox.value = leaders[l].units[u].strength;
-  dlgWidget.appendChild  (strengthBox);
-  
-  var btnPlus = document.createElement ("BUTTON");
-  btnPlus.setAttribute ("class", "btn-plus");
-  btnPlus.innerHTML = "+";
-  btnPlus.onclick = function () { s++; strengthBox.value = s; }
-  dlgWidget.appendChild (btnPlus);
-
-  var okButton = document.createElement ("BUTTON");
-  okButton.innerHTML = "OK";
-  okButton.onclick = function () { leaders[l].units[u].strength = s; dlgWidget.remove() }
-  dlgWidget.appendChild (okButton);
-  
-}
-
-
-function doCreateUnitMenu (leaderId, unitId, unitName, x, y, menuEntries)
-{
-  var menuWidget = document.createElement ("DIV");
-  menuWidget.setAttribute ("class", "context-menu");
-  menuWidget.style.left = x + "px";
-  menuWidget.style.top = y + "px";
-  menuWidget.id = ("MU:" + unitId);
-  document.getElementById ("mapContainer").appendChild (menuWidget);
- 
-  // Menu title
-  var menuTitle = document.createElement ("P");
-  menuTitle.innerHTML = unitName;
-  menuTitle.setAttribute ("class", "context-menu-title");
-  menuWidget.appendChild (menuTitle);
-  
-  // Close icon
-  var closeIcon = document.createElement ("IMG");
-  closeIcon.setAttribute ("class", "close-icon");
-  closeIcon.src = "img/close.png";
-  closeIcon.onclick = function () { menuWidget.remove() }
-  menuWidget.appendChild (closeIcon);
-  
-  // A horizontal divider
-  var hr = document.createElement ("HR");
-  hr.setAttribute ("class", "context-menu-hr");
-  menuWidget.appendChild (hr);
-    
-  var i;
-  for (i=0; i < menuEntries.length; i++)
-  {
-    var menuEntry = document.createElement ("P");
-    menuEntry.id = "L:" + leaderId + ".U:" + unitId + ".A:" + menuEntries[i][1];
-    menuEntry.setAttribute ("class", "context-menu-entry");
-    menuEntry.onclick = function (event) { menuDoAction (event) }
-    menuEntry.innerHTML = menuEntries[i][0];
-    
-    menuWidget.appendChild (menuEntry);
-  }
-  
-  return menuWidget;
-}
-
-function menuDoAction (event)
-{
-  var tokens = event.currentTarget.id.split (".");
-  var leaderId = tokens[0].slice(2);
-  var unitId = tokens[1].slice(2);
-  var actionId = tokens[2].slice(2);
-    
-  switch (actionId)
-  {
-    case "ChStr":
-      changeCombatUnitStrength (leaderId, unitId);
-      break;
-      
-    case "MkMajGen":
-      createMajGen (leaderId, unitId);
-      alert ("Maj. General created: " + leaders[leaders.length-1].name);
-      break;
-      
-    case "Transfer":
-      transferUnit (leaderId, unitId);
-//      alert ("Unit transferred");
-      break;
-      
-    default:
-      throw ("menuDoAction: invalid action " + actionId);
-  }
-}
-  
 
 function createMajGen (leaderId, unitId)
 {
@@ -336,105 +245,12 @@ function createMajGen (leaderId, unitId)
     unitMenu.remove();
   
   // Close the previous leader info window, 
-  var leaderInfoWidget = document.getElementById ("LIW:" + leaders[l].id);
-  if (leaderInfoWidget != null)
-    hideLeaderInfo (leaderInfoWidget.id);
+  var leaderInfoWindow = document.getElementById ("LIW:" + leaders[l].id);
+  if (leaderInfoWindow != null)
+    hideLeaderInfo (leaderInfoWindow.id);
   
   // Force a redraw of the new leader counter, 
-  newLeader.drawOnMap();
-}
-
-function transferUnit (leaderId, unitId)
-{
-  var iOldLeader = indexOfLeaderById (leaderId);
-  var theUnit = leaders[iOldLeader].units [ leaders[iOldLeader].findUnit (unitId)] ;
-  var candidateLeaderIndexes = [];
-
-  // Find the candidate leaders (must be in the same hex as leaderId)
-  var i;
-  for (i=0; i < leaders.length; i++)
-    if (i != iOldLeader)
-      if (leaders[i].x == leaders[iOldLeader].x && leaders[i].y == leaders[iOldLeader].y)
-        candidateLeaderIndexes.push (i);
-  
-  // Create a new DIV in front of the map to prevent events going to the map, and dim it
-  var menuDiv = document.createElement ("DIV");
-  menuDiv.style.position = "absolute";
-  menuDiv.style.top = 0;
-  menuDiv.style.left = 0;
-  menuDiv.style.height = "2791px";
-  menuDiv.style.width = "4474px";
-  menuDiv.style.zIndex = 100;
-  menuDiv.style.backgroundColor = "grey";
-  menuDiv.style.opacity = 0.5;
-  document.body.appendChild (menuDiv);
-  
-  // Create the main widget
-  var menuWidget = document.createElement ("DIV");
-  menuWidget.setAttribute ("class", "modal-box");
-  menuWidget.id = ("TU:" + unitId);
-  menuWidget.style.opacity = 1;
-  menuWidget.style.zIndex = 101;
-  document.body.appendChild (menuWidget);
-
-  // Explanation
-  var para = document.createElement ("P");
-  para.innerHTML = "Transfer unit " + theUnit.name + " to:"
-  menuWidget.appendChild (para);
-
-
-  // Create the form
-  var form = document.createElement ("FORM");
-  menuWidget.appendChild (form);
-  
-  // Create the list of candidate leaders
-  for (i=0; i < candidateLeaderIndexes.length; i++)
-  {
-    var dest = document.createElement ("INPUT");
-//    dest.setAttribute ("class", "xfer-2-list");
-    dest.type = "radio";
-    dest.name = "leader";
-    dest.value = leaders[ candidateLeaderIndexes[i]].id;
-    form.appendChild (dest);
-    
-    form.innerHTML += "&nbsp;" + leaders[ candidateLeaderIndexes[i]].name + "<br>";
-  }
-  
-  // OK button
-  var okButton = document.createElement ("BUTTON");
-  okButton.innerHTML = "OK";
-  okButton.onclick = function () { doTransferUnit (leaderId, unitId, dest.value); menuWidget.remove(); menuDiv.remove(); }
-  menuWidget.appendChild (okButton);
-  
-  
-  // Close icon
-  var closeIcon = document.createElement ("IMG");
-  closeIcon.src = "img/close.png";
-  closeIcon.setAttribute ("class", "close-icon");
-  closeIcon.onclick = function () { menuWidget.remove(); menuDiv.remove(); }
-  menuWidget.appendChild (closeIcon);
-}
-
-                           
-
-function doTransferUnit (oldLeaderId, unitId, newLeaderId)
-{
-  var iOldLeader = indexOfLeaderById (oldLeaderId);
-  var iNewLeader = indexOfLeaderById (newLeaderId);
-  var theUnit = leaders[iOldLeader].units [ leaders[iOldLeader].findUnit (unitId)] ;
-
-  leaders[iOldLeader].removeUnit (unitId);
-  leaders[iNewLeader].addUnit (theUnit);
-
-  // Close the unit window menu  
-  var unitMenu = document.getElementById ("MU:" + unitId);
-  if (unitMenu)
-    unitMenu.remove();
-  
-  // Close the previous leader info window, 
-  var leaderInfoWidget = document.getElementById ("LIW:" + leaders[iOldLeader].id);
-  if (leaderInfoWidget != null)
-    hideLeaderInfo (leaderInfoWidget.id);
+//  newLeader.drawOnMap();
 }
 
 

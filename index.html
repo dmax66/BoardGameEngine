@@ -2,48 +2,17 @@
  <html>
  <meta charset="utf-8"/>
 
+<link rel="stylesheet" href="map.css">
+<link rel="stylesheet" href="main_menu.css">
+<link rel="stylesheet" href="popup_menu.css">
+<link rel="stylesheet" href="modal.css">
+
+<link rel="stylesheet" href="leaders.css">
+<link rel="stylesheet" href="units.css">
+<link rel="stylesheet" href="stack.css">
+
 
 <style>
-.title_area { grid-area: header; }
-.menu_area { grid-area: menu; }
-.main_area { grid-area: main; }
-.right_area { grid-area: right; }
-.footer_area { grid-area: footer; }
-
-.grid-container {
-  display: grid;
-  grid-template-areas:
-    'menu header header header header header header header'
-    'menu main main main main main main right'
-    'footer footer footer footer footer footer footer footer';
-  grid-gap: 20px;
-  background-color: black;
-  padding: 20px;
-  grid-column-gap: 50px;
-  grid-row-gap: 50px;
-}
-
-.grid-container > div {
-  background-color: rgba(0, 0, 0, 0.8);
-  text-align: center;
-  padding: 20px 0;
-  font-size: 30px;
-}
-
-.position-tracker {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  width: 50px;
-  height: 35px;
-  z-index: 2;
-  background-color: black;
-  color: white;
-  font-size: 10px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-  
-
 .container {
   width: 4474px;
   height: 2791px;
@@ -59,305 +28,6 @@
   top: 0px;
 }
 
-.counter-widget {
-  position: absolute;
-  width: 60px;
-  height: 26px;
-  padding: 0px 0px;
-  border: none;
-  cursor: pointer;
-  border-radius: 0px;
-  text-align: center;
-  font-size: 10px;
-  font-family: Times, Roman, serif;
-  background-repeat: no-repeat;
-  background-color: transparent;
-}
-
-.counter-widget:hover {
-  border-top: 5px; 
-  border-left: 5px; 
-  border-right: 5px; 
-  border-bottom: 5px; 
-  border-color: rgba(239, 0, 0, 0.4); 
-  border-style: solid; 
-  border-radius: 8px 8px 8px 8px; 
-  box-shadow: -2px 19px 25px 0px rgba(76, 0, 0, 1.0); 
-  -webkit-box-shadow: -2px 19px 25px 0px rgba(76, 0, 0, 1.0); 
-}
-
-
-.counter-icon {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  z-index: 0;
-}
-
-.counter-name {
-  position: absolute;
-  left: 0px;
-  top: 0px;
-  width: 60px;
-  height: 10px;
-  z-index: 1;
-  text-align: center;
-  font-size: 10px;
-  font-family: Times, Roman, serif;
-  color: black;
-}  
-  
-.leader-info {
-  position: absolute;
-  color: black;
-  background-color: #efdf88;
-  min-width: 2px;
-  min-height: 2px;
-  font-size: 14px;
-  font-weight: bold;
-  padding: 15px 15px 15px 15px; 
-  border-top: 1px; 
-  border-left: 1px; 
-  border-right: 1px; 
-  border-bottom: 1px;   
-  border-color: rgba(0, 0, 0, 1.0); 
-  border-style: double; 
-  border-radius: 8px; 
-  cursor: pointer;
-  text-align: left;
-  background-repeat: no-repeat;
-  box-shadow:7px 5px 7px #555555;
-  border-radius: 5px;
-  z-index: 1;
-  width: 200px;
-}
-  
-.leader-table {
-  text-align: left;
-  font-size: 12px;
-  font-family: Times, Roman, serif;
-  font-weight: normal;
-}
-
-.leader-table tr {
-    border-bottom: 1px solid #aaa;
-}
-  
-.leader-table tr:hover {
-    background-color: #A0A0A0;
-}
-  
-  
-  
-.unit-info {
-  position: absolute;
-  color: black;
-  background-color: #efdf88;
-  min-width: 200px;
-  min-height: 10px;
-  padding: 1px 1px;
-  cursor: pointer;
-  text-align: left;
-  font-size: 12px;
-  font-family: Arial, Helvetica, sans-serif;
-  background-repeat: no-repeat;
-  box-shadow:7px 5px 7px #555555;
-  border: 1px;
-  border-radius: 5px;
-  border-top: 1px solid #DDDDDD;
-  border-left: 1px solid #DDDDDD;
-  z-index: 1;
-}
-  
-.unit-table {
-  text-align: left;
-  font-size: 10px;
-  font-family: Arial, Helvetica, sans-serif;
-  font-weight: normal;
-  padding: 0px;
-  border: 5px black;
-}
-
-.unit-table tr {
-  border-bottom: 1px solid #aaa;
-  padding: 0px;
-  border: 5px black;
-}
-  
-.unit-table tr:hover {
-  background-color: #A0A0A0;
-}
-
-.unit-table td {
-  padding: 0px;
-  border: 0px;
-}
-  
-
-.unit-icon {
-}
-
-.p {
-  background-color: #9494b8;
-  color: white;
-}
-  
-.a {
-  background-color: #e6e6e6;
-  color: black;
-}
-
-.r {
-	background-color: #9fdf9f;
-  color: black;
-}
-	
-.f {
-	background-color: #66c2ff; 
-  color: black;
-}  
-
-.s {
-	background-color: #ff66b3; 
-  color: white;
-}
-
-.g {
-  background-color: yellow;
-  color: black;
-}
-
-.generic {
-  background-color: Gray;
-  color: black;
-}
-  
-.cavalry-leader {
-  background-image: url("img/cavalry-line.png");
-}
-
-.infantry-leader {
-  background-image: url("img//infantry-line.png");
-}
-
-.cop-counter {
-  background-image: url("img/center-operations.png");
-}
-
-.supply-counter {
-  background-image:url("img/active-supply.png");
-}
-
-.bridge-counter {
-  background-image: url ("img/bridge-train.png");
-}
-
-.cavalry-unit-division {
-  background-image: url ("img/Cavalry-Division.png");
-}
-
-.infantry-unit-division {
-  background-image: url ("img//Infantry-Division.png");
-}
-
-.artillery-unit {
-background-image: url ("img/Artillery-Division.png")
-;}
-
-/* Dropdown Content (Hidden by Default) */
-.unitInfoWidget-content {
-  display: none;
-  position: absolute;
-  background-color: #f1f1f1;
-  min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
-}
-
-
-.btn-minus
-{
-  position: block;
-  background-color: #efdf88;  
-  color: black;
-  border-color: black;
-  border-radius: 10px 0px 0px 10px; 
-  height: 22px;
-  width: 8px;
-  font-size: 10px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-  
-.btn-plus
-{
-  position: block;
-  background-color: #efdf88;  
-  color: black;
-  border-color: black;
-  border-radius: 0px 10px 10px 0px; 
-  height: 22px;
-  width: 8px;
-  font-size: 10px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-  
-.strength-box
-{
-  position: block;
-  background-color: #efdf88;  
-  color: black;
-  border-color: black;
-  border-radius: 0px; 
-  height: 15px;
-  width: 16px;
-  font-size: 10px;
-  font-family: Arial, Helvetica, sans-serif;
-}
-  
-  
-
-
-
-/* The Modal (background) */
-.modal {
-  display: none; /* Hidden by default */
-  position: fixed; /* Stay in place */
-  z-index: 10; /* Sit on top */
-  padding-top: 100px; /* Location of the box */
-  left: 0;
-  top: 0;
-  width: 400px; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
-}
-
-/* Modal Content */
-.modal-content {
-  background-color: #fefefe;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-}
-
-/* The Close Button */
-.close {
-  color: #aaaaaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: #000;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-
 .status_bar {
   position: fixed;
   width: 100%;
@@ -369,45 +39,19 @@ background-image: url ("img/Artillery-Division.png")
 }
 
 
-.menu_symbol {
-  font-size: 15px;
-  color: silver; 
-  background-color: black;
-  height: 30px;
-}
-
-.menu_symbol:hover {
-  background-color: silver;
-  color: black;
-  cursor: default;
-}
-
-
-
-.main_menu {
+.pos_tracker {
   position: fixed;
-  font-size:15px;
-  color:silver; 
+  width: 100px;
+  top: 0px;
+  right: 0;
+  height: 30px;  
   background-color: black;
-  top: 30px;
-  width: 200px;
-  cursor: default;
-  visibility: hidden;
-  z-index: 2;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10px;
+  z-index: 1;
 }
 
-.menu_item {
-  font-size: 15px;
-  color:silver; 
-  background-color: black;
-  cursor: default;
-}
-
-.menu_item:hover, .menu_item:focus {
-  font-size:15px;
-  color: black; 
-  background-color: silver;
-}
 
 .game_map {
   position: absolute;
@@ -421,18 +65,6 @@ background-image: url ("img/Artillery-Division.png")
   font-size:15px;
 }
 
-.pos_tracker {
-  position: fixed;
-  width: 100px;
-  top: 0px;
-  right: 0;
-  height: 30px;  
-  background-color: black;
-  color: white;
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 8px;
-  z-index: 1;
-}
 
 body {
   font-family: Arial, Helvetica, sans-serif;
@@ -444,6 +76,7 @@ body {
   right: -20px;
   top: -20px;
 }
+
 </style>
 
 <script src="common.js"></script>
@@ -451,7 +84,9 @@ body {
 <script src="game.js"></script>
 <script src="leaders.js"></script>
 <script src="units.js"></script>
+<script src="unit_ui.js"></script>
 <script src="wargame_ui.js"></script>
+<script src="ui.js"></script>
 
 
 
@@ -515,33 +150,6 @@ function populate_game_list(xhttp_obj) {
 }
 
 
-function load_game_data (game_id) {
-  call_server_api_get ("app/load_game.php?game_id=" + game_id, createGame);
-  call_server_api_get ("app/load_leaders.php?game_id=" + game_id, createLeaders);
-  call_server_api_get ("app/load_units.php?game_id=" + game_id, createUnits);
-}
-
-
-function beginGame() {
-  // Initialise admin points, morale, reinforcement points
-  frenchPlayerStatus.setAdminPoints         (game.FrenchAdminPoints);
-  frenchPlayerStatus.setMorale              (game.FrenchMorale);
-  frenchPlayerStatus.setReinforcementPoints (game.FrenchReinforcementPoints);
-
-  alliedPlayerStatus.setAdminPoints         (game.ArmyOfSilesiaAdminPoints);
-  alliedPlayerStatus.setMorale              (game.AlliedMorale);
-  alliedPlayerStatus.setReinforcementPoints (game.PrussianReinforcementPoints);
-
-  frenchPlayerStatus.drawSelf();
-
-  for (i=0; i < leaders.length; i++) {
-    leaders[i].drawSelf();
-  }
-}
-
-
-
-
 
 function get_scenario_data (xhttp_obj)
 {
@@ -556,44 +164,6 @@ function do_nothing()
 }
 
 
-function get_game_id (xhttp_obj)
-{
-  new_game_id = xhttp_obj.responseText;
-}
-
-
-function init_game_from_scenario(scenario_id, game_name)
-{
- // Get scenario data from DB and populate internal structures
-//  const url = "app/get_scenario_data.php?scenario_id=" + scenario_id;
-//  call_server_api_get (url, get_scenario_data);
-
-  // Create the new game in the database
-  call_server_api_get ("app/create_game_from_scenario.php?scenario_id=" + scenario_id + "&game_name=" + game_name, get_game_id);
-  
-    
-  load_game_data (new_game_id);
-
-  // Close the load game modal box
-  document.getElementById("newgame_box").style.display="none";
-  
-  // And get the game begin
-  beginGame();
-}
-
-
-function load_game (game_id) {
-  load_game_data (game_id);
-  
-  // Close the load game modal box
-  document.getElementById("loadgame_box").style.display="none";
-  
-  // And get the game begin
-  beginGame();  
-}
-
-
-
 function show_menu (flag) {
   var menu_obj = document.getElementById("main_menu_id");
   
@@ -606,15 +176,18 @@ function toggle_menu () {
   menu_obj.style.visibility = (menu_obj.style.visibility != "visible") ? "visible" : "hidden";
 }
 
-
-function showMousePosition (ev)
-{
-  const x = xUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
-  const y = yUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
-  
-  document.getElementById ("position-tracker").innerHTML = ev.offsetX + "," + ev.offsetY + "<br>" + x + ", " + y;
+function showMousePosition (evx, evy, x, y) {
+  document.getElementById ("position-tracker").innerHTML = evx + "," + evy + "<br>" + x + ", " + y;
 }
 
+
+function processMouseMove (ev) {
+  const x = xUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
+  const y = yUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
+
+  showMousePosition (ev.offsetX, ev.offsetY, x, y);
+  showStackContent (x, y);
+}
 
 
 
@@ -634,8 +207,8 @@ function showMousePosition (ev)
     <select id="scenario_list" name="scenarios">
         <option value=""></option>
     </select> 
-    <br>Enter the game name: <input type="text" id="game_name">
-    <br><input type="button" value="Create Game" onclick="init_game_from_scenario (document.getElementById ('scenario_list').value, document.getElementById ('game_name').value)">
+    <br>Enter the game name: <input type="text" id="game_name" onblur="theGame.name = this.value">
+    <br><input type="button" value="Create Game" onclick="theGame.initFromScenario (document.getElementById ('scenario_list').value">
   </div>
 
 </div>
@@ -646,9 +219,9 @@ function showMousePosition (ev)
   <div class="modal-content">
     <span class="close">&times;</span>
     <label for="game_list"><h3>Select a game</h3></label>
-    <select id="game_list" name="games">
+    <select id="game_list" name="games" onblur="theGame.id = this.value">
     </select> 
-    <br><input type="button" value="Load" onclick="load_game (document.getElementById ('game_list').value)">
+    <br><input type="button" value="Load" onclick="theGame.id = document.getElementById('game_list').value; theGame.load ()">
   </div>
 
 </div>
@@ -682,7 +255,7 @@ Position tracker
 </div>
 
 <div id="mapContainer">
-<img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="showMousePosition(event)">
+<img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove(event)">
 </div>
  
 </font>
