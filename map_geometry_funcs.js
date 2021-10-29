@@ -1,259 +1,320 @@
 'use strict';
 
-
-    
-    
-const lineMovementInfo = [
-  {
-    facing: "N",      // Facing of unit when starting the movement
-    xOffsetYEven: [-1, 0],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [0, 1],    // index 0 = increment when moving forward left
-    yOffset: [-1, -1]     // index 1 = increment when moving forward right
-  }, 
-  {
-    facing: "NW",      // Facing of unit when starting the movement
-    xOffsetYEven: [-1, -1],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [-1,0],    // index 0 = increment when moving forward left
-    yOffset: [0, -1]     // index 1 = increment when moving forward right
+const hexAround = [
+  { 
+    direction: "E",
+    offset: [ 
+      { x:  1, y: 0 },   // When on even y
+      { x:  1, y: 0 }    // When on odd y
+    ]
   },
-  {
-    facing: "SW",      // Facing of unit when starting the movement
-    xOffsetYEven: [-1,-1],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [0,-1],    // index 0 = increment when moving forward left
-    yOffset: [1, 0]     // index 1 = increment when moving forward right
+  
+  { 
+    direction: "SE",
+    offset: [ 
+      { x:  0, y: 1 },   // When on even y
+      { x:  1, y: 1 }    // When on odd y
+    ]
   },
-  {
-    facing: "S",      // Facing of unit when starting the movement
-    xOffsetYEven: [0,-1],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [1,0],    // index 0 = increment when moving forward left
-    yOffset: [1, 1]     // index 1 = increment when moving forward right
+  
+  { 
+    direction: "SW",
+    offset: [ 
+      { x: -1, y: 1 },   // When on even y
+      { x:  0, y: 1 }    // When on odd y
+    ]
   },
-  {
-    facing: "SE",      // Facing of unit when starting the movement
-    xOffsetYEven: [1,0],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [1,1],    // index 0 = increment when moving forward left
-    yOffset: [0,1]     // index 1 = increment when moving forward right
+  
+  { 
+    direction: "W",
+    offset: [ 
+      { x: -1, y: 0 },   // When on even y
+      { x: -1, y: 0 }    // When on odd y
+    ]
   },
-  {
-    facing: "NE",      // Facing of unit when starting the movement
-    xOffsetYEven: [0,1],    // index 0 = increment when moving forward left
-    xOffsetYOdd: [1,1],    // index 0 = increment when moving forward left
-    yOffset: [-1,0]     // index 1 = increment when moving forward right
+  
+  { 
+    direction: "NW",
+    offset: [ 
+      { x: -1, y: -1 },   // When on even y
+      { x:  0, y: -1 }    // When on odd y
+    ]
+  },
+  
+  { 
+    direction: "NE",
+    offset: [ 
+      { x: 0, y: -1 },   // When on even y
+      { x: 1, y: -1 }    // When on odd y
+    ]
   }
 ];
 
-const lineDrawInfo = 
-[
-  {
-    facing: "N",
+
+// Returns an index [0-5] corresponding to 'orientation' that points to an entry in hexAround
+function findIndexOf (orientation) {
+  let i = 0;
+  for (i = 0; i < hexAround.length; i++)
+    if (hexAround.direction == orientation)
+      return i;
+      
+  if (i == hexAround.length) {
+    throw ("Invalid orientation");
+    return -1;
+  }
+}
+
+
+function orientationPrev (orientation)
+{
+  let i = orientation - 1;
+
+  if (i < 0)
+    i += hexAround.length;
+    
+  return i;
+}
+
+
+function orientationNext (orientation)
+{
+  let i = orientation + 1;
+
+  if (i >= hexAround.length)
+    i -= hexAround.length;
+    
+  return i;
+}
+
+// Returns the x offset to move to 'orientation'
+function xOffset (orientation, isOddRow) {
+  return hexAround[orientation].offset[isOddRow].x;
+}
+    
+// Returns the x offset to move to 'orientation'
+function yOffset (orientation, isOddRow) {
+  return hexAround[orientation].offset[isOddRow].y;
+}
+
+    
+// Return the opposite orientation of 'orientation'
+function orientationOpposite (orientation) {
+  let i = orientation + 3;
+  if (i >= hexAround.length)
+    i -= hexAround.length;
+    
+  return i;
+}
+
+const lineDrawInfo = [
+  { 
+    orientation: "E",
     angle: 0,
     xOffset: -29,
-    yOffset: 7,
-    flip: {
-      newFacing: "S",
-      xOffsetEven: -1,
-      xOffsetOdd: -1,
-      yOffset: 0
-    }
+    yOffset: 7
   },
-  {
-    facing: "NE",
+  
+  { 
+    orientation: "SE",
     angle: -300,
     xOffset: -22,
-    yOffset: -3,
-    flip: {
-      newFacing: "SW",
-      xOffsetEven: -1,
-      xOffsetOdd: 0,
-      yOffset: -1
-    }
+    yOffset: -3
   },
+  
   {
-    facing: "SE",
+    orientation: "SW",
     angle: -240,
     xOffset: -5,
     yOffset: -7,
-    flip: {
-      newFacing: "NW",
-      xOffsetEven: 0,
-      xOffsetOdd: 1,
-      yOffset: -1
-    }
+  
   },
+  
   {
-    facing: "S",
+    orientation: "W",
     angle: -180,
     xOffset: 2,
-    yOffset: 3,
-    flip: {
-      newFacing: "N",
-      xOffsetEven: 1,
-      xOffsetOdd: 1,
-      yOffset: 0
-    }
+    yOffset: 3
   },
+  
   {
-    facing: "SW",
+    orientation: "NW",
     angle: -120,
     xOffset: -3,
     yOffset: 18,
-    flip: {
-      newFacing: "NE",
-      xOffsetEven: 0,
-      xOffsetOdd: 1,
-      yOffset: 1
-    }
   },
+  
   {
-    facing: "NW",
+    orientation: "NE",
     angle: -60,
     xOffset: -19,
     yOffset: 21,
-    flip: {
-      newFacing: "SE",
-      xOffsetEven: -1,
-      xOffsetOdd: 0,
-      yOffset: 1
-    }
   }
 ];
 
 
-const columnMovementInfo = 
-[
+const columnDrawInfo = [
   {
-    facing: "NE",
-    angle: -60,
-    xOffset: -23, 
-    yOffset: 22,
-    flip: {
-      newFacing: "SW",
-      xOffsetEven: -1,
-      xOffsetOdd: 0,
-      yOffset: 1
-    },
-    movement: {
-      xMoveWhenYEven: 0,
-      xMoveWhenYOdd: 1,
-      yMove: -1
-    }
-  },
-  {
-    facing: "E",
+    orientation: "E",
     angle: 0,
-    xOffset: -29,
-    yOffset: 6,
-    flip: {
-      newFacing: "W",
-      xOffsetEven: -1,
-      xOffsetOdd: -1,
-      yOffset: 0
-    },
-    movement: {
-      xMoveWhenYEven: 1,
-      xMoveWhenYOdd: 1,
-      yMove: 0
-    }
+    xOffset: -49,
+    yOffset: 6
   },
+  
   {
-    facing: "SE",
+    orientation: "SE",
     angle: 60,
-    xOffset: -21, 
-    yOffset: -8,
-    flip: {
-      newFacing: "NW",
-      xOffsetEven: -1,
-      xOffsetOdd: 0,
-      yOffset: -1
-    },
-    movement: {
-      xMoveWhenYEven: 0,
-      xMoveWhenYOdd: 1,
-      yMove: 1
-    }
-
+    xOffset: -38, 
+    yOffset: -8
   },
-  {     
-    facing: "SW",
-    angle: 120,
-    xOffset: 0,
-    yOffset: -10,
-    flip: {
-      newFacing: "NE",
-      xOffsetEven: 0,
-      xOffsetOdd: 1,
-      yOffset: -1
-    },
-    movement: {
-      xMoveWhenYEven: -1,
-      xMoveWhenYOdd: 0,
-      yMove: 1
-    }
-  },
-  {        
-    facing: "W",
-    angle: 180,
-    xOffset: 4,   
-    yOffset: 4,
-    flip: {
-      newFacing: "E",
-      xOffsetEven: 1,
-      xOffsetOdd: 1,
-      yOffset: 0
-    },
-    movement: {
-      xMoveWhenYEven: -1,
-      xMoveWhenYOdd: -1,
-      yMove: 0
-    }
-  },
+  
   {
-    facing: "NW",
+    orientation: "SW",
+    angle: 120,
+    xOffset: -23,
+    yOffset: -10
+  },
+  
+  {
+    orientation: "W",
+    angle: 180,
+    xOffset: -15,   
+    yOffset: 4
+  },
+  
+  {
+    orientation: "NW",
     angle: 240,
-    xOffset: -4,
-    yOffset: 20,
-    flip: {
-      newFacing: "SE",
-      xOffsetEven: 0,
-      xOffsetOdd: 1,
-      yOffset: 1
-    },
-    movement: {
-      xMoveWhenYEven: -1,
-      xMoveWhenYOdd: 0,
-      yMove: -1
-    }
-
-  }        
+    xOffset: -21,
+    yOffset: 20
+  },
+  
+  {
+    orientation: "NE",
+    angle: -60,
+    xOffset: -38, 
+    yOffset: 22
+  }  
 ];
   
-  
+ 
+const hexWidth = 34;
+const hexHeight = 30;  
 
+// Return the absolute x coordinate of the centre of the hex of coordinate unitX, unitY
 function xMapCoordFromUnitCoord (unitX, unitY)
 {
   if ((unitY % 2) == 0)
-    return 34*unitX;
+    return Math.floor ((unitX + 0.5) * hexWidth);
   else
-    return 17+34*unitX;
+    return (1 + unitX) * hexWidth;
 }
 
+// Return the absolute y coordinate of the centre of the hex of coordinate unitX, unitY
 function yMapCoordFromUnitCoord (unitX, unitY)
 {
-  return 30*unitY;
+  return hexHeight * unitY;
 }
 
 function xUnitCoordFromMapCoord (mapX, mapY)
 {
-  var y = Math.floor (mapY / 30);
-  if ((y % 2) == 1)
-    return Math.floor((mapX-17)/34);
+  var y = Math.floor (mapY / hexHeight);
+  if ((y % 2) == 0)
+    return Math.floor ((mapX - hexWidth / 2)/hexWidth);
   else
-    return Math.floor (mapX / 34);
+    return Math.floor (mapX / hexWidth) - 1;
 }
 
 function yUnitCoordFromMapCoord (mapX, mapY)
 {
-  return Math.floor (mapY / 30);
+  return Math.floor (mapY / hexHeight);
 }
 
 
+function secondHex (firstHex, mode, orientation) {
+}
+
+
+
+
+function line2ndHex (firstHex, orientation) {
+  let result = { x:firstHex.x, y:firstHex.y };
+  
+  result.x += lineMovementInfo[orientation].uTurn.offset[firstHex.y % 2].x;
+  result.y += lineMovementInfo[orientation].uTurn.offset[firstHex.y % 2].y;
+
+  return result;
+}
+
+function column2ndHex (firstHex, orientation) {
+  let result = { x:firstHex.x, y:firstHex.y };
+  
+  result.x += columnMovementInfo[orientation].uTurn.offset[firstHex.y % 2].x;
+  result.y += columnMovementInfo[orientation].uTurn.offset[firstHex.y % 2].y;
+
+  return result;
+}
+
+function sixHexesAround (centerHex) {
+  let result = [];
+  
+  result[0].x = centerHex.x + columnMovementInfo["NE"].forwardOffset[centerHex.y % 2].x; 
+  result[0].y = centerHex.y + columnMovementInfo["NE"].forwardOffset[centerHex.y % 2].y; 
+   
+  result[1].x = centerHex.x + columnMovementInfo["E"].forwardOffset[centerHex.y % 2].x; 
+  result[1].y = centerHex.y + columnMovementInfo["E"].forwardOffset[centerHex.y % 2].y; 
+
+  result[2].x = centerHex.x + columnMovementInfo["SE"].forwardOffset[centerHex.y % 2].x; 
+  result[2].y = centerHex.y + columnMovementInfo["SE"].forwardOffset[centerHex.y % 2].y; 
+
+  result[3].x = centerHex.x + columnMovementInfo["SW"].forwardOffset[centerHex.y % 2].x; 
+  result[3].y = centerHex.y + columnMovementInfo["SW"].forwardOffset[centerHex.y % 2].y; 
+
+  result[4].x = centerHex.x + columnMovementInfo["W"].forwardOffset[centerHex.y % 2].x; 
+  result[4].y = centerHex.y + columnMovementInfo["W"].forwardOffset[centerHex.y % 2].y; 
+
+  result[5].x = centerHex.x + columnMovementInfo["NW"].forwardOffset[centerHex.y % 2].x; 
+  result[5].y = centerHex.y + columnMovementInfo["NW"].forwardOffset[centerHex.y % 2].y; 
+
+  return result;
+}
+
+
+// Return the set of hexes surrounding the given hex within radius. 
+// Center hex is not returned
+// The resulting set doesn't contain duplicates
+//
+
+function hexSetAroundRecursive (centerHex, radius, result)
+{
+  if (radius == 0)
+    return [];
+    
+  if (radius == 1) {
+    t1 = sixHexesAround (centerHex);
+      
+    addElemToArrayWODuplicates (t1, result);
+
+    return result;
+  }
+  else {      // Radius >= 2
+    t1 = sixHexesAround (centerHex);
+    addElemToArrayWODuplicates (t1, result);
+
+    for (var i=0; i < t1.length; i++) {
+      t1 = hexesAroundWithinRadius (t1[i], radius - 1, result);       
+      addElemToArrayWODuplicates (t1, result);
+    }
+    
+    return result;
+  }
+}
+
+
+function addElemToArrayWODuplicates (newSet, result)
+{
+  for (let i=0; i < newSet.length; i++)
+    if (! result.findIndex (newSet[i])) // It's a duplicate
+      result.push (newSet[i]);
+      
+  return result;
+}

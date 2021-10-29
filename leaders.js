@@ -33,7 +33,7 @@ static possibleActions = [
   { action: "Flip Line-Column",      func: function(aLeader) { aLeader.flipMode(); }},
   { action: "Rotate clockwise",      func: function(aLeader) { aLeader.rotateCW(); }},
   { action: "Rotate anti-clockwise", func: function(aLeader) { aLeader.rotateCCW(); }},
-  { action: "Flip direction",        func: function(aLeader) { aLeader.flipDirection(); }},
+  { action: "Flip direction",        func: function(aLeader) { aLeader.uTurn(); }},
   { action: "Move forward-left",     func: function(aLeader) { aLeader.moveFL(); }},
   { action: "Move forward",          func: function(aLeader) { aLeader.moveF(); }},
   { action: "Move forward-right",    func: function(aLeader) { aLeader.moveFR(); }},
@@ -111,72 +111,11 @@ static possibleActions = [
   }
   
   flipMode () {
-    if (this.mode == "l") 
-    {
-      switch (this.orientation)
-      {
-        case "N":
-          this.orientation = "E";
-          break;
-          
-        case "S":
-          this.orientation = "W";
-          break;
-          
-        case "NE":
-          this.orientation = "SE";
-          break;
-          
-        case "NW":
-          this.orientation = "NE";
-          break;
-          
-        case "SW":
-          this.orientation = "NW";
-          break;
-          
-        case "SE":
-          this.orientation = "SW";
-          break;
-          
-        default:
-          throw ("Invalid orientation of leader: " + this.orientation);
-      }
-      
+    if (this.mode == "l") { 
       this.mode = "c";
     }
     else if (this.mode == "c")
     {
-      switch (this.orientation)
-      {
-        case "W":
-          this.facing = "S";
-          break;
-          
-        case "E":
-          this.orientation = "N";
-          break;
-          
-        case "NE":
-          this.orientation = "NW";
-          break;
-          
-        case "NW":
-          this.orientation = "SW";
-          break;
-          
-        case "SW":
-          this.orientation = "SE";
-          break;
-          
-        case "SE":
-          this.orientation = "NE";
-          break;
-          
-        default:
-          throw ("Invalid orientation of column stack: " + this.orientation);
-      }
-      
       this.mode = "l";
     }
     else 
@@ -184,201 +123,131 @@ static possibleActions = [
   }
 
   moveFL () {
-    this.move (-1);
+    const curOrientation = 1*this.orientation;
+    const i = this.y % 2;
+    
+    switch (this.mode) {
+      case "l": 
+//        this.x += xOffset (this.orientation, i);
+//        this.y += yOffset (this.orientation. i);
+        break;
+         
+      case "c":
+        this.orientation = orientationPrev (curOrientation);
+        this.x += xOffset (this.orientation, i);
+        this.y += yOffset (this.orientation, i);
+        break;
+         
+        default:
+          throw ("Invalid orientation in moveFL:" + this.mode);
+    }
   }
 
   moveF () {
-    this.move (0);
+    const i = this.y % 2;
+    
+    switch (this.mode) {
+      case "l":
+        // Not applicable to line mode 
+        break;
+         
+      case "c":
+        this.x += xOffset (this.orientation, i);
+        this.y += yOffset (this.orientation, i);
+        break;
+         
+        default:
+          throw ("Invalid orientation in moveFL:" + this.mode);
+    }
   }
 
   moveFR () {
-    this.move (1);
-  }
-
-
-// Move a stack one hex
-// orientation:
-//  0: move ahead
-// -1: move forward left
-// +1: move forward right
-  move (orientation) {
-    switch (this.mode)
-    {
-      case "l":
-        this.moveAsLine (orientation);
+    const curOrientation = 1*this.orientation;
+    const i = this.y % 2;
+    
+    switch (this.mode) {
+      case "l": 
+//        this.x += hexOffset[this.orientation][i].x;;
+//        this.y += lineMovementInfo[curOrientation].moveForwardRight[i].y;
         break;
-        
+         
       case "c":
-        this.moveAsColumn (orientation);
+        this.orientation = orientationNext (curOrientation);
+        this.x += xOffset (this.orientation, i);
+        this.y += yOffset (this.orientation, i);
         break;
-        
+         
       default:
-        throw ("Invalid stack mode: " + this.mode);
+        throw ("Invalid stack mode in moveFL:" + this.mode);
     }
   }
 
-  moveAsLine (orientation) {
-    var i=0;
-    for (i=0; i<6; i++)
-      if (this.orientation == lineMovementInfo[i].facing) break;
-  
-    if (i==6) throw ("Invalid orientation of line stack: " + this.orientation);
-     
-    // A little hack to convert orientation to either 0 (forward left) or 1 (forward right) to use the elements of the array xOffsetYEven / xOffsetYOdd
-    switch (orientation)
-    {
-      case -1:
-        orientation = 0;
-        break;
-        
-      case 1:
-        break;
-        
-      default:
-        throw ("Invalid value for 'orientation'");
-    }    
-      
-    // Calculate the new coordinates (grid units)
-    this.x += (this.y % 2 == 0) ? lineMovementInfo[i].xOffsetYEven[orientation] : lineMovementInfo[i].xOffsetYOdd[orientation];
-    this.y += lineMovementInfo[i].yOffset[orientation];
+  uTurn () {
+    const curOrientation = 1*this.orientation;
+    const i = this.y % 2;
     
-    // Set the zOrder so that the leader is at the top of the stack
-    this.zOrder = numOfLeadersInHex (this.x, this.y) - 1;
-  }
 
-  moveAsColumn (orientation) {
-    // Find the current orientation in the RotationInfo array
-    var i=0;
-    while (i < 6 && this.orientation != columnMovementInfo[i].facing) i++;
-    if (i == 6) throw ("Incorrect column facing");
-  
-    // Calc the new orientation by adding 'orientation' to the current index. 
-    // Treat the array as circular, managing the overflow
-    i += orientation;
-    if (i < 0) i += 6;
-    if (i >= 6) i -= 6;
-    this.orientation = columnMovementInfo[i].facing;      
-      
-    // Advance one hex
-    this.x += (this.y % 2 == 0) ? columnMovementInfo[i].movement.xMoveWhenYEven : columnMovementInfo[i].movement.xMoveWhenYOdd;
-    this.y += columnMovementInfo[i].movement.yMove;
-  
-    // Set the zOrder so that the leader is at the top of the stack
-    this.zOrder = numOfLeadersInHex (this.x, this.y) - 1;
-  }
-
-  flipDirection (orientation) {
-    var i;
-    
     switch (this.mode)
     {
       case "l":
-        for (i=0; i<6; i++)
-        {
-          if (this.orientation == lineDrawInfo[i].facing)
-          {
-            this.orientation = lineDrawInfo[i].flip.newFacing;
-            this.x += (this.y % 2 ==0) ? lineDrawInfo[i].flip.xOffsetEven : lineDrawInfo[i].flip.xOffsetOdd;
-            this.y += lineDrawInfo[i].flip.yOffset;
-            return;
-          }
-        }
-        throw ("Error");
+//        this.orientation = lineMovementInfo[curOrientation].uTurn.newOrientation;
+//        this.x += hexOffset[this.orientation][i].x;
+ //       this.y += hexOffset[this.orientation][i].y;
+        break;
         
       case "c":
-        for (i=0; i<6; i++)
-        {
-          if (this.orientation == columnMovementInfo[i].facing)
-          {
-            this.orientation = columnMovementInfo[i].flip.newFacing;
-            this.x += (this.y % 2 ==0) ? columnMovementInfo[i].flip.xOffsetEven : columnMovementInfo[i].flip.xOffsetOdd;
-            this.y += columnMovementInfo[i].flip.yOffset;
-            return;
-          }
-        }
-        throw ("Error");
+        this.orientation = orientationOpposite (curOrientation);
+        this.x += xOffset (this.orientation, i);
+        this.y += yOffset (this.orientation, i);
+        break;
         
       default:
-        throw ("Invalid stack mode");
+          throw ("Invalid stack mode in moveFL:" + this.mode);
     }
+    this.drawSelf();
   }
   
   rotateCW () {
-    this.rotate (1);
-  }
-  
-  rotateCCW () {
-    this.rotate (-1);
-  }
-
-  // Rotate a stack (line) one hex
-  // orientation:
-  // -1: rotate anticlockwise
-  // +1: rotate clockwise
-  rotate (orientation) {
-    var i=0;
+    const curOrientation = 1*this.orientation;
+    const i = this.y % 2;
     
-    switch (orientation) 
+
+    switch (this.mode)
     {
-      case 1:
-        for (i=0; i<6; i++)
-        {
-          if (this.orientation == lineDrawInfo[i].facing) break;
-        }
-        if (i==6)
-          throw ("Invalid stack (line) orientation: " + this.orientation);
-          
-        i += orientation;
-        if (i < 0) i += 6;
-        if (i >= 6) i -= 6;
-  
-        this.orientation = lineDrawInfo[i].facing;
+      case "l":
+//        this.orientation = lineMovementInfo[curOrientation].rotateCW.newOrientation;
+//       this.x += lineMovementInfo[curOrientation].rotateCW.offset[i].x;
+//        this.y += lineMovementInfo[curOrientation].rotateCW.offset[i].y;
         break;
-              
-      case -1:
-        switch (this.orientation)
-        {
-          case "N":
-            this.orientation="NW";
-            if (this.y % 2 == 0) this.x--;
-            this.y--;
-            break;
-  
-          case "NW":
-            this.orientation="SW";
-            this.x--;
-            break;
-  
-          case "SW":
-            this.orientation="S";
-            if (this.y % 2 == 0) this.x--;
-            this.y++;
-            break;
-  
-          case "S":
-            this.orientation="SE";
-            if (this.y % 2 == 1) this.x++;
-            this.y++;
-            break;
-  
-          case "SE":
-            this.orientation="NE";
-            this.x++;
-            break;
-  
-          case "NE":
-            this.orientation="N";
-            if (this.y % 2 == 1) this.x++;
-            this.y--;
-            break;
-        }
-        break;  
+        
+      case "c":
+        break;
         
       default:
-        throw ("Invalid orientation when rotating line");
+          throw ("Invalid stack mode in moveFL:" + this.mode);
     }
   }
   
+  rotateCCW () {
+    const curOrientation = 1*this.orientation;
+    const i = this.y % 2;
+    
+
+    switch (this.mode)
+    {
+      case "l":
+//        this.orientation = lineMovementInfo[curOrientation].rotateCCW.newOrientation;
+//        this.x += lineMovementInfo[curOrientation].rotateCCW.offset[i].x;
+//        this.y += lineMovementInfo[curOrientation].rotateCCW.offset[i].y;
+        break;
+        
+      case "c":
+        break;
+        
+      default:
+          throw ("Invalid stack mode in moveFL:" + this.mode);
+    }
+  }  
 } // End of Class
 
 
