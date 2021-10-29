@@ -86,6 +86,17 @@ function orientationNext (orientation)
   return i;
 }
 
+
+// Return the opposite orientation of 'orientation'
+function orientationOpposite (orientation) {
+  let i = orientation + 3;
+  if (i >= hexAround.length)
+    i -= hexAround.length;
+    
+  return i;
+}
+
+
 // Returns the x offset to move to 'orientation'
 function xOffset (orientation, isOddRow) {
   return hexAround[orientation].offset[isOddRow].x;
@@ -97,58 +108,48 @@ function yOffset (orientation, isOddRow) {
 }
 
     
-// Return the opposite orientation of 'orientation'
-function orientationOpposite (orientation) {
-  let i = orientation + 3;
-  if (i >= hexAround.length)
-    i -= hexAround.length;
-    
-  return i;
-}
-
 const lineDrawInfo = [
-  { 
+  {
     orientation: "E",
     angle: 0,
-    xOffset: -29,
-    yOffset: 7
+    xOffset: -49,
+    yOffset: 6
   },
   
-  { 
+  {
     orientation: "SE",
-    angle: -300,
-    xOffset: -22,
-    yOffset: -3
+    angle: 60,
+    xOffset: -38, 
+    yOffset: -8
   },
   
   {
     orientation: "SW",
-    angle: -240,
-    xOffset: -5,
-    yOffset: -7,
-  
+    angle: 120,
+    xOffset: -23,
+    yOffset: -10
   },
   
   {
     orientation: "W",
-    angle: -180,
-    xOffset: 2,
-    yOffset: 3
+    angle: 180,
+    xOffset: -15,   
+    yOffset: 4
   },
   
   {
     orientation: "NW",
-    angle: -120,
-    xOffset: -3,
-    yOffset: 18,
+    angle: 240,
+    xOffset: -21,
+    yOffset: 20
   },
   
   {
     orientation: "NE",
     angle: -60,
-    xOffset: -19,
-    yOffset: 21,
-  }
+    xOffset: -38, 
+    yOffset: 22
+  }  
 ];
 
 

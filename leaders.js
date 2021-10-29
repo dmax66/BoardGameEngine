@@ -124,18 +124,22 @@ static possibleActions = [
 
   moveFL () {
     const curOrientation = 1*this.orientation;
-    const i = this.y % 2;
+    const isOddRow = this.y % 2;
     
     switch (this.mode) {
       case "l": 
-//        this.x += xOffset (this.orientation, i);
-//        this.y += yOffset (this.orientation. i);
+        // Orientation remains the same
+        // The correct offsets are those corresponding to ( current orientation - 2)
+        const newOrientation = orientationPrev (orientationPrev (curOrientation)); 
+        this.x += xOffset (newOrientation, isOddRow);
+        this.y += yOffset (newOrientation, isOddRow);
         break;
+         
          
       case "c":
         this.orientation = orientationPrev (curOrientation);
-        this.x += xOffset (this.orientation, i);
-        this.y += yOffset (this.orientation, i);
+        this.x += xOffset (this.orientation, isOddRow);
+        this.y += yOffset (this.orientation, isOddRow);
         break;
          
         default:
@@ -144,7 +148,8 @@ static possibleActions = [
   }
 
   moveF () {
-    const i = this.y % 2;
+    const curOrientation = 1*this.orientation;
+    const isOddRow = this.y % 2;
     
     switch (this.mode) {
       case "l":
@@ -152,8 +157,8 @@ static possibleActions = [
         break;
          
       case "c":
-        this.x += xOffset (this.orientation, i);
-        this.y += yOffset (this.orientation, i);
+        this.x += xOffset (this.orientation, isOddRow);
+        this.y += yOffset (this.orientation, isOddRow);
         break;
          
         default:
@@ -163,18 +168,21 @@ static possibleActions = [
 
   moveFR () {
     const curOrientation = 1*this.orientation;
-    const i = this.y % 2;
+    const isOddRow = this.y % 2;
     
     switch (this.mode) {
       case "l": 
-//        this.x += hexOffset[this.orientation][i].x;;
-//        this.y += lineMovementInfo[curOrientation].moveForwardRight[i].y;
+        // Orientation remains the same
+        // The correct offsets are those corresponding to (current orientation - 1)
+        const newOrientation = orientationPrev (curOrientation); 
+        this.x += xOffset (newOrientation, isOddRow);
+        this.y += yOffset (newOrientation, isOddRow);
         break;
          
       case "c":
         this.orientation = orientationNext (curOrientation);
-        this.x += xOffset (this.orientation, i);
-        this.y += yOffset (this.orientation, i);
+        this.x += xOffset (this.orientation, isOddRow);
+        this.y += yOffset (this.orientation, isOddRow);
         break;
          
       default:
@@ -184,21 +192,21 @@ static possibleActions = [
 
   uTurn () {
     const curOrientation = 1*this.orientation;
-    const i = this.y % 2;
+    const isOddRow = this.y % 2;
     
 
     switch (this.mode)
     {
       case "l":
-//        this.orientation = lineMovementInfo[curOrientation].uTurn.newOrientation;
-//        this.x += hexOffset[this.orientation][i].x;
- //       this.y += hexOffset[this.orientation][i].y;
+        this.orientation = orientationOpposite (curOrientation);
+        this.x += xOffset (this.orientation, isOddRow);
+        this.y += yOffset (this.orientation, isOddRow);
         break;
         
       case "c":
         this.orientation = orientationOpposite (curOrientation);
-        this.x += xOffset (this.orientation, i);
-        this.y += yOffset (this.orientation, i);
+        this.x += xOffset (this.orientation, isOddRow);
+        this.y += yOffset (this.orientation, isOddRow);
         break;
         
       default:
@@ -209,15 +217,13 @@ static possibleActions = [
   
   rotateCW () {
     const curOrientation = 1*this.orientation;
-    const i = this.y % 2;
+    const isOddRow = this.y % 2;
     
 
     switch (this.mode)
     {
       case "l":
-//        this.orientation = lineMovementInfo[curOrientation].rotateCW.newOrientation;
-//       this.x += lineMovementInfo[curOrientation].rotateCW.offset[i].x;
-//        this.y += lineMovementInfo[curOrientation].rotateCW.offset[i].y;
+        this.orientation = orientationNext (curOrientation);
         break;
         
       case "c":
@@ -230,15 +236,16 @@ static possibleActions = [
   
   rotateCCW () {
     const curOrientation = 1*this.orientation;
-    const i = this.y % 2;
+    const isOddRow = this.y % 2;
     
 
     switch (this.mode)
     {
       case "l":
-//        this.orientation = lineMovementInfo[curOrientation].rotateCCW.newOrientation;
-//        this.x += lineMovementInfo[curOrientation].rotateCCW.offset[i].x;
-//        this.y += lineMovementInfo[curOrientation].rotateCCW.offset[i].y;
+        this.orientation = orientationPrev (curOrientation);
+        this.x += xOffset (this.orientation, isOddRow);
+        this.y += yOffset (this.orientation, isOddRow);
+        this.moveFL();
         break;
         
       case "c":
