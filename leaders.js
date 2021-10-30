@@ -135,7 +135,6 @@ static possibleActions = [
         this.y += yOffset (newOrientation, isOddRow);
         break;
          
-         
       case "c":
         this.orientation = orientationPrev (curOrientation);
         this.x += xOffset (this.orientation, isOddRow);
@@ -145,6 +144,7 @@ static possibleActions = [
         default:
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
+    this.drawEnemiesWithinVisibilityRange();
   }
 
   moveF () {
@@ -164,6 +164,7 @@ static possibleActions = [
         default:
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
+    this.drawEnemiesWithinVisibilityRange();
   }
 
   moveFR () {
@@ -188,6 +189,7 @@ static possibleActions = [
       default:
         throw ("Invalid stack mode in moveFL:" + this.mode);
     }
+    this.drawEnemiesWithinVisibilityRange();
   }
 
   uTurn () {
@@ -232,6 +234,7 @@ static possibleActions = [
       default:
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
+    this.drawEnemiesWithinVisibilityRange();
   }
   
   rotateCCW () {
@@ -254,7 +257,79 @@ static possibleActions = [
       default:
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
+    this.drawEnemiesWithinVisibilityRange();
   }  
+  
+
+  nearEnemy () {
+    for (let i = 0; i < leaders.length; i++) {
+      const p1 = this.player();
+      const p2 = leaders[i].player();      
+      if (p1 == p2) {   // same player
+        continue;
+      } 
+    
+      // OK, this and leaders[i] are not the same player's - check distance
+      const distanceSquared = distanceSquareInUnitCoords (
+        xMapCoordFromUnitCoord (this.x, this.y),
+        yMapCoordFromUnitCoord (this.x, this.y), 
+        xMapCoordFromUnitCoord (leaders[i].x, leaders[i].y),
+        yMapCoordFromUnitCoord (leaders[i].x, leaders[i].y));
+        
+       if (distanceSquared < visibilityRadiusSquared) {
+        return true;
+      }
+    }
+    
+    return false;  
+  }  
+  
+
+  enemiesWithinVisibilityRange () {
+    let result = [];
+
+    for (let i = 0; i < leaders.length; i++) {
+      const p1 = this.player();
+      const p2 = leaders[i].player();      
+      if (p1 == p2) {   // same player
+        continue;
+      } 
+    
+      // OK, this and leaders[i] are not the same player's - check distance
+      const distanceSquared = distanceSquareInUnitCoords (
+        xMapCoordFromUnitCoord (this.x, this.y),
+        yMapCoordFromUnitCoord (this.x, this.y), 
+        xMapCoordFromUnitCoord (leaders[i].x, leaders[i].y),
+        yMapCoordFromUnitCoord (leaders[i].x, leaders[i].y));
+        
+       if (distanceSquared < visibilityRadiusSquared) {
+        result.push(i);
+      }
+    }
+    
+    return result;  
+  }
+
+  drawEnemiesWithinVisibilityRange () {
+    const listOfEnemies = this.enemiesWithinVisibilityRange();
+    
+    for (let i=0; i < listOfEnemies.length; i++) {
+      leaders[listOfEnemies[i]].drawSelf();
+    }
+  }
+  
+
+
+  player () {
+    if (theGame.frenchPlayer.nations.includes (this.nation)) {
+      return theGame.frenchPlayer.name;
+    }
+    
+    if (theGame.alliedPlayer.nations.includes (this.nation)) {
+      return theGame.alliedPlayer.name;
+    }
+  }
+
 } // End of Class
 
 

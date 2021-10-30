@@ -75,10 +75,6 @@ function findLeaderFromWidgetId (leaderWidgetId)
 // Returns an array of indices for leaders who occupy hex (x,y) 
 //
 
-// MOVE TO DB!
-const alliedNations = ['a', 'p', 'r', 's']
-const frenchNations = ['f', 'pl'];
-
 function getLeadersInHex (x, y) {
   let result = [];
   
