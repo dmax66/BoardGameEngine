@@ -76,8 +76,8 @@ function findLeaderFromWidgetId (leaderWidgetId)
 //
 
 // MOVE TO DB!
-const alliedNations = ['a', 'p', 'r', ]
-const frenchNations = ['f', 'pl' ];
+const alliedNations = ['a', 'p', 'r', 's']
+const frenchNations = ['f', 'pl'];
 
 function getLeadersInHex (x, y) {
   let result = [];
