@@ -32,6 +32,13 @@ function showLeaderActionMenu (aLeader)
 
   let menuContent = undefined;
   
+  // The close icon
+  const closeIcon = document.createElement ("IMG");
+  leaderActionMenu.appendChild (closeIcon);
+  closeIcon.setAttribute ("class", "close-icon");
+  closeIcon.src = "img/close.png";
+  closeIcon.onclick = function() { leaderActionMenu.remove(); }
+
   menuContent = document.createElement ("P");
   menuContent.innerHTML = "<b>" + aLeader.name + "</b>";
   leaderActionMenu.appendChild (menuContent);
@@ -67,22 +74,37 @@ function findLeaderFromWidgetId (leaderWidgetId)
 //
 // Returns an array of indices for leaders who occupy hex (x,y) 
 //
-function getLeadersInHex (x, y)
-{
+
+// MOVE TO DB!
+const alliedNations = ['a', 'p', 'r', ]
+const frenchNations = ['f', 'pl' ];
+
+function getLeadersInHex (x, y) {
   let result = [];
   
-  for (var i=0; i<leaders.length; i++)
-    if (leaders[i].x == x && leaders[i].y == y) 
+  for (var i=0; i<leaders.length; i++) {
+    
+    if (theGame.currentPlayer == 'french' && (! frenchNations.includes(leaders[i].nation))) {
+      continue;
+    }      
+
+    if (theGame.currentPlayer == 'allied' && (! alliedNations.includes(leaders[i].nation))) {
+      continue;
+    }      
+
+    if (leaders[i].x == x && leaders[i].y == y) {
       result.push (i);
-  
+    }
+  }
+
   // TODO: each leader occupies two hexes!
-
-
+  
   return result;
 }
 
 
-
+const stackInfoXOffset = 40;
+const stackInfoYOffset = 0;
 
 function showStackContent (x, y) {
   let stackInfoWidget = document.getElementById("stackInfoWidget");
@@ -99,15 +121,17 @@ function showStackContent (x, y) {
   stackInfoWidget = document.createElement("DIV");
   stackInfoWidget.id = "stackInfoWidget";
   stackInfoWidget.setAttribute("class", "stack_info");
-  stackInfoWidget.style.left = (xMapCoordFromUnitCoord (x, y) + 40) + "px";
-  stackInfoWidget.style.top  = (yMapCoordFromUnitCoord (x, y) + 0) + "px";
+  stackInfoWidget.style.left = (xMapCoordFromUnitCoord (x, y) + stackInfoXOffset) + "px";
+  stackInfoWidget.style.top  = (yMapCoordFromUnitCoord (x, y) + stackInfoYOffset) + "px";
   mapContainer.appendChild(stackInfoWidget);
     
-  
-  for (var i=0; i < setOfLeaders.length; i++) {
+  if (setOfLeaders.length > 0) {
     let lineWidget = document.createElement("P");
-    lineWidget.innerHTML = leaders [setOfLeaders[i]].name; 
     stackInfoWidget.appendChild(lineWidget);
+
+    for (var i=0; i < setOfLeaders.length; i++) {
+      lineWidget.innerHTML += leaders [setOfLeaders[i]].name + "&nbsp;" + leaders [setOfLeaders[i]].strength('i') + "I&nbsp;" + leaders [setOfLeaders[i]].strength('c') + "C&nbsp;" + leaders [setOfLeaders[i]].strength('a') + "A<br>"; 
+    }
   }
 }
 
@@ -127,13 +151,14 @@ function showLeaderInfo (aLeader) {
   leaderInfoWindow.style.top  = (yMapCoordFromUnitCoord (aLeader.x, aLeader.y) ) + "px";
   document.getElementById("mapContainer").appendChild(leaderInfoWindow);
   
-  // Close icon
-  var closeIcon = document.createElement ("IMG");
+  // The close icon
+  const closeIcon = document.createElement ("IMG");
   leaderInfoWindow.appendChild (closeIcon);
   closeIcon.setAttribute ("class", "close-icon");
   closeIcon.src = "img/close.png";
-  closeIcon.onclick = function() { leaderInfoWindow.onmouseout = function() { hideLeaderInfo (aLeader.id); }; leaderInfoWindow.remove(); }
+  closeIcon.onclick = function() { leaderInfoWindow.remove(); }
 
+ 
   var leaderImgWidget = document.createElement ("IMG");
   leaderInfoWindow.appendChild (leaderImgWidget);
   leaderImgWidget.src = "img/" + aLeader.name + ".png";
@@ -254,20 +279,6 @@ function createMajGen (leaderId, unitId)
 }
 
 
-
-function processTimeTrackInfo()
-{
-  // Add new stacks
-  var i = 0;
-  for (i=0; i < timeTrack[currentTurn].stacks.length; i++)
-    stacks.push (timeTrack[currentTurn].stacks[i]);      
-
-  // @TODO: add replacements
-  
-  // Creates the stacks on the map
-//  stacks.forEach (createStackWidget);
-  stacks.forEach (drawStack);
-}
 
 function endTurn()
 {

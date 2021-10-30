@@ -220,9 +220,9 @@ function xUnitCoordFromMapCoord (mapX, mapY)
 {
   var y = Math.floor (mapY / hexHeight);
   if ((y % 2) == 0)
-    return Math.floor ((mapX - hexWidth / 2)/hexWidth);
+    return Math.floor (mapX / hexWidth);
   else
-    return Math.floor (mapX / hexWidth) - 1;
+    return Math.floor (mapX / hexWidth - 0.5);
 }
 
 function yUnitCoordFromMapCoord (mapX, mapY)

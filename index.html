@@ -10,6 +10,9 @@
 <link rel="stylesheet" href="leaders.css">
 <link rel="stylesheet" href="units.css">
 <link rel="stylesheet" href="stack.css">
+<link rel="stylesheet" href="status_bar.css">
+<link rel="stylesheet" href="stuff.css">
+
 
 
 <style>
@@ -28,17 +31,6 @@
   top: 0px;
 }
 
-.status_bar {
-  position: fixed;
-  width: 100%;
-  top: 0px;
-  left: 0px;
-  height: 30px;  
-  background-color: black;
-  z-index: 1;
-}
-
-
 .pos_tracker {
   position: fixed;
   width: 100px;
@@ -50,19 +42,6 @@
   font-family: Arial, Helvetica, sans-serif;
   font-size: 10px;
   z-index: 1;
-}
-
-
-.game_map {
-  position: absolute;
-  top: 30px;
-  vertical-align: 100px;
-  z-index: 0;
-  overflow: scroll;
-}
-
-.indicators {
-  font-size:15px;
 }
 
 
@@ -79,7 +58,10 @@ body {
 
 </style>
 
+<script src="statusbar_ui.js"></script>
+
 <script src="common.js"></script>
+<script src="player.js"></script>
 <script src="map_geometry_funcs.js"></script>
 <script src="game.js"></script>
 <script src="leaders.js"></script>
@@ -87,7 +69,6 @@ body {
 <script src="unit_ui.js"></script>
 <script src="wargame_ui.js"></script>
 <script src="ui.js"></script>
-
 
 
 
@@ -182,7 +163,7 @@ function showMousePosition (evx, evy, x, y) {
 
 
 function processMouseMove (ev) {
-  const x = xUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
+  const x = xUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);   // So that we enter a new hex when crossing the hex side, not its middle axis
   const y = yUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
 
   showMousePosition (ev.offsetX, ev.offsetY, x, y);
@@ -190,11 +171,12 @@ function processMouseMove (ev) {
 }
 
 
+let theStatusBar = null;
+
 
 </script>
 
-
-<body>
+<body onload = "theStatusBar = new UI_RenderStatusBar(document.getElementById('game_status_bar'));" > 
 
 
 <font color="Silver">
@@ -240,21 +222,20 @@ function processMouseMove (ev) {
 <!-- MAIN WINDOW -->
 <div id="StatusBar" class="status_bar" >
   <span id="menu_symbol" class="menu_symbol" onclick="toggle_menu();" >&nbsp;&#9776;&nbsp; Main menu</span>
-  <span>
+  <span id="game_status_bar">
     Turn:                  <input type="text" id="turn_id"                 class="indicators" readonly style="width:20px">
     Phase:                 <input type="text" id="phase_id"                class="indicators" readonly style="width:80px">
+    Segment:               <input type="text" id="segment_id"              class="indicators" readonly style="width:80px">
     Weather:               <input type="text" id="weather_id"              class="indicators" readonly style="width:50px">
-    Player:                <input type="text" id="player_id"               class="indicators" readonly style="width:80px">
+    Player:                <input type="text" id="player_id"               class="indicators" readonly style="width:80px">
     Administrative Points: <input type="text" id="admin_points_id"         class="indicators" readonly style="width:20px">
     Reinforcement Points:  <input type="text" id="reinforcement_points_id" class="indicators" readonly style="width:20px">
-    Morale:                <input type="text" id="morale_id"               class="indicators" readonly style="width:20px">
-</div>
+    Morale:                <input type="text" id="morale_id"               class="indicators" readonly style="width:20px">  </span>
+  </div>
 
-<div class="pos_tracker" id="position-tracker">
-Position tracker
-</div>
+<div class="pos_tracker" id="position-tracker"></div>
 
-<div id="mapContainer">
+<div id="mapContainer" class="map_container">
 <img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove(event)">
 </div>
  
@@ -270,7 +251,15 @@ close_button.onclick = function() {
   document.getElementById("newgame_box").style.display = "none";
 }  
   
-var newgame_box = document.getElementById("newgame_box");
+const newgame_box = document.getElementById("newgame_box");
+ 
+// const aPoint = { x:10, y:10 }; 
+// const setOfHexes = sixHexesAround (aPoint);
+// UIDrawSetOfHexes (setOfHexes);
+
+
+// const largeSetOfHexes = hexSetAround (aPoint, 3);
+// UIShadeSetOfHexes (largeSetOfHexes);
 
 
 </script>

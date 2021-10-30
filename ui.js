@@ -54,4 +54,44 @@ function UIRenderLeader (aLeader) {
 }
 
 
+function UIDrawPointAtCenterOfHex (hex) {
+  const thePoint = document.createElement ("DIV");  
+
+  thePoint.setAttribute ("class", "center-of-hex");
+  thePoint.style.left    = (xMapCoordFromUnitCoord (hex.x, hex.y) - 7) + "px";  
+  thePoint.style.top     = (yMapCoordFromUnitCoord (hex.x, hex.y) - 7) + "px";
+  document.getElementById ("mapContainer").appendChild (thePoint);  
+  
+  const theX = document.createElement ("P");
+  theX.setAttribute ("class", "center-of-hex");
+  theX.innerHTML = "X";
+  theX.style.visibility = "visible";
+  thePoint.appendChild (theX);
+
+}
+
+
+function UIShadeHex (hex) {
+  const theShade = document.createElement ("IMG");
+  theShade.setAttribute ("class", "hex-shade");
+  theShade.src = "img/hex.png";
+  theShade.style.left    = (xMapCoordFromUnitCoord (hex.x, hex.y) - hexWidth/2 - 1) + "px";  // -1 to account for the hex border (1 px)  
+  theShade.style.top     = (yMapCoordFromUnitCoord (hex.x, hex.y) + 1 ) + "px";              // +1 to account for the hex border (1 px)
+  theShade.style.visibility = "visible";
+  document.getElementById ("mapContainer").appendChild (theShade);  
+}
+
+
+function UIDrawSetOfHexes (setOfHexes)
+{
+  for (let i=0; i<setOfHexes.length; i++)
+    UIDrawPointAtCenterOfHex (setOfHexes[i]);  
+}
+
+
+function UIShadeSetOfHexes (setOfHexes)
+{
+  for (let i=0; i<setOfHexes.length; i++)
+    UIShadeHex (setOfHexes[i]);  
+}
 
