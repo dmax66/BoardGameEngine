@@ -257,25 +257,15 @@ function column2ndHex (firstHex, orientation) {
 
 function sixHexesAround (centerHex) {
   let result = [];
+  const isOddRow = centerHex.y % 2;
   
-  result[0].x = centerHex.x + columnMovementInfo["NE"].forwardOffset[centerHex.y % 2].x; 
-  result[0].y = centerHex.y + columnMovementInfo["NE"].forwardOffset[centerHex.y % 2].y; 
-   
-  result[1].x = centerHex.x + columnMovementInfo["E"].forwardOffset[centerHex.y % 2].x; 
-  result[1].y = centerHex.y + columnMovementInfo["E"].forwardOffset[centerHex.y % 2].y; 
-
-  result[2].x = centerHex.x + columnMovementInfo["SE"].forwardOffset[centerHex.y % 2].x; 
-  result[2].y = centerHex.y + columnMovementInfo["SE"].forwardOffset[centerHex.y % 2].y; 
-
-  result[3].x = centerHex.x + columnMovementInfo["SW"].forwardOffset[centerHex.y % 2].x; 
-  result[3].y = centerHex.y + columnMovementInfo["SW"].forwardOffset[centerHex.y % 2].y; 
-
-  result[4].x = centerHex.x + columnMovementInfo["W"].forwardOffset[centerHex.y % 2].x; 
-  result[4].y = centerHex.y + columnMovementInfo["W"].forwardOffset[centerHex.y % 2].y; 
-
-  result[5].x = centerHex.x + columnMovementInfo["NW"].forwardOffset[centerHex.y % 2].x; 
-  result[5].y = centerHex.y + columnMovementInfo["NW"].forwardOffset[centerHex.y % 2].y; 
-
+  for (let i=0; i < hexAround.length; i++) {
+    let newHexCoords = { x:centerHex.x, y:centerHex.y};
+     
+    newHexCoords.x += hexAround[i].offset[isOddRow].x; 
+    newHexCoords.y += hexAround[i].offset[isOddRow].y; 
+    result.push (newHexCoords); 
+  }
   return result;
 }
 
@@ -285,24 +275,59 @@ function sixHexesAround (centerHex) {
 // The resulting set doesn't contain duplicates
 //
 
-function hexSetAroundRecursive (centerHex, radius, result)
-{
+function hexSetAround (centerHex, radius) {
+  return _hexSetAroundIterative (centerHex, radius, []);
+}
+
+
+
+function _hexSetAroundIterative (centerHex, radius, dummy) {
+  let result = [centerHex];
+  let i = 0;
+
+  while (i < result.length) {
+    var temp = sixHexesAround (result[i]);
+
+    // Termination clause: the distance from the sixHexAround[0] and centerHex > radius
+    if (temp[0].x - centerHex.x > radius) {
+      break;
+    } 
+    
+    for (let j=0; j < temp.length; j++) {
+      if (!isInSet (temp[j], result)) {
+        result.push (temp[j]);      
+      }    
+    }
+               
+    i++;
+  }
+
+  return result;
+}
+
+
+
+
+function _hexSetAroundRecursive (centerHex, radius, result) {
+  let t1 = [];
+  
   if (radius == 0)
     return [];
     
   if (radius == 1) {
     t1 = sixHexesAround (centerHex);
       
-    addElemToArrayWODuplicates (t1, result);
+    const newSet = addElemToArrayWODuplicates (t1, result);
 
-    return result;
+    return newSet;
   }
   else {      // Radius >= 2
     t1 = sixHexesAround (centerHex);
-    addElemToArrayWODuplicates (t1, result);
+    
+    let newSet = addElemToArrayWODuplicates (t1, result);
 
     for (var i=0; i < t1.length; i++) {
-      t1 = hexesAroundWithinRadius (t1[i], radius - 1, result);       
+      t1 = _hexSetAroundRecursive (t1[i], radius - 1, result);       
       addElemToArrayWODuplicates (t1, result);
     }
     
@@ -311,11 +336,21 @@ function hexSetAroundRecursive (centerHex, radius, result)
 }
 
 
-function addElemToArrayWODuplicates (newSet, result)
-{
+function isInSet (elem, set) {
+  for (let i=0; i<set.length; i++)
+    if (elem.x == set[i].x && elem.y == set[i].y)
+      return true;
+      
+  return false;
+}
+
+
+// Add a set of hexes (newSet) to result, avoiding duplicates 
+function addElemToArrayWODuplicates (newSet, result) {
   for (let i=0; i < newSet.length; i++)
-    if (! result.findIndex (newSet[i])) // It's a duplicate
+    if (!isInSet (newSet[i], result))
       result.push (newSet[i]);
       
   return result;
 }
+
