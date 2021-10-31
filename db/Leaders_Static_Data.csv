@@ -1,119 +1,119 @@
-"id";"name";"nation";"army";"unitName";"type";"initiative";"hasBonus";"commandCapacity";"subordinationValue"
-"Arr";"Arrighi";"f";"French Army";"III Cavalry";"c";"5";0;2;1
-"Aug";"Augereau";"f";"French Army";"IX Corps";"i";"2";0;3;2
-"Benn";"Bennigsen";"r";"Army of Bohemia";"I Corps";"i";"2";0;4;4
-"Ber";"Betrand";"f";"French Army";"IV Corps";"i";"3";1;6;2
-"Berna";"Bernadotte";"s";"Army of the North";"XXXX";"i";"1";0;4;4
-"Bess";"Bessieres";"f";"French Army";"Guard Cavalry";"c";"5";0;2;1
-"Bluch";"Bluecher";"p";"Army of Bohemia";"I Corps";"i";"4";1;8;3
-"Bul";"Bulow";"p";"Army of the North";"III Corps";"i";"2";0;5;2
-"Chem";"Unknown";"f";"French Army";"Chemnitz Garr";"i";"0";0;0;0
-"Collo";"Colloredo";"a";"Army of Bohemia";"I Corps";"i";"1";0;3;2
-"Cyr";"St. Cyr";"f";"French Army";"XIV Corps";"i";"5";0;6;2
-"Doc";"Doctorov";"r";"Army of Bohemia";"Infantry Corps";"i";"1";0;6;3
-"Dru";"Drouot";"f";"French Army";"Old Guard";"i";"4";0;6;3
-"Duro";"Durosnel";"f";"French Army";"Dresden Garr";"i";"0";0;0;0
-"Eug";"Eugene";"f";"French Army";"Armee de l'Elbe";"i";"2";0;5;2
-"Eugen";"Eugen";"r";"Army of Bohemia";"II Infantry";"i";"2";0;2;1
-"fMG_A";"Maj Gen A";"f";"French Army";"";"i";"0";0;3;4
-"fMG_B";"Maj Gen B";"f";"French Army";"";"i";"0";0;3;4
-"fMG_C";"Maj Gen C";"f";"French Army";"";"i";"0";0;3;4
-"fMG_D";"Maj Gen D";"f";"French Army";"";"i";"0";0;3;4
-"fMG_E";"Maj Gen E";"f";"French Army";"";"i";"0";0;3;4
-"fMG_F";"Maj Gen F";"f";"French Army";"";"i";"0";0;3;4
-"fMG_G";"Maj Gen G";"f";"French Army";"";"i";"0";0;3;4
-"fMG_H";"Maj Gen H";"f";"French Army";"";"i";"0";0;3;4
-"fMG_I";"Maj Gen I";"f";"French Army";"";"i";"0";0;3;4
-"fMG_J";"Maj Gen J";"f";"French Army";"";"i";"0";0;3;4
-"fMG_K";"Maj Gen K";"f";"French Army";"";"i";"0";0;3;4
-"fMG_L";"Maj Gen L";"f";"French Army";"";"i";"0";0;3;4
-"fMG_R";"Maj Gen R";"f";"French Army";"";"i";"0";0;3;4
-"fMG_T";"Maj Gen T";"f";"French Army";"`";"c";"4";0;2;2
-"fMG_U";"Maj Gen U";"f";"French Army";"";"c";"4";0;2;2
-"fMG_V";"Maj Gen V";"f";"French Army";"";"c";"4";0;2;2
-"fMG_W";"Maj Gen W";"f";"French Army";"";"c";"4";0;2;2
-"fMG_X";"Maj Gen X";"f";"French Army";"";"c";"4";0;2;2
-"fMG_Y";"Maj Gen Y";"f";"French Army";"";"c";"4";0;2;2
-"fMG_Z";"Maj Gen Z";"f";"French Army";"";"c";"4";0;2;2
-"Gali";"Galitzin";"r";"Army of Bohemia";"II Cuirassiers";"c";"4";0;4;1
-"Ger";"Gerard";"f";"French Army";"XI Corps";"i";"3";0;4;2
-"Gir";"Girard";"f";"French Army";"Ad Hoc";"i";"3";0;3;2
-"Glog";"Laplane";"f";"French Army";"Glogau Garrison";"i";"0";0;0;0
-"Gortch";"Gortchakow";"r";"Army of Bohemia";"I Infantry";"i";"1";0;3;2
-"Gyu";"Gyulai";"a";"Army of Bohemia";"III Corps";"i";"1";0;3;2
-"HHomb";"Hesse Homburg";"a";"Army of Bohemia";"Reserve";"i";"2";0;6;3
-"Kapz";"Kapzewitsch";"r";"Army of Silesia";"X Corps";"i";"1";0;3;2
-"Kell";"Kellerman";"f";"French Army";"IV Cavalry";"c";"4";0;1;1
-"Kle";"Kleist";"p";"Army of Bohemia";"II Corps";"i";"2";0;5;2
-"Klen";"Klenau";"a";"Army of Bohemia";"IV Corps";"i";"1";0;4;2
-"Konst";"Konstantin";"r";"Army of Bohemia";"Guards+Reserve";"i";"2";0;4;2
-"Kor";"Korff";"p";"Army of Silesia";"I Cavalry";"c";"4";0;3;1
-"Kosen";"Kosen";"p";"Army of Silesia";"";"i";"0";0;3;2
-"Lang";"Langeron";"r";"Army of Silesia";"";"i";"2";0;5;4
-"Lanu";"Lanusse";"f";"French Army";"Magdeburg Garr";"i";"0";0;2;0
-"Lat";"Latour-Maubourg";"f";"French Army";"I Cavalry";"c";"5";0;2;1
-"Lau";"Lauriston";"f";"French Army";"V Corps";"i";"2";0;5;2
-"Lauer";"Lauer";"f";"French Army";"Torgau Garr";"i";"0";0;2;0
-"Lheri";"L'Heritier";"f";"French Army";"V Cavalry";"c";"4";0;2;1
-"Mac";"MacDonald";"f";"French Army";"XI Corps";"i";"4";1;6;3
-"Magde";"Lemoine";"f";"French Army";"Magdeburg Garr";"i";"0";0;0;0
-"Marg";"Margaron";"f";"French Army";"Leipzig Garr";"i";"0";0;0;0
-"Markow";"Markow";"r";"Army of Silesia";"IV Infantry";"i";"4";0;2;1
-"Marm";"Marmont";"f";"French Army";"VI Corps";"i";"3";0;6;3
-"Meer";"Meerveldt";"a";"Army of Bohemia";"II Corps";"i";"1";0;2;1
-"Milo";"Miloradowitch";"r";"Army of Bohemia";"II Corps";"i";"2";0;4;2
-"Mor";"Mortier";"f";"French Army";"II Young Guard";"i";"3";1;6;2
-"Mur";"Murat";"f";"French Army";"Cavalry Reserve";"c";"4";0;6;3
-"Nans";"Nansouty";"f";"French Army";"Guard Cavalry";"c";"5";0;2;1
-"Nap";"Napoleon";"f";"French Army";"Emperor";"i";"4";1;10;6
-"Ney";"Ney";"f";"French Army";"III Corps";"i";"3";0;6;3
-"Ols";"Olsufiew";"r";"Army of Silesia";"IX Corps";"i";"1";0;2;1
-"Oud";"Oudinot";"f";"French Army";"I Young Guard";"i";"2";0;6;3
-"Oud2";"Oudinot";"f";"French Army";"XII Corps";"i";"2";0;6;3
-"Pahlen";"Pahlen";"a";"Army of Bohemia";"IV Cavalry";"c";"4";0;3;1
-"pMG_A";"Maj Gen A";"p";"Army of Bohemia";"";"i";"0";0;3;4
-"pMG_B";"Maj Gen B";"p";"Army of Bohemia";"";"i";"0";0;3;4
-"pMG_C";"Maj Gen C";"p";"Army of Bohemia";"";"i";"0";0;3;4
-"pMG_D";"Maj Gen D";"p";"Army of the North";"";"i";"0";0;3;4
-"pMG_E";"Maj Gen E";"p";"Army of the North";"";"i";"0";0;3;4
-"pMG_F";"Maj Gen F";"p";"Army of the North";"";"i";"0";0;3;4
-"pMG_G";"Maj Gen G";"p";"Army of the North";"";"i";"0";0;3;4
-"pMG_H";"Maj Gen H";"p";"Army of Silesia";"";"i";"0";0;3;4
-"pMG_I";"Maj Gen I";"p";"Army of Silesia";"";"i";"0";0;3;4
-"pMG_J";"Maj Gen J";"p";"Army of Silesia";"";"i";"0";0;3;4
-"pMG_K";"Maj Gen K";"p";"Army of the North";"";"i";"0";0;3;4
-"pMG_L";"Maj Gen L";"p";"Army of Silesia";"";"i";"0";0;3;4
-"pMG_M";"Maj Gen M";"a";"Army of Bohemia";"";"i";"0";0;3;4
-"pMG_N";"Maj Gen N";"p";"Army of the North";"";"i";"0";0;3;4
-"pMG_T";"Maj Gen T";"p";"Army of Silesia";"";"c";"4";0;2;2
-"pMG_U";"Maj Gen U";"p";"Army of Silesia";"";"c";"4";0;2;2
-"pMG_V";"Maj Gen V";"p";"Army of the North";"";"c";"4";0;2;2
-"pMG_W";"Maj Gen W";"p";"Army of the North";"";"c";"4";0;2;2
-"pMG_X";"Maj Gen X";"a";"Army of Bohemia";"";"c";"4";0;2;2
-"pMG_Y";"Maj Gen Y";"p";"Army of Bohemia";"";"c";"4";0;2;2
-"pMG_Z";"Maj Gen Z";"a";"Army of Bohemia";"";"c";"4";0;2;2
-"Pon";"Poniatowski";"f";"French Army";"VIII Corps";"i";"4";0;3;2
-"Priest";"St Priest";"r";"Army of Silesia";"VII Corps";"i";"2";0;4;2
-"Raj";"Rajewski";"r";"Army of Bohemia";"III Grenadiers";"i";"1";0;2;1
-"Rey";"Reynier";"f";"French Army";"VII Corps";"i";"4";1;6;2
-"Rosen";"Rosen";"p";"Army of the North";"Rosen";"i";"0";0;0;0
-"Sacken";"Osten-Sacken";"r";"Army of Silesia";"XI Corps";"i";"3";1;6;2
-"Scherb";"Scherbatow";"r";"Army of Silesia";"VI Corps";"i";"1";0;2;1
-"Schwarz";"Schwarzenberg";"a";"Army of Bohemia";"XXXX";"i";"2";1;6;4
-"Seb";"Sebastiani";"f";"French Army";"II Cavalry";"c";"5";0;3;1
-"Sou";"Soult";"f";"French Army";"Old Guard";"i";"4";0;6;3
-"Souh";"Souham";"f";"French Army";"III Corps";"i";"2";0;6;2
-"Stedi";"Stedingk";"s";"Army of the North";"I Corps";"i";"1";0;5;2
-"Tau";"Tauenzien";"p";"Army of the North";"IV Corps";"i";"2";0;5;2
-"Tolly";"Barclay de Tolly";"r";"Army of Bohemia";"";"i";"3";1;6;2
-"Tolst";"Ostermann-Tolstoj";"r";"Army of Bohemia";"Militia";"i";"1";0;3;2
-"Treu";"Treubezkov";"p";"Army of Silesia";"III Cavalry";"c";"4";0;3;1
-"Van";"Vandamme";"f";"French Army";"I Corps";"i";"2";1;4;2
-"Vic";"Victor";"f";"French Army";"II Corps";"i";"2";0;6;2
-"Wasi";"Wasiltchikow";"r";"Army of Silesia";"IV Cavalry";"c";"4";0;3;1
-"Winzi";"Winzingerode";"r";"Army of the North";"II Corps";"i";"2";0;4;2
-"Witten";"Lapoype";"f";"French Army";"Wittenberg Garr";"i";"0";0;2;0
-"Wittg";"Wittgenstein";"r";"Army of Bohemia";"";"i";"2";0;5;3
-"Woro";"Woronzow";"r";"Army of the North";"XIV Corps";"i";"1";0;4;2
-"Yermo";"Yermolow";"r";"Army of Bohemia";"V Guards";"i";"1";0;3;1
-"Yor";"Yorck";"p";"Army of Silesia";"II Corps";"i";"2";0;5;2
+"id";"name";"nation";"player";"army";"unitName";"type";"initiative";"hasBonus";"commandCapacity";"subordinationValue"
+"Arr";"Arrighi";"f";0;"French Army";"III Cavalry";"c";"5";0;2;1
+"Aug";"Augereau";"f";0;"French Army";"IX Corps";"i";"2";0;3;2
+"Benn";"Bennigsen";"r";1;"Army of Bohemia";"I Corps";"i";"2";0;4;4
+"Ber";"Betrand";"f";0;"French Army";"IV Corps";"i";"3";1;6;2
+"Berna";"Bernadotte";"s";1;"Army of the North";"XXXX";"i";"1";0;4;4
+"Bess";"Bessieres";"f";0;"French Army";"Guard Cavalry";"c";"5";0;2;1
+"Bluch";"Bluecher";"p";1;"Army of Bohemia";"I Corps";"i";"4";1;8;3
+"Bul";"Bulow";"p";1;"Army of the North";"III Corps";"i";"2";0;5;2
+"Chem";"Unknown";"f";0;"French Army";"Chemnitz Garr";"i";"0";0;0;0
+"Collo";"Colloredo";"a";1;"Army of Bohemia";"I Corps";"i";"1";0;3;2
+"Cyr";"St. Cyr";"f";0;"French Army";"XIV Corps";"i";"5";0;6;2
+"Doc";"Doctorov";"r";1;"Army of Bohemia";"Infantry Corps";"i";"1";0;6;3
+"Dru";"Drouot";"f";0;"French Army";"Old Guard";"i";"4";0;6;3
+"Duro";"Durosnel";"f";0;"French Army";"Dresden Garr";"i";"0";0;0;0
+"Eug";"Eugene";"f";0;"French Army";"Armee de l'Elbe";"i";"2";0;5;2
+"Eugen";"Eugen";"r";1;"Army of Bohemia";"II Infantry";"i";"2";0;2;1
+"fMG_A";"Maj Gen A";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_B";"Maj Gen B";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_C";"Maj Gen C";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_D";"Maj Gen D";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_E";"Maj Gen E";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_F";"Maj Gen F";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_G";"Maj Gen G";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_H";"Maj Gen H";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_I";"Maj Gen I";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_J";"Maj Gen J";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_K";"Maj Gen K";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_L";"Maj Gen L";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_R";"Maj Gen R";"f";0;"French Army";"";"i";"0";0;3;4
+"fMG_T";"Maj Gen T";"f";0;"French Army";"`";"c";"4";0;2;2
+"fMG_U";"Maj Gen U";"f";0;"French Army";"";"c";"4";0;2;2
+"fMG_V";"Maj Gen V";"f";0;"French Army";"";"c";"4";0;2;2
+"fMG_W";"Maj Gen W";"f";0;"French Army";"";"c";"4";0;2;2
+"fMG_X";"Maj Gen X";"f";0;"French Army";"";"c";"4";0;2;2
+"fMG_Y";"Maj Gen Y";"f";0;"French Army";"";"c";"4";0;2;2
+"fMG_Z";"Maj Gen Z";"f";0;"French Army";"";"c";"4";0;2;2
+"Gali";"Galitzin";"r";1;"Army of Bohemia";"II Cuirassiers";"c";"4";0;4;1
+"Ger";"Gerard";"f";0;"French Army";"XI Corps";"i";"3";0;4;2
+"Gir";"Girard";"f";0;"French Army";"Ad Hoc";"i";"3";0;3;2
+"Glog";"Laplane";"f";0;"French Army";"Glogau Garrison";"i";"0";0;0;0
+"Gortch";"Gortchakow";"r";1;"Army of Bohemia";"I Infantry";"i";"1";0;3;2
+"Gyu";"Gyulai";"a";1;"Army of Bohemia";"III Corps";"i";"1";0;3;2
+"HHomb";"Hesse Homburg";"a";1;"Army of Bohemia";"Reserve";"i";"2";0;6;3
+"Kapz";"Kapzewitsch";"r";1;"Army of Silesia";"X Corps";"i";"1";0;3;2
+"Kell";"Kellerman";"f";0;"French Army";"IV Cavalry";"c";"4";0;1;1
+"Kle";"Kleist";"p";1;"Army of Bohemia";"II Corps";"i";"2";0;5;2
+"Klen";"Klenau";"a";1;"Army of Bohemia";"IV Corps";"i";"1";0;4;2
+"Konst";"Konstantin";"r";1;"Army of Bohemia";"Guards+Reserve";"i";"2";0;4;2
+"Kor";"Korff";"p";1;"Army of Silesia";"I Cavalry";"c";"4";0;3;1
+"Kosen";"Kosen";"p";1;"Army of Silesia";"";"i";"0";0;3;2
+"Lang";"Langeron";"r";1;"Army of Silesia";"";"i";"2";0;5;4
+"Lanu";"Lanusse";"f";0;"French Army";"Magdeburg Garr";"i";"0";0;2;0
+"Lat";"Latour-Maubourg";"f";0;"French Army";"I Cavalry";"c";"5";0;2;1
+"Lau";"Lauriston";"f";0;"French Army";"V Corps";"i";"2";0;5;2
+"Lauer";"Lauer";"f";0;"French Army";"Torgau Garr";"i";"0";0;2;0
+"Lheri";"L'Heritier";"f";0;"French Army";"V Cavalry";"c";"4";0;2;1
+"Mac";"MacDonald";"f";0;"French Army";"XI Corps";"i";"4";1;6;3
+"Magde";"Lemoine";"f";0;"French Army";"Magdeburg Garr";"i";"0";0;0;0
+"Marg";"Margaron";"f";0;"French Army";"Leipzig Garr";"i";"0";0;0;0
+"Markow";"Markow";"r";1;"Army of Silesia";"IV Infantry";"i";"4";0;2;1
+"Marm";"Marmont";"f";0;"French Army";"VI Corps";"i";"3";0;6;3
+"Meer";"Meerveldt";"a";1;"Army of Bohemia";"II Corps";"i";"1";0;2;1
+"Milo";"Miloradowitch";"r";1;"Army of Bohemia";"II Corps";"i";"2";0;4;2
+"Mor";"Mortier";"f";0;"French Army";"II Young Guard";"i";"3";1;6;2
+"Mur";"Murat";"f";0;"French Army";"Cavalry Reserve";"c";"4";0;6;3
+"Nans";"Nansouty";"f";0;"French Army";"Guard Cavalry";"c";"5";0;2;1
+"Nap";"Napoleon";"f";0;"French Army";"Emperor";"i";"4";1;10;6
+"Ney";"Ney";"f";0;"French Army";"III Corps";"i";"3";0;6;3
+"Ols";"Olsufiew";"r";1;"Army of Silesia";"IX Corps";"i";"1";0;2;1
+"Oud";"Oudinot";"f";0;"French Army";"I Young Guard";"i";"2";0;6;3
+"Oud2";"Oudinot";"f";0;"French Army";"XII Corps";"i";"2";0;6;3
+"Pahlen";"Pahlen";"a";1;"Army of Bohemia";"IV Cavalry";"c";"4";0;3;1
+"pMG_A";"Maj Gen A";"p";1;"Army of Bohemia";"";"i";"0";0;3;4
+"pMG_B";"Maj Gen B";"p";1;"Army of Bohemia";"";"i";"0";0;3;4
+"pMG_C";"Maj Gen C";"p";1;"Army of Bohemia";"";"i";"0";0;3;4
+"pMG_D";"Maj Gen D";"p";1;"Army of the North";"";"i";"0";0;3;4
+"pMG_E";"Maj Gen E";"p";1;"Army of the North";"";"i";"0";0;3;4
+"pMG_F";"Maj Gen F";"p";1;"Army of the North";"";"i";"0";0;3;4
+"pMG_G";"Maj Gen G";"p";1;"Army of the North";"";"i";"0";0;3;4
+"pMG_H";"Maj Gen H";"p";1;"Army of Silesia";"";"i";"0";0;3;4
+"pMG_I";"Maj Gen I";"p";1;"Army of Silesia";"";"i";"0";0;3;4
+"pMG_J";"Maj Gen J";"p";1;"Army of Silesia";"";"i";"0";0;3;4
+"pMG_K";"Maj Gen K";"p";1;"Army of the North";"";"i";"0";0;3;4
+"pMG_L";"Maj Gen L";"p";1;"Army of Silesia";"";"i";"0";0;3;4
+"pMG_M";"Maj Gen M";"a";1;"Army of Bohemia";"";"i";"0";0;3;4
+"pMG_N";"Maj Gen N";"p";1;"Army of the North";"";"i";"0";0;3;4
+"pMG_T";"Maj Gen T";"p";1;"Army of Silesia";"";"c";"4";0;2;2
+"pMG_U";"Maj Gen U";"p";1;"Army of Silesia";"";"c";"4";0;2;2
+"pMG_V";"Maj Gen V";"p";1;"Army of the North";"";"c";"4";0;2;2
+"pMG_W";"Maj Gen W";"p";1;"Army of the North";"";"c";"4";0;2;2
+"pMG_X";"Maj Gen X";"a";1;"Army of Bohemia";"";"c";"4";0;2;2
+"pMG_Y";"Maj Gen Y";"p";1;"Army of Bohemia";"";"c";"4";0;2;2
+"pMG_Z";"Maj Gen Z";"a";1;"Army of Bohemia";"";"c";"4";0;2;2
+"Pon";"Poniatowski";"f";0;"French Army";"VIII Corps";"i";"4";0;3;2
+"Priest";"St Priest";"r";1;"Army of Silesia";"VII Corps";"i";"2";0;4;2
+"Raj";"Rajewski";"r";1;"Army of Bohemia";"III Grenadiers";"i";"1";0;2;1
+"Rey";"Reynier";"f";0;"French Army";"VII Corps";"i";"4";1;6;2
+"Rosen";"Rosen";"p";1;"Army of the North";"Rosen";"i";"0";0;0;0
+"Sacken";"Osten-Sacken";"r";1;"Army of Silesia";"XI Corps";"i";"3";1;6;2
+"Scherb";"Scherbatow";"r";1;"Army of Silesia";"VI Corps";"i";"1";0;2;1
+"Schwarz";"Schwarzenberg";"a";1;"Army of Bohemia";"XXXX";"i";"2";1;6;4
+"Seb";"Sebastiani";"f";0;"French Army";"II Cavalry";"c";"5";0;3;1
+"Sou";"Soult";"f";0;"French Army";"Old Guard";"i";"4";0;6;3
+"Souh";"Souham";"f";0;"French Army";"III Corps";"i";"2";0;6;2
+"Stedi";"Stedingk";"s";1;"Army of the North";"I Corps";"i";"1";0;5;2
+"Tau";"Tauenzien";"p";1;"Army of the North";"IV Corps";"i";"2";0;5;2
+"Tolly";"Barclay de Tolly";"r";1;"Army of Bohemia";"";"i";"3";1;6;2
+"Tolst";"Ostermann-Tolstoj";"r";1;"Army of Bohemia";"Militia";"i";"1";0;3;2
+"Treu";"Treubezkov";"p";1;"Army of Silesia";"III Cavalry";"c";"4";0;3;1
+"Van";"Vandamme";"f";0;"French Army";"I Corps";"i";"2";1;4;2
+"Vic";"Victor";"f";0;"French Army";"II Corps";"i";"2";0;6;2
+"Wasi";"Wasiltchikow";"r";1;"Army of Silesia";"IV Cavalry";"c";"4";0;3;1
+"Winzi";"Winzingerode";"r";1;"Army of the North";"II Corps";"i";"2";0;4;2
+"Witten";"Lapoype";"f";0;"French Army";"Wittenberg Garr";"i";"0";0;2;0
+"Wittg";"Wittgenstein";"r";1;"Army of Bohemia";"";"i";"2";0;5;3
+"Woro";"Woronzow";"r";1;"Army of the North";"XIV Corps";"i";"1";0;4;2
+"Yermo";"Yermolow";"r";1;"Army of Bohemia";"V Guards";"i";"1";0;3;1
+"Yor";"Yorck";"p";1;"Army of Silesia";"II Corps";"i";"2";0;5;2

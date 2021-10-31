@@ -1,0 +1,22 @@
+CREATE TABLE `Scenarios` (
+  `ID` varchar(10) NOT NULL,
+  `Name` varchar(45) DEFAULT NULL,
+  `StartTurn` int NOT NULL DEFAULT '0',
+  `EndTurn` int NOT NULL DEFAULT '0',
+  `StartPhase` int NOT NULL,
+  `Weather` varchar(10) NOT NULL,
+  `FrenchAdminPoints` int NOT NULL DEFAULT '0',
+  `ArmyOfSilesiaAdminPoints` int NOT NULL DEFAULT '0',
+  `ArmyOfBohemiaAdminPoints` int NOT NULL DEFAULT '0',
+  `ArmyOfTheNorthAdminPoints` int NOT NULL DEFAULT '0',
+  `FrenchReinforcementPoints` int NOT NULL DEFAULT '0',
+  `FrenchGuardReinforcementPoints` int NOT NULL DEFAULT '0',
+  `RussianReinforcementPoints` int NOT NULL DEFAULT '0',
+  `PrussianReinforcementPoints` int NOT NULL DEFAULT '0',
+  `AustrianReinforcementPoints` int NOT NULL DEFAULT '0',
+  `SwedishReinforcementPoints` int NOT NULL DEFAULT '0',
+  `FrenchMorale` int NOT NULL DEFAULT '0',
+  `AlliedMorale` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`ID`),
+  UNIQUE KEY `ID_UNIQUE` (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
