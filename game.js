@@ -15,7 +15,7 @@ function gameLoad (xhttp_obj) {
   theGame.currentTurn      = game_data.CurrentTurn;
   theGame.endTurn          = game_data.EndTurn;
   theGame.currentPlayer    = game_data.CurrentPlayer;
-  theGame.currentPhase     = game_data.CurrentPhase;
+  theGame.currentSegment   = game_data.CurrentSegment;
   theGame.weather          = game_data.Weather;
   theGame.frenchAP         = game_data.FrenchAdminPoints;
   theGame.armyOfSilesiaAP  = game_data.ArmyOfSilesiaAdminPoints;
@@ -40,7 +40,8 @@ function gameGetID (xhttp_obj) {
 let game_mode = "Null";
 let scenario_data = null;
 
-
+const frPlayerIndex = 0;
+const alPlayerIndex = 0;
 
 
 class game {
@@ -70,9 +71,10 @@ class game {
     this.name             = "";
     this.id               = "";
     this.scenarioId       = "";
+    this.currentPlayer    = 0;      
     this.currentTurn      = 0;
     this.endTurn          = 0;
-    this.currentPhase     = 0;
+    this.currentSegment   = 0;
     this.weather          = "";
     this.frenchAP         = 0;
     this.armyOfSilesiaAP  = 0;
@@ -87,8 +89,9 @@ class game {
     this.frenchMorale     = 0;
     this.alliedMorale     = 0;
     
-    this.frenchPlayer = new player ("French", ['f', 'pl']);
-    this.alliedPlayer = new player ("Allied", ['a', 'p', 'r', 's']);
+    this.players = [];
+    this.players.push (new player ("French", ['f', 'pl']));
+    this.players.push (new player ("Allied", ['a', 'p', 'r', 's']));
   }
 
   initFromScenario (scenario_id) {
@@ -120,15 +123,19 @@ class game {
     // @TODO: move to the UI modules
     document.getElementById("main_menu_id").style.display="none";
     
+    // Move to DB    
+    this.currentPlayer = frPlayerIndex;
+    this.currentSegment = 0;
+    
     // And get the game begin
     // Initialise admin points, morale, reinforcement points
-    this.frenchPlayer.setAdminPoints         (game.frenchAP);
-    this.frenchPlayer.setMorale              (game.frenchMorale);
-    this.frenchPlayer.setReinforcementPoints (game.frenchRP);
+    this.players[frPlayerIndex].setAdminPoints         (game.frenchAP);
+    this.players[frPlayerIndex].setMorale              (game.frenchMorale);
+    this.players[frPlayerIndex].setReinforcementPoints (game.frenchRP);
   
-    this.alliedPlayer.setAdminPoints         (game.armyOfSilesiaAP);
-    this.alliedPlayer.setMorale              (game.alliedMorale);
-    this.alliedPlayer.setReinforcementPoints (game.prussianRP);
+    this.players[alPlayerIndex].setAdminPoints         (game.armyOfSilesiaAP);
+    this.players[alPlayerIndex].setMorale              (game.alliedMorale);
+    this.players[alPlayerIndex].setReinforcementPoints (game.prussianRP);
     
     this.play();
   }
@@ -141,37 +148,24 @@ class game {
    
 
   play () {
-    //
-    // To be parameterised
-    //
-    if (game.sequenceOfPlay[this.currentTurn][0] == "French") {
-      // Draw the player status
-      this.frenchPlayer.drawSelf();
-      
-      for (var i=0; i < leaders.length; i++) { 
-        if (leaders[i].player() == "French" || leaders[i].nearEnemy()) {
-          leaders[i].drawSelf();
-        }
-      }
-    }
-    else { 
-      // Draw the player status
-      this.alliedPlayer.drawSelf();
-      
-      for (var i=0; i < leaders.length; i++) {
-        if (leaders[i].player() == "Allied" || leaders[i].nearEnemy()) {
-          leaders[i].drawSelf();
-        }
+    // Draw the player status
+    this.players[this.currentPlayer].drawSelf();
+    
+    // Draw the units
+    for (var i=0; i < leaders.length; i++) { 
+      if (leaders[i].player == this.currentPlayer || leaders[i].nearEnemy()) {
+        leaders[i].drawSelf();
       }
     }
   }
 
   
   advanceGame () {
-    this.currentPhase++;
-    if (this.currentPhase > this.length) {
+    this.currentSegment++;
+
+    if (this.currentSegment > this.length) {
       this.currenTurn++;
-      this.currentPhase = 0;
+      this.currentSegment = 0;
     }
 
     if (this.currenTurn > this.endTurn ) {

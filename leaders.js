@@ -11,11 +11,12 @@ const numLeadersInSameHex=1;
 
 
 class Leader {
-  constructor (id, name, nation, army, unitName, type, initiative, hasBonus, commandCapacity, subordinationValue, parent, mode, x, y, zOrder, orientation) {
+  constructor (id, name, nation, player, army, unitName, type, initiative, hasBonus, commandCapacity, subordinationValue, parent, mode, x, y, zOrder, orientation) {
     this.id = id;
     this.parent = parent;
     this.name = name;
     this.nation = nation;
+    this.player = player;
     this.initiative = 1 * initiative;
     this.hasBonus = hasBonus;
     this.commandCapacity = 1 * commandCapacity;
@@ -263,9 +264,7 @@ static possibleActions = [
 
   nearEnemy () {
     for (let i = 0; i < leaders.length; i++) {
-      const p1 = this.player();
-      const p2 = leaders[i].player();      
-      if (p1 == p2) {   // same player
+      if (this.player == leaders[i].player) {   // same player
         continue;
       } 
     
@@ -289,9 +288,7 @@ static possibleActions = [
     let result = [];
 
     for (let i = 0; i < leaders.length; i++) {
-      const p1 = this.player();
-      const p2 = leaders[i].player();      
-      if (p1 == p2) {   // same player
+      if (this.player == leaders[i].player) {   // same player
         continue;
       } 
     
@@ -317,18 +314,6 @@ static possibleActions = [
       leaders[listOfEnemies[i]].drawSelf();
     }
   }
-  
-
-
-  player () {
-    if (theGame.frenchPlayer.nations.includes (this.nation)) {
-      return theGame.frenchPlayer.name;
-    }
-    
-    if (theGame.alliedPlayer.nations.includes (this.nation)) {
-      return theGame.alliedPlayer.name;
-    }
-  }
 
 } // End of Class
 
@@ -345,6 +330,7 @@ function createLeaders (xhttp)
       leaderJSONdata[i].id, 
       leaderJSONdata[i].name, 
       leaderJSONdata[i].nation, 
+      leaderJSONdata[i].player,
       leaderJSONdata[i].army, 
       leaderJSONdata[i].unitName, 
       leaderJSONdata[i].type, 
