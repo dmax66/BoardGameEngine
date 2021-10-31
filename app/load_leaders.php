@@ -26,7 +26,7 @@ $result = mysqli_query($conn, $sql);
 
 $sql = sprintf (
   "SELECT 
-     LSD.id, LSD.name, LSD.nation, LSD.army, LSD.unitName, LSD.type, LSD.initiative, LSD.hasBonus, LSD.commandCapacity, LSD.subordinationValue, 
+     LSD.id, LSD.name, LSD.nation, LSD.player, LSD.army, LSD.unitName, LSD.type, LSD.initiative, LSD.hasBonus, LSD.commandCapacity, LSD.subordinationValue, 
      LDD.x, LDD.y, LDD.orientation, LDD.mode, LDD.parentId, LDD.zOrder
    FROM 
      Leaders_Static_Data LSD, Leaders_Dynamic_Data LDD 
