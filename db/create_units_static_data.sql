@@ -1,10 +1,10 @@
 CREATE TABLE `Units_Static_Data` (
-  `ID` varchar(10) NOT NULL,
-  `Name` varchar(15) NOT NULL,
-  `Commander` varchar(20) NOT NULL,
-  `Nation` varchar(10) NOT NULL COMMENT 'Allowed values: "french", "russian", "prussian", "german", "swedish", "austrian"',
-  `Size` varchar(10) NOT NULL COMMENT 'Allowed values: "division", "brigade"',
-  `Type` varchar(10) NOT NULL COMMENT 'Allowed values: infantry, cavalry, artillery\n\n',
-  PRIMARY KEY (`ID`),
-  UNIQUE KEY `ID_UNIQUE` (`ID`)
+  `id` varchar(10) NOT NULL,
+  `name` varchar(15) NOT NULL,
+  `commander` varchar(20) NOT NULL,
+  `nation` varchar(2) NOT NULL,
+  `size` varchar(10) NOT NULL COMMENT 'Allowed values: "d", "b", "r"',
+  `type` varchar(10) NOT NULL COMMENT 'Allowed values: i, c, a',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ID_UNIQUE` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
