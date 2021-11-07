@@ -1,0 +1,94 @@
+/*
+
+  Styles related to the map
+  
+*/
+
+.map_container {
+  position: absolute;
+  top: 30px;
+  left: 0px;
+}
+
+.game_map {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+/*  vertical-align: 100px; */
+  z-index: 0;
+  overflow: scroll;
+}
+
+
+  
+.p {
+  background-color: gray;
+  color: white;
+}
+  
+.a {
+  background-color: #e6e6e6;
+  color: black;
+}
+
+.r {
+	background-color: #9fdf9f;
+  color: black;
+}
+	
+.f {
+	background-color: royalblue; 
+  color: white;
+}  
+
+.s {
+	background-color: #ff66b3; 
+  color: white;
+}
+
+.g {
+  background-color: yellow;
+  color: black;
+}
+
+.pl {
+  background-color: red;
+  color: white;
+}
+
+.ig {
+  background-color: mediumblue;
+  color: white;
+}
+.cavalry-leader {
+  background-image: url("img/cavalry-line.png");
+}
+
+.infantry-leader {
+  background-image: url("img//infantry-line.png");
+}
+
+.cop-counter {
+  background-image: url("img/center-operations.png");
+}
+
+.supply-counter {
+  background-image:url("img/active-supply.png");
+}
+
+.bridge-counter {
+  background-image: url ("img/bridge-train.png");
+}
+
+.cavalry-unit-division {
+  background-image: url ("img/Cavalry-Division.png");
+}
+
+.infantry-unit-division {
+  background-image: url ("img//Infantry-Division.png");
+}
+
+.artillery-unit {
+  background-image: url ("img/Artillery-Division.png");
+}
+

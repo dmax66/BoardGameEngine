@@ -9,26 +9,7 @@
 'use strict';
 
 function gameLoad (xhttp_obj) {
-  const game_data = JSON.parse(xhttp_obj.responseText)[0];
 
-  theGame.scenarioId       = game_data.Scenario_ID;
-  theGame.currentTurn      = game_data.CurrentTurn;
-  theGame.endTurn          = game_data.EndTurn;
-  theGame.currentPlayer    = game_data.CurrentPlayer;
-  theGame.currentSegment   = game_data.CurrentSegment;
-  theGame.weather          = game_data.Weather;
-  theGame.frenchAP         = game_data.FrenchAdminPoints;
-  theGame.armyOfSilesiaAP  = game_data.ArmyOfSilesiaAdminPoints;
-  theGame.armyOfBohemiaAP  = game_data.ArmyOfBohemiaAdminPoints;
-  theGame.armyOfTheNorthAP = game_data.ArmyOfTheNorthAdminPoints;
-  theGame.frenchRP         = game_data.FrenchReinforcementPoints;
-  theGame.guardRP          = game_data.FrenchGuardReinforcementPoints;
-  theGame.russianRP        = game_data.RussianReinforcementPoints;
-  theGame.prussianRP       = game_data.PrussianReinforcementPoints;
-  theGame.austrianRP       = game_data.AustrianReinforcementPoints
-  theGame.swedishRP        = game_data.SwedishReinforcementPoints;
-  theGame.frenchMorale     = game_data.FrenchMorale;
-  theGame.alliedMorale     = game_data.AlliedMorale;
 }
 
 
@@ -41,58 +22,40 @@ let game_mode = "Null";
 let scenario_data = null;
 
 const frPlayerIndex = 0;
-const alPlayerIndex = 0;
+const alPlayerIndex = 1;
 
 
-class game {
-  static sequenceOfPlay = [
-    [ "French", "Command Phase", "Administrative Segment" ],
-    [ "French", "Command Phase", "Organization Segment" ],
-    [ "French", "Movement Phase", "Movement Command Segment" ],
-    [ "French", "Movement Phase", "Individual Initiative Segment" ],
-    [ "French", "Movement Phase", "Bridge Segment" ],
-    [ "French", "Combat Phase", "Forced March Segment" ],
-    [ "French", "Combat Phase", "Battle Resolution Segment" ],
-    [ "French", "Combat Phase", "Disorganization and Rally Segment" ],
-  
-    [ "Allied", "Command Phase", "Administrative Segment" ],
-    [ "Allied", "Command Phase", "Organization Segment" ],
-    [ "Allied", "Movement Phase", "Movement Command Segment" ],
-    [ "Allied", "Movement Phase", "Individual Initiative Segment" ],
-    [ "Allied", "Movement Phase", "Bridge Segment" ],
-    [ "Allied", "Combat Phase", "Forced March Segment" ],
-    [ "Allied", "Combat Phase", "Battle Resolution Segment" ],
-    [ "Allied", "Combat Phase", "Disorganization and Rally Segment" ],
+class Game {
+  static sequenceOfPlay = [   
+    [ "Command Phase", "Administrative Segment" ],
+    [ "Command Phase", "Organization Segment" ],
+    [ "Movement Phase", "Movement Command Segment" ],
+    [ "Movement Phase", "Individual Initiative Segment" ],
+    [ "Movement Phase", "Bridge Segment" ],
+    [ "Combat Phase", "Forced March Segment" ],
+    [ "Combat Phase", "Battle Resolution Segment" ],
+    [ "Combat Phase", "Disorganization and Rally Segment" ]
   ];
 
+  static weatherTable=[];
 
-
-  constructor() {
-    this.name             = "";
-    this.id               = "";
-    this.scenarioId       = "";
-    this.currentPlayer    = 0;      
-    this.currentTurn      = 0;
-    this.endTurn          = 0;
-    this.currentSegment   = 0;
-    this.weather          = "";
-    this.frenchAP         = 0;
-    this.armyOfSilesiaAP  = 0;
-    this.armyOfBohemiaAP  = 0;
-    this.armyOfTheNorthAP = 0;
-    this.frenchRP         = 0;
-    this.guardRP          = 0;
-    this.russianRP        = 0;
-    this.prussianRP       = 0;
-    this.austrianRP       = 0;
-    this.swedishRP        = 0;
-    this.frenchMorale     = 0;
-    this.alliedMorale     = 0;
+  constructor (id, name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather, players) {
+    this.id               = id;
+    this.name             = name;
+    this.scenarioId       = scenarioId;
+    this.currentPlayer    = 1 * currentPlayer;      
+    this.currentTurn      = 1 * currentTurn;
+    this.endTurn          = 1 * endTurn;
+    this.currentSegment   = 1 * currentSegment;
+    this.weather          = weather; 
+    this.players          = players;
     
-    this.players = [];
-    this.players.push (new player ("French", ['f', 'pl']));
-    this.players.push (new player ("Allied", ['a', 'p', 'r', 's']));
+    this.gameWidget = null;
+    
+    this.calendar = [];
+    this.weatherTable = [];
   }
+
 
   initFromScenario (scenario_id) {
     // Get scenario data from DB and populate internal structures
@@ -111,10 +74,30 @@ class game {
     this.play();
   }
 
-
   load () {
     this.loadDataFromDB ();
     
+    this.play();
+  }
+  
+  create_UI_elements () {
+    this.gameWidget = new UI_Game_Widget (document.getElementById ("StatusBar"));
+    
+    for (let i = 0; i < this.players.length; i++) {
+      this.players[i].create_UI_widgets (document.getElementById ("StatusBar"));
+
+      for (let j = 0; j < this.players[i].nations.length; j++) {
+        this.players[i].nations[j].create_UI_widgets (this.players[i].playerWidget.nationTable);
+      }
+
+      for (let j = 0; j < this.players[i].armies.length; j++) {
+        this.players[i].armies[j].create_UI_widgets (this.players[i].playerWidget.armyTable);
+      }
+
+    }
+  }
+  
+  play () {
     // Close the load game modal box
      // @TODO: move to the UI modules
     document.getElementById("loadgame_box").style.display="none";
@@ -123,59 +106,247 @@ class game {
     // @TODO: move to the UI modules
     document.getElementById("main_menu_id").style.display="none";
     
-    // Move to DB    
-    this.currentPlayer = frPlayerIndex;
-    this.currentSegment = 0;
+    this.create_UI_elements ();
+    this.loadCalendar ();
+    this.loadWeatherTable ();    
     
-    // And get the game begin
-    // Initialise admin points, morale, reinforcement points
-    this.players[frPlayerIndex].setAdminPoints         (game.frenchAP);
-    this.players[frPlayerIndex].setMorale              (game.frenchMorale);
-    this.players[frPlayerIndex].setReinforcementPoints (game.frenchRP);
-  
-    this.players[alPlayerIndex].setAdminPoints         (game.armyOfSilesiaAP);
-    this.players[alPlayerIndex].setMorale              (game.alliedMorale);
-    this.players[alPlayerIndex].setReinforcementPoints (game.prussianRP);
+    // Update weather, turn, phase, segment widgets
+    this.gameWidget.updateWeather ("fair");
+    this.gameWidget.updateTurn ("Turn " + this.currentTurn);
+    this.gameWidget.updateDate ("16 Apr");      
+    this.gameWidget.updatePhaseAndSegment (Game.sequenceOfPlay[this.currentSegment][0] + ":" + Game.sequenceOfPlay[this.currentSegment][1]);      
     
-    this.play();
-  }
-  
-  loadDataFromDB () {
-    call_server_api_get ("app/load_game.php?game_id=" + this.id, gameLoad);
-    call_server_api_get ("app/load_leaders.php?game_id=" + this.id, createLeaders);
-    call_server_api_get ("app/load_units.php?game_id=" + this.id, createUnits);
-  }
-   
-
-  play () {
     // Draw the player status
-    this.players[this.currentPlayer].drawSelf();
+    this.players[this.currentPlayer].show ();
     
-    // Draw the units
-    for (var i=0; i < leaders.length; i++) { 
-      if (leaders[i].player == this.currentPlayer || leaders[i].nearEnemy()) {
-        leaders[i].drawSelf();
+    // Draw own the units
+    const numLeaders = this.players[this.currentPlayer].leaders.length;
+    for (let i =0; i < numLeaders; i++) { 
+      if (this.players[this.currentPlayer].leaders[i].parentId == null) {
+        this.players[this.currentPlayer].leaders[i].draw();
+      }
+    }
+
+    // Draw enemy leaders within visibility range
+    const otherPlayer = this.otherPlayer ();
+    for (let i =0; i < this.players[otherPlayer].leaders.length; i++) { 
+      if (this.players[otherPlayer].leaders[i].parentId == null) {
+        if (this.players[otherPlayer].leaders[i].nearEnemy()) {
+          this.players[otherPlayer].leaders[i].draw();
+        }
       }
     }
   }
 
-  
+  // Return the index of the othger player
+  // Should be scalable to n players
+  otherPlayer () {
+    return this.currentPlayer == 0 ? 1 : 0;
+  }
+    
   advanceGame () {
     this.currentSegment++;
 
-    if (this.currentSegment > this.length) {
-      this.currenTurn++;
-      this.currentSegment = 0;
-    }
+    if (this.currentSegment >= game.sequencePlay.length) {
+      this.currentPlayer++;
+      if (this.currentPlayer >= this.players.length) {
+        // New turn
+        this.currentPlayer = 0;            
+        this.currentSegment = 0;
+        this.currenTurn++;
+      
+      // Update the weather
+      }
 
-    if (this.currenTurn > this.endTurn ) {
-      // Game ended
+      if (this.currenTurn > this.endTurn ) {
+        // Game ended
+      }
     }  
   }
+  
+  rollDieForWeather () {
+    const i = Math.floor ((Math.random() * 6) + 1);  
+    
+    const season = this.calendar.season (currentTurn);
+    weather = weatherTable [season][i]; 
+  }
+
+  loadWeatherTable ()
+  {
+    GameFactory.LoadTable ("Weather_Static_Data");
+    this.weatherTable = json_data;     
+  }
+
+  loadCalendar ()
+  {
+    GameFactory.LoadTable ("Calendar");
+    this.calendar = json_data;     
+  }
+
+}
+
+
+// Used to load data from the DB
+let json_data = [];
+
+
+
+
+class GameFactory {
+  constructor () {}
+  
+  static Players = [];
+  static Nations = [];
+  static Armies = [];
+  static Leaders = [];
+  static Units = [];
+  static gameData = null;
+  
+  
+  static LoadGame (id) {
+    call_server_api_get ("app/load_table_for_game.php?table=Games&gameId="   + id, GameFactory.Game_callback);
+
+    call_server_api_get ("app/load_table_for_game.php?table=Players&gameId=" + id, GameFactory.Players_callback); 
+    call_server_api_get ("app/load_table_for_game.php?table=Nations&gameId=" + id, GameFactory.Nations_callback);
+    call_server_api_get ("app/load_table_for_game.php?table=Armies&gameId="  + id, GameFactory.Armies_callback); 
+    call_server_api_get ("app/load_table_for_game.php?table=Leaders&gameId=" + id, GameFactory.Leaders_callback);
+    call_server_api_get ("app/load_table_for_game.php?table=Units&gameId="   + id, GameFactory.Units_callback);
+
+    for (let i = 0; i < GameFactory.Players.length; i++) {
+      for (let j = 0; j < GameFactory.Nations.length; j++) {
+        if (GameFactory.Players[i].symbol == GameFactory.Nations[j].playerId) {
+          GameFactory.Players[i].nations.push (GameFactory.Nations[j]);
+        }      
+      }
+    
+      for (let j = 0; j < GameFactory.Armies.length; j++) {
+        if (GameFactory.Players[i].symbol == GameFactory.Armies[j].playerId) {
+          GameFactory.Players[i].armies.push (GameFactory.Armies[j]);
+        }      
+      }
+
+      for (let j = 0; j < GameFactory.Leaders.length; j++) {
+        if (GameFactory.Players[i].symbol == GameFactory.Leaders[j].player) {
+          GameFactory.Players[i].leaders.push (GameFactory.Leaders[j]);
+        }      
+      }
+
+      for (let j = 0; j < GameFactory.Units.length; j++) {
+        if (GameFactory.Players[i].symbol == GameFactory.Units[j].playerId) {
+          GameFactory.Players[i].units.push (GameFactory.Units[j]);
+        }      
+      }
+    }
+
+    return new Game (
+      GameFactory.gameData.gameId, 
+      GameFactory.gameData.name, 
+      GameFactory.gameData.scenarioId, 
+      GameFactory.gameData.currentTurn, 
+      GameFactory.gameData.endTurn, 
+      GameFactory.gameData.currentPlayer, 
+      GameFactory.gameData.currentSegment, 
+      GameFactory.gameData.weather, 
+      GameFactory.Players
+    );  
+  }
+  
+  static Game_callback (xhttp_obj) {
+    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
+      throw ("Unable to load Table: " + xhttp_obj.responseText);
+      return;
+    }
+    
+    GameFactory.gameData = JSON.parse(xhttp_obj.responseText)[0];
+  }
+
+
+  static Players_callback (xhttp_obj) {
+    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
+      throw ("Unable to load Table: " + xhttp_obj.responseText);
+      return;
+    }
+    
+    json_data = JSON.parse (xhttp_obj.responseText);     
+
+    for (let i = 0; i < json_data.length; i++) {
+      const newPlayer = new Player (json_data[i]);
+      GameFactory.Players.push (newPlayer);    
+    }
+  }  
+
+  static Nations_callback (xhttp_obj) {
+    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
+      throw ("Unable to load Table: " + xhttp_obj.responseText);
+      return;
+    }
+    
+    json_data = JSON.parse (xhttp_obj.responseText);     
+
+    for (let i = 0; i < json_data.length; i++) {
+      const newNation = new Nation (json_data[i]);
+      GameFactory.Nations.push (newNation);    
+    }
+  }  
+
+  static Armies_callback (xhttp_obj) {
+    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
+      throw ("Unable to load Table: " + xhttp_obj.responseText);
+      return;
+    }
+    
+    const json_data = JSON.parse (xhttp_obj.responseText);     
+
+    for (let i = 0; i < json_data.length; i++) {
+      const newArmy = new Army (json_data[i]);
+      GameFactory.Armies.push (newArmy);    
+    }
+  }  
+  
+  static Units_callback (xhttp_obj) {
+    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
+      throw ("Unable to load Table: " + xhttp_obj.responseText);
+      return;
+    }
+    
+    json_data = JSON.parse (xhttp_obj.responseText);     
+
+    for (let i = 0; i < json_data.length; i++) {
+      const newUnit = new Unit (json_data[i]);
+      GameFactory.Units.push (newUnit);    
+    }
+  }  
+
+  static Leaders_callback (xhttp_obj) {
+    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
+      throw ("Unable to load Table: " + xhttp_obj.responseText);
+      return;
+    }
+    
+    json_data = JSON.parse (xhttp_obj.responseText);     
+
+    for (let i = 0; i < json_data.length; i++) {
+      const newLeader = new Leader (json_data[i]);
+      GameFactory.Leaders.push (newLeader);    
+    }
+  }  
+
+  static generic_callback (xhttp_obj) {
+    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
+      throw ("Unable to load table: " + xhttp_obj.responseText);
+      return;
+    }
+    
+    json_data = JSON.parse (xhttp_obj.responseText);     
+  }  
+  
+  static LoadTable (tableName) {
+    call_server_api_get ("app/load_table.php?table=" + tableName, GameFactory.generic_callback); 
+  }
+
 }
 
 
 
-let theGame = new game();
 
 

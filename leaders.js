@@ -11,48 +11,58 @@ const numLeadersInSameHex=1;
 
 
 class Leader {
-  constructor (id, name, nation, player, army, unitName, type, initiative, hasBonus, commandCapacity, subordinationValue, parent, mode, x, y, zOrder, orientation) {
-    this.id = id;
-    this.parent = parent;
-    this.name = name;
-    this.nation = nation;
-    this.player = player;
-    this.initiative = 1 * initiative;
-    this.hasBonus = hasBonus;
-    this.commandCapacity = 1 * commandCapacity;
-    this.subordinationValue = 1 * subordinationValue;
-    this.units = [];
-    this.type = type;
-    this.mode = mode;
-    this.x = 1 * x;
-    this.y = 1 * y;
-    this.zOrder = 1 * zOrder;
-    this.orientation = orientation;
+  constructor (json_data) {
+    this.id                 = json_data.id;
+    this.parentId           = json_data.parentId;
+    this.name               = json_data.name;
+    this.nation             = json_data.nation;
+    this.player             = json_data.player;
+    this.armyName           = json_data.armyName;
+    this.initiative         = 1 * json_data.initiative;
+    this.hasBonus           = (json_data.hasBonus == 1 ? true : false);
+    this.commandCapacity    = 1 * json_data.commandCapacity;
+    this.subordinationValue = 1 * json_data.subordinationValue;
+    this.type               = json_data.type;
+    this.orientation        = 1 * json_data.orientation;
+    this.mode               = json_data.mode;
+    this.x                  = 1 * json_data.X;
+    this.y                  = 1 * json_data.Y;
+    this.zOrder             = 1 * json_data.zOrder;
+    
+    this.widget = new UI_LeaderWidget (this.id, this.name, this.type, this.nation)
   }
     
-static possibleActions = [
-  { action: "Flip Line-Column",      func: function(aLeader) { aLeader.flipMode(); }},
-  { action: "Rotate clockwise",      func: function(aLeader) { aLeader.rotateCW(); }},
-  { action: "Rotate anti-clockwise", func: function(aLeader) { aLeader.rotateCCW(); }},
-  { action: "Flip direction",        func: function(aLeader) { aLeader.uTurn(); }},
-  { action: "Move forward-left",     func: function(aLeader) { aLeader.moveFL(); }},
-  { action: "Move forward",          func: function(aLeader) { aLeader.moveF(); }},
-  { action: "Move forward-right",    func: function(aLeader) { aLeader.moveFR(); }},
-  { action: "Manage units",          func: function(aLeader) {  }}
-];
+    
+  // Move to the controller
+  //
+  static possibleActions = [
+    { action: "Flip Line-Column",      func: function(aLeader) { aLeader.flipMode(); }},
+    { action: "Rotate clockwise",      func: function(aLeader) { aLeader.rotateCW(); }},
+    { action: "Rotate anti-clockwise", func: function(aLeader) { aLeader.rotateCCW(); }},
+    { action: "Flip direction",        func: function(aLeader) { aLeader.uTurn(); }},
+    { action: "Move forward-left",     func: function(aLeader) { aLeader.moveFL(); }},
+    { action: "Move forward",          func: function(aLeader) { aLeader.moveF(); }},
+    { action: "Move forward-right",    func: function(aLeader) { aLeader.moveFR(); }},
+    { action: "Manage units",          func: function(aLeader) {  }}
+  ];
 
 
 
 
-  // Not correct here - mixing data model and UI
-  picture () {
-    let leaderImg = document.createElement ("img");
-    leaderImg.id = "img:" + this. name;
-    leaderImg.src ="img/" + this.name + ".png";
-    leaderImg.style.width = "50px";
-  
-    return leaderImg;
-  }  
+  //
+  // Returns i, where leaders[i].id == leaderId 
+  //
+  static findById (leaderId) {
+    for (let k = 0; k < theGame.players[theGame.currentPlayer].leaders.length; k++) {
+      if (theGame.players[theGame.currentPlayer].leaders[k].id == leaderId) {
+        return k;
+      }
+    }
+
+   throw ("Leader not found");
+   return (-1);
+  }
+
 
   findUnit (unitId) {
     var i;
@@ -63,6 +73,7 @@ static possibleActions = [
   
     return undefined;
   }
+
 
   addUnit (aUnit) {
     aUnit.parent = this;
@@ -90,25 +101,28 @@ static possibleActions = [
   
   // Return the strength of all controlled units (both directly and indirectly) of type t
   strength (t) {
-    var i;
     let s = 0;
     
     // Units directly commanded
-    for (i = 0; i < units.length; i++)
-      if (units[i].commandedBy == this.id && units[i].type == t)
-          s += 1 * units[i].strength;  // Force conversion to number
+    for (let i = 0; i < theGame.players[theGame.currentPlayer].units.length; i++)
+      if (theGame.players[theGame.currentPlayer].units[i].commandedBy == this.id && theGame.players[theGame.currentPlayer].units[i].type == t)
+          s += 1 * theGame.players[theGame.currentPlayer].units[i].strength;  // Force conversion to number
 
     // Subordinate Leaders
-    for (i = 0; i < leaders.length; i++)
-      if (leaders[i].parent == this.id)
-          s += leaders[i].strength(t);
+    for (let i = 0; i < theGame.players[theGame.currentPlayer].leaders.length; i++)
+      if (theGame.players[theGame.currentPlayer].leaders[i].parent == this.id)
+          s += theGame.players[theGame.currentPlayer].leaders[i].strength(t);
 
     return s;
   }
 
 
-  drawSelf () {
-    UIRenderLeader (this);
+  draw () {
+    this.widget.draw (this.mode, this.orientation, this.x, this.y, this.zOrder);
+  }
+  
+  hide () {
+    this.widget.hide ();  
   }
   
   flipMode () {
@@ -121,6 +135,8 @@ static possibleActions = [
     }
     else 
       throw ("Invalid stack mode: " + this.mode);
+      
+    this.draw();
   }
 
   moveFL () {
@@ -145,6 +161,8 @@ static possibleActions = [
         default:
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
+
+    this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
 
@@ -165,6 +183,8 @@ static possibleActions = [
         default:
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
+
+    this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
 
@@ -190,6 +210,8 @@ static possibleActions = [
       default:
         throw ("Invalid stack mode in moveFL:" + this.mode);
     }
+
+    this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
 
@@ -215,7 +237,8 @@ static possibleActions = [
       default:
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
-    this.drawSelf();
+
+    this.draw();
   }
   
   rotateCW () {
@@ -235,6 +258,8 @@ static possibleActions = [
       default:
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
+
+    this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
   
@@ -258,24 +283,23 @@ static possibleActions = [
       default:
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
+
+    this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }  
   
-
   nearEnemy () {
-    for (let i = 0; i < leaders.length; i++) {
-      if (this.player == leaders[i].player) {   // same player
-        continue;
-      } 
-    
-      // OK, this and leaders[i] are not the same player's - check distance
+    const numOtherLeaders = theGame.players[theGame.currentPlayer].leaders.length; 
+
+    for (let i = 0; i < numOtherLeaders; i++) {
       const distanceSquared = distanceSquareInUnitCoords (
-        xMapCoordFromUnitCoord (this.x, this.y),
+        xMapCoordFromUnitCoord (theGame.players[theGame.currentPlayer].leaders[i].x, theGame.players[theGame.currentPlayer].leaders[i].y),
+        yMapCoordFromUnitCoord (theGame.players[theGame.currentPlayer].leaders[i].x, theGame.players[theGame.currentPlayer].leaders[i].y),
         yMapCoordFromUnitCoord (this.x, this.y), 
-        xMapCoordFromUnitCoord (leaders[i].x, leaders[i].y),
-        yMapCoordFromUnitCoord (leaders[i].x, leaders[i].y));
+        xMapCoordFromUnitCoord (this.x, this.y)
+      );
         
-       if (distanceSquared < visibilityRadiusSquared) {
+      if (distanceSquared < visibilityRadiusSquared) {
         return true;
       }
     }
@@ -284,23 +308,23 @@ static possibleActions = [
   }  
   
 
+  // Returns an array of Leader
   enemiesWithinVisibilityRange () {
     let result = [];
+    const otherPlayer = theGame.otherPlayer ();
+    const numOtherLeaders = theGame.players[otherPlayer].leaders.length; 
 
-    for (let i = 0; i < leaders.length; i++) {
-      if (this.player == leaders[i].player) {   // same player
-        continue;
-      } 
+    for (let i = 0; i < numOtherLeaders; i++) {
     
-      // OK, this and leaders[i] are not the same player's - check distance
       const distanceSquared = distanceSquareInUnitCoords (
-        xMapCoordFromUnitCoord (this.x, this.y),
+        xMapCoordFromUnitCoord (theGame.players[otherPlayer].leaders[i].x, theGame.players[otherPlayer].leaders[i].y),
+        yMapCoordFromUnitCoord (theGame.players[otherPlayer].leaders[i].x, theGame.players[otherPlayer].leaders[i].y),
         yMapCoordFromUnitCoord (this.x, this.y), 
-        xMapCoordFromUnitCoord (leaders[i].x, leaders[i].y),
-        yMapCoordFromUnitCoord (leaders[i].x, leaders[i].y));
+        xMapCoordFromUnitCoord (this.x, this.y)
+      );
         
        if (distanceSquared < visibilityRadiusSquared) {
-        result.push(i);
+        result.push (theGame.players[otherPlayer].leaders[i]);
       }
     }
     
@@ -308,10 +332,10 @@ static possibleActions = [
   }
 
   drawEnemiesWithinVisibilityRange () {
-    const listOfEnemies = this.enemiesWithinVisibilityRange();
+    const enemyLeaders = this.enemiesWithinVisibilityRange ();
     
-    for (let i=0; i < listOfEnemies.length; i++) {
-      leaders[listOfEnemies[i]].drawSelf();
+    for (let i=0; i < enemyLeaders.length; i++) {
+      enemyLeaders[i].draw ();
     }
   }
 
@@ -320,51 +344,6 @@ static possibleActions = [
 
   
 
-
-function createLeaders (xhttp)
-{
-  const leaderJSONdata = JSON.parse (xhttp.responseText);
-
-  for (var i=0; i<leaderJSONdata.length; i++) {
-    var newLeader = new Leader (
-      leaderJSONdata[i].id, 
-      leaderJSONdata[i].name, 
-      leaderJSONdata[i].nation, 
-      leaderJSONdata[i].player,
-      leaderJSONdata[i].army, 
-      leaderJSONdata[i].unitName, 
-      leaderJSONdata[i].type, 
-      leaderJSONdata[i].initiative, 
-      leaderJSONdata[i].hasBonus, 
-      leaderJSONdata[i].commandCapacity, 
-      leaderJSONdata[i].subordinationValue, 
-      leaderJSONdata[i].parent, 
-      leaderJSONdata[i].mode, 
-      leaderJSONdata[i].x, 
-      leaderJSONdata[i].y, 
-      leaderJSONdata[i].zOrder, 
-      leaderJSONdata[i].orientation);
-    leaders.push (newLeader);
-  }
-}
-
-
-//
-// Returns i, where leaders[i].id == leaderId 
-//
-function findLeaderById (leaderId) {
-  var k;
-
-  /* This part of code has to be moved out. Replace with "findLeaderById" */
-  for (k = 0; k < leaders.length; k++)
-    if (leaders[k].id == leaderId)
-      break;
-
-  if (k == leaders.length) 
-    throw ("Leader not found");
-
-  return k;
-}
 
 
 

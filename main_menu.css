@@ -1,0 +1,47 @@
+/*
+
+  Styles related to the main menu
+  
+*/
+
+.main_menu {
+  position: fixed;
+  font-size:15px;
+  color:black; 
+  background-color: burlywood;
+  top: 30px;
+  width: 200px;
+  cursor: default;
+  visibility: hidden;
+  z-index: 2;
+}
+
+
+.menu_symbol {
+  font-size: 15px;
+  color: black;
+  font-weight: bold;
+}
+
+.menu_symbol:hover {
+  background-color: black;
+  color: burlywood;
+  cursor: default;
+}
+
+
+.menu_item {
+  font-size: 15px;
+  height: 20px;
+  margin: 5px 5px 5px 5px;
+  color:black; 
+  background-color: burlywood;
+  cursor: default;
+}
+
+.menu_item:hover, .menu_item:focus {
+  font-size:15px;
+  color: burlywood;
+  background-color: red;
+}
+

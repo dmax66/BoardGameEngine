@@ -1,34 +1,58 @@
+class Player {
+  constructor (json_data) {
+    this.symbol  = json_data.symbol;
+    this.name    = json_data.name;
+    this.morale  = json_data.morale;
+    this.nations = [];
+    this.armies  = [];
+    this.leaders = [];
+    this.units   = [];
 
-class player {
-  constructor (name, nations) {
-    this.name = name;
-    this.adminPoints = 0;
-    this.morale = 0;
-    this.reinforcementPoints = 0;
-    this.nations = nations; 
+    this.parentWdiget = null;
+    this.playerWidget = null;
+    this.moraleWidget = null;
   }
 
-  getAdminPoints()             { return this.adminPoints; }
-  setAdminPoints (adminPoints) { this.adminPoints = adminPoints; }
-  changeAdminPoints (delta)    { this.adminPoints += delta; }
+  create_UI_widgets (parentWidget) {
+    // Creates the UI elements
+    this.parentWidget = parentWidget;
     
-  getMorale() {        return this.morale; }
-  setMorale (morale)   { this.morale = morale; }
-  changeMorale (delta) { this.morale += delta; }
+    this.playerWidget = new UI_PlayerWidget (this.symbol, this.name, this.parentWidget);
+    this.moraleWidget = new UI_MoraleWidget (this.symbol, this.name, this.playerWidget.moraleWidgetContainer);  
+
+  }
+  show () {
+    this.playerWidget.show();
+  }
+  
+  hide () {
+    this.playerWidget.hide();
+  }
+  
+  draw () {
+    this.moraleWidget.value = this.morale;
+//    this.moraleWidget.draw();
     
-  getReinforcementPoints() {return this.reinforcementPoints; }
-  setReinforcementPoints (reinforcementPoints) { this.reinforcementPoints = reinforcementPoints; }
-  changeReinforcementPoints (delta) { this.reinforcementPoints += delta; }
+    for (let i = 0; i++; i < this.nations.length) {
+//      this.nations[i].draw(); 
+    }
     
-  // 
-  // TO BE MOVED TO THE UI MODULE
-  //
-  drawSelf () {
-    document.getElementById("admin_points_id").value = this.adminPoints;
-    document.getElementById("morale_id").value = this.morale;
-    document.getElementById("reinforcement_points_id").value = this.reinforcementPoints;
+    for (let i = 0; i++; i < this.armies.length) {
+//      this.armies[i].draw(); 
+    }
   }    
-} 
+  
+  // Return true if player manages nation n
+  manageNation (n) {
+    for (let i = 0; i < nations.length; i++) {
+      if (nations[i].symbol == n) {
+        return true;  
+      }
+    }
+    
+    return false;
+  }
+} // End of class 
 
 
 

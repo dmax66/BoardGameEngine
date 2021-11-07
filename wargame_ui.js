@@ -15,12 +15,15 @@ function numOfLeadersInHex (x, y)
 
 
 
-function showLeaderActionMenu (aLeader)  
+function showLeaderActionMenu (leaderId)  
 {
   // Check if the info widget already exists - if so, close the previous one
   let leaderActionMenu = document.getElementById ("leaderActionMenu");
   if (leaderActionMenu != null) 
     leaderActionMenu.remove();
+  
+  const leaderIdx = Leader.findById (leaderId);
+  const aLeader = theGame.players[theGame.currentPlayer].leaders[leaderIdx];   // Horrible!
   
   // Now the menu does not exist - create it!
   leaderActionMenu = document.createElement ("DIV");
@@ -72,24 +75,17 @@ function findLeaderFromWidgetId (leaderWidgetId)
 
 
 //
-// Returns an array of indices for leaders who occupy hex (x,y) 
+// Returns an array of indices for friendly leaders who occupy hex (x,y) 
 //
 
 function getLeadersInHex (x, y) {
   let result = [];
   
-  for (var i=0; i<leaders.length; i++) {
-    
-    if (theGame.currentPlayer == 'french' && (! frenchNations.includes(leaders[i].nation))) {
-      continue;
-    }      
-
-    if (theGame.currentPlayer == 'allied' && (! alliedNations.includes(leaders[i].nation))) {
-      continue;
-    }      
-
-    if (leaders[i].x == x && leaders[i].y == y) {
-      result.push (i);
+  if (theGame != null) { 
+    for (let i = 0; i < theGame.players[theGame.currentPlayer].leaders.length; i++) {
+      if (theGame.players[theGame.currentPlayer].leaders[i].x == x && theGame.players[theGame.currentPlayer].leaders[i].y == y) {
+        result.push (i);
+      }
     }
   }
 
@@ -99,10 +95,12 @@ function getLeadersInHex (x, y) {
 }
 
 
-const stackInfoXOffset = 40;
-const stackInfoYOffset = 0;
 
 function showStackContent (x, y) {
+  const stackInfoXOffset = 40;
+  const stackInfoYOffset = 0;
+
+
   let stackInfoWidget = document.getElementById("stackInfoWidget");
   if (stackInfoWidget != null)
     stackInfoWidget.remove();
@@ -119,26 +117,34 @@ function showStackContent (x, y) {
   stackInfoWidget.setAttribute("class", "stack_info");
   stackInfoWidget.style.left = (xMapCoordFromUnitCoord (x, y) + stackInfoXOffset) + "px";
   stackInfoWidget.style.top  = (yMapCoordFromUnitCoord (x, y) + stackInfoYOffset) + "px";
-  mapContainer.appendChild(stackInfoWidget);
+  mapContainer.appendChild (stackInfoWidget);
     
   if (setOfLeaders.length > 0) {
     let lineWidget = document.createElement("P");
     stackInfoWidget.appendChild(lineWidget);
 
-    for (var i=0; i < setOfLeaders.length; i++) {
-      lineWidget.innerHTML += leaders [setOfLeaders[i]].name + "&nbsp;" + leaders [setOfLeaders[i]].strength('i') + "I&nbsp;" + leaders [setOfLeaders[i]].strength('c') + "C&nbsp;" + leaders [setOfLeaders[i]].strength('a') + "A<br>"; 
+    for (let i = 0; i < setOfLeaders.length; i++) {
+      lineWidget.innerHTML += 
+                          theGame.players[theGame.currentPlayer].leaders [setOfLeaders[i]].name + "&nbsp;" 
+                        + theGame.players[theGame.currentPlayer].leaders [setOfLeaders[i]].strength('i') + "I&nbsp;" 
+                        + theGame.players[theGame.currentPlayer].leaders [setOfLeaders[i]].strength('c') + "C&nbsp;" 
+                        + theGame.players[theGame.currentPlayer].leaders [setOfLeaders[i]].strength('a') + "A"; 
     }
   }
 }
 
 
 
-function showLeaderInfo (aLeader) {
+function showLeaderInfo (leaderId) {
   // Check if the info pop-up window already exists - if so, returns
-  var leaderInfoWindow = document.getElementById ("LIW:" + aLeader.id);
+  var leaderInfoWindow = document.getElementById ("LIW:" + leaderId);
   if (leaderInfoWindow != null)
       return;
   
+  const leaderIdx = Leader.findById (leaderId);
+  const aLeader = theGame.players[theGame.currentPlayer].leaders[leaderIdx];   // Horrible!
+
+
   // Widget does not exist - create it!
   leaderInfoWindow= document.createElement ("DIV");
   leaderInfoWindow.id = "LIW:" + aLeader.id;
@@ -189,9 +195,9 @@ function showLeaderInfo (aLeader) {
   unitTable.setAttribute ("class", "unit-table");
   leaderInfoWindow.appendChild (unitTable);    
   
-  for (let i=0; i < units.length; i++) {
-    if (units[i].commandedBy == aLeader.id) {
-      var tableCell;
+  for (let i=0; i < theGame.players[theGame.currentPlayer].units.length; i++) {
+    if (theGame.players[theGame.currentPlayer].units[i].commandedBy == aLeader.id) {
+      let tableCell = null;
 
       const tableRow = document.createElement ("TR");
       tableRow.id = "UIdxW:" + i;
@@ -203,17 +209,16 @@ function showLeaderInfo (aLeader) {
 
       const unitIcon = document.createElement("IMG");
       tableCell.appendChild (unitIcon);
-      unitIcon.src = "img/" + units[i].iconFileName();        
-      unitIcon.setAttribute ("class", units[i].nation); 
+      unitIcon.src = "img/" + theGame.players[theGame.currentPlayer].units[i].iconFileName();        
+      unitIcon.setAttribute ("class", theGame.players[theGame.currentPlayer].units[i].nation); 
   
       tableCell = document.createElement ("TD");
-      tableCell.innerHTML = units[i].name + "(" + units[i].commander + ")";
+      tableCell.innerHTML = theGame.players[theGame.currentPlayer].units[i].name + " (" + theGame.players[theGame.currentPlayer].units[i].commander + ")";
       tableRow.appendChild (tableCell);    
 
       tableCell = document.createElement ("TD");
-      tableCell.innerHTML = units[i].strength * 1000;
+      tableCell.innerHTML = theGame.players[theGame.currentPlayer].units[i].strength * 1000;
       tableRow.appendChild (tableCell);    
-
     }
   }
 }
