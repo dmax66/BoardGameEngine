@@ -23,7 +23,7 @@ $sql = "USE game_engine";
 $result = mysqli_query($conn, $sql);
 
 
-$sql = "SELECT G.ID 'ID', G.Name 'Name', S.Name 'Description' FROM Games G, Scenarios S WHERE G.Scenario_ID=S.ID";
+$sql = "SELECT G.gameId AS 'ID', G.name as 'Name', S.Description FROM Games G, Scenarios S WHERE G.scenarioId=S.ID";
 if ($loglevel > 1) fprintf ($logfile, "SQL=%s\n", $sql);
 
 

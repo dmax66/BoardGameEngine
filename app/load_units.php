@@ -24,16 +24,7 @@ $sql = "USE game_engine";
 $result = mysqli_query($conn, $sql);
 
 
-$sql = sprintf (
-  "SELECT 
-     USD.id, USD.Name, USD.Nation, USD.Commander, USD.Type, USD.Size,  
-     UDD.commandedBy, UDD.strength, UDD.entryTurn, UDD.exitTurn
-   FROM 
-     Units_Static_Data USD, Units_Dynamic_Data UDD 
-   WHERE 
-    UDD.id=USD.ID AND UDD.game_ID=%s", 
-   $game_id
- ); 
+$sql = sprintf ("SELECT * FROM Units WHERE gameId = %s", $game_id);
 
 
 if ($loglevel > 1) fprintf($logfile, "SQL query: %s\n", $sql); 

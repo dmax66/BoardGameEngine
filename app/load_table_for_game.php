@@ -3,7 +3,8 @@
 include 'db_params.php';
 include 'log.php';
 
-$game_id = $_GET["game_id"];
+$game_id = $_GET["gameId"];
+$table = $_GET["table"];
 
 if ($loglevel > 0) fprintf ($logfile, "Entering %s, game_id=%s\n ", __FILE__, $game_id);
 
@@ -24,7 +25,8 @@ $sql = "USE game_engine";
 $result = mysqli_query($conn, $sql);
 
 
-$sql = sprintf ("SELECT * FROM Leaders WHERE gameId = %s", $game_id);
+$sql = sprintf ("SELECT * FROM %s WHERE gameId = %s", $table, $game_id);
+
 
 if ($loglevel > 1) fprintf($logfile, "SQL query: %s\n", $sql); 
 
@@ -38,8 +40,9 @@ if ($loglevel > 0) fwrite($logfile, "done\n");
 
 if (mysqli_num_rows($result) > 0) 
 {
-  $outp = $result->fetch_all(MYSQLI_ASSOC);
-	if ($loglevel > 0) fwrite($logfile, "Success\n");
+  $outp = $result->fetch_all(MYSQLI_ASSOC);	
+  
+  if ($loglevel > 0) fwrite($logfile, "Success\n");
   echo json_encode($outp);
 } 
 else

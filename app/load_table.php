@@ -3,7 +3,7 @@
 include 'db_params.php';
 include 'log.php';
 
-$game_id = $_GET["game_id"];
+$table = $_GET["table"];
 
 if ($loglevel > 0) fprintf ($logfile, "Entering %s, game_id=%s\n ", __FILE__, $game_id);
 
@@ -23,8 +23,7 @@ else if ($loglevel > 0)	fwrite ($logfile, "success\n");
 $sql = "USE game_engine";
 $result = mysqli_query($conn, $sql);
 
-
-$sql = sprintf ("SELECT * FROM Leaders WHERE gameId = %s", $game_id);
+$sql = sprintf ("SELECT * FROM %s", $table);
 
 if ($loglevel > 1) fprintf($logfile, "SQL query: %s\n", $sql); 
 
