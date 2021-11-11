@@ -1,5 +1,5 @@
 CREATE TABLE `Calendar` (
-  `TurnNumber` int NOT NULL,
+  `Turn` int NOT NULL,
   `Days` varchar(20) NOT NULL,
   `Season` varchar(2) NOT NULL,
   PRIMARY KEY (`TurnNumber`)

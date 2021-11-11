@@ -1,0 +1,13 @@
+CREATE TABLE `Events` (
+  `Turn` int NOT NULL,
+  `EventType` varchar(20) DEFAULT NULL,
+  `Nation` varchar(2) DEFAULT NULL,
+  `Quantity` int DEFAULT NULL,
+  `Type` varchar(1) DEFAULT NULL,
+  `Leader_Id` varchar(10) DEFAULT NULL,
+  `X` int DEFAULT NULL,
+  `Y` int DEFAULT NULL,
+  `Mode` varchar(1) DEFAULT NULL,
+  `Orientation` varchar(45) DEFAULT NULL,
+  `Note` varchar(45) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
