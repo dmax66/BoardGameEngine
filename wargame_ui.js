@@ -138,10 +138,14 @@ function showStackContent (x, y) {
 function showLeaderInfo (leaderId) {
   // Check if the info pop-up window already exists - if so, returns
   var leaderInfoWindow = document.getElementById ("LIW:" + leaderId);
-  if (leaderInfoWindow != null)
-      return;
+  if (leaderInfoWindow != null) {
+    return;
+  }
   
   const leaderIdx = Leader.findById (leaderId);
+  if (leaderIdx == -1) {
+    return;
+  }
   const aLeader = theGame.players[theGame.currentPlayer].leaders[leaderIdx];   // Horrible!
 
 

@@ -59,7 +59,6 @@ class Leader {
       }
     }
 
-   throw ("Leader not found");
    return (-1);
   }
 

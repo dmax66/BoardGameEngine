@@ -41,6 +41,11 @@ class UI_LeaderWidget {
 
 
   draw (mode, orientation, x, y, zOrder) {
+    if (x < 0 || y < 0) {
+      this.hide();
+      return;
+    }
+    
     this.show();
     
     switch (mode) {

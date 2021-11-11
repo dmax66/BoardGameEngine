@@ -54,27 +54,49 @@ class Unit {
     return this.unitIconName;
   }
 
-  possibleActions () {
-    const choices = [
-      { entry: "Modify Strength",        func: modifyStrength },
-      { entry: "Make Maj General",       func: makeMajGen },
-      { entry: "Transfer to other Corp", func: transferToLeader }    
-    ] 
-    
-    return choices;
+  static modifyStrength () {
+    alert ("modifyStrength");
   }
+  
+  static makeMajGen () {
+    alert ("makeMajGen");
+  }
+  
+  static transferToLeader () {
+    alert ("transferToLeader");
+  }
+
+  static possibleActions = [
+    { entry: "Modify Strength",        func: Controller.modifyUnitStrength },
+    { entry: "Make Maj General",       func: Controller.makeMajGen },
+    { entry: "Transfer to other Corp", func: Controller.transferUnitToLeader }, 
+    { entry: "Use replacements",       func: Controller.transferReplacementToUnit }    
+  ];
+
+
+  transferToLeader (newLeaderId)
+  {
+    var iOldLeader = indexOfLeaderById (oldLeaderId);
+    var iNewLeader = indexOfLeaderById (newLeaderId);
+    var theUnit = leaders[iOldLeader].units [ leaders[iOldLeader].findUnit (unitId)] ;
+  
+    leaders[iOldLeader].removeUnit (unitId);
+    leaders[iNewLeader].addUnit (theUnit);
+  
+    // Close the unit window menu  
+    var unitMenu = document.getElementById ("MU:" + unitId);
+    if (unitMenu)
+      unitMenu.remove();
+    
+    // Close the previous leader info window, 
+    var leaderInfoWidget = document.getElementById ("LIW:" + leaders[iOldLeader].id);
+    if (leaderInfoWidget != null)
+      hideLeaderInfo (leaderInfoWidget.id);
+  }
+
+
+
 };
 
 
-function modifyStrength () {
-  alert ("modifyStrength");
-}
-
-function makeMajGen () {
-  alert ("makeMajGen");
-}
-
-function transferToLeader () {
-  alert ("transferToLeader");
-}
 

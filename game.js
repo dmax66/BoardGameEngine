@@ -39,7 +39,30 @@ class Game {
 
   static weatherTable=[];
 
-  constructor (id, name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather, players) {
+  constructor (id) {
+    this.id               = id;
+    this.name             = "";
+    this.scenarioId       = "";
+    this.currentPlayer    = 0;      
+    this.currentTurn      = 0;
+    this.endTurn          = 0;
+    this.currentSegment   = 0;
+    this.weather          = ""; 
+    this.players          = [];
+    this.leaders          = [];
+    this.units            = [];
+    this.armies           = [];
+    this.nations          = [];
+    
+    this.gameWidget = null;
+    
+    this.calendar = [];
+    this.weatherTable = [];
+  }
+
+
+
+  constructor_old (id, name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather, players) {
     this.id               = id;
     this.name             = name;
     this.scenarioId       = scenarioId;
@@ -198,8 +221,8 @@ class GameFactory {
   static Players = [];
   static Nations = [];
   static Armies = [];
-  static Leaders = [];
-  static Units = [];
+  static leaders = [];
+  static units = [];
   static gameData = null;
   
   
@@ -210,7 +233,13 @@ class GameFactory {
     call_server_api_get ("app/load_table_for_game.php?table=Nations&gameId=" + id, GameFactory.Nations_callback);
     call_server_api_get ("app/load_table_for_game.php?table=Armies&gameId="  + id, GameFactory.Armies_callback); 
     call_server_api_get ("app/load_table_for_game.php?table=Leaders&gameId=" + id, GameFactory.Leaders_callback);
-    call_server_api_get ("app/load_table_for_game.php?table=Units&gameId="   + id, GameFactory.Units_callback);
+    call_server_api_get ("app/load_table_for_game.php?table=units&gameId="   + id, GameFactory.units_callback);
+
+    newGame = new Game (id);
+    newGame.units = units;
+    newGame.nations = nations;
+    newGame.armies = armies;
+    newgame.leaders = leaders; 
 
     for (let i = 0; i < GameFactory.Players.length; i++) {
       for (let j = 0; j < GameFactory.Nations.length; j++) {
@@ -225,15 +254,22 @@ class GameFactory {
         }      
       }
 
-      for (let j = 0; j < GameFactory.Leaders.length; j++) {
-        if (GameFactory.Players[i].symbol == GameFactory.Leaders[j].player) {
-          GameFactory.Players[i].leaders.push (GameFactory.Leaders[j]);
+      for (let j = 0; j < GameFactory.leaders.length; j++) {
+        if (GameFactory.Players[i].symbol == GameFactory.leaders[j].player) {
+
+          // Assign the unit to a leader
+          for (let k = 0; k < GameFactory.units.length) {
+            if (GameFactory.units[k].parentId == GameFactory.Players[i].symbol)
+              GameFactory.leaders[i].units.push (GameFactory.units[k])
+            }
+
+          GameFactory.Players[i].leaders.push (GameFactory.leaders[j]);
         }      
       }
 
-      for (let j = 0; j < GameFactory.Units.length; j++) {
-        if (GameFactory.Players[i].symbol == GameFactory.Units[j].playerId) {
-          GameFactory.Players[i].units.push (GameFactory.Units[j]);
+      for (let j = 0; j < GameFactory.units.length; j++) {
+        if (GameFactory.Players[i].symbol == GameFactory.units[j].playerId) {
+          GameFactory.Players[i].units.push (GameFactory.units[j]);
         }      
       }
     }
@@ -303,7 +339,7 @@ class GameFactory {
     }
   }  
   
-  static Units_callback (xhttp_obj) {
+  static units_callback (xhttp_obj) {
     if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
       throw ("Unable to load Table: " + xhttp_obj.responseText);
       return;
@@ -313,7 +349,7 @@ class GameFactory {
 
     for (let i = 0; i < json_data.length; i++) {
       const newUnit = new Unit (json_data[i]);
-      GameFactory.Units.push (newUnit);    
+      GameFactory.units.push (newUnit);    
     }
   }  
 
@@ -327,7 +363,7 @@ class GameFactory {
 
     for (let i = 0; i < json_data.length; i++) {
       const newLeader = new Leader (json_data[i]);
-      GameFactory.Leaders.push (newLeader);    
+      GameFactory.leaders.push (newLeader);    
     }
   }  
 
