@@ -29,90 +29,45 @@ $sql = "USE game_engine";
 $result = mysqli_query($conn, $sql);
 
 
-if ($loglevel > 0) fwrite($logfile, "Creating the game...");
+if ($loglevel > 0) fwrite($logfile, "Creating the game...\n");
 
-$sql = sprintf("INSERT INTO Games (
-		SELECT 
-		  NULL, 
-		  '%s', 
-			ID,  
-			StartTurn, 
-			EndTurn, 
-			StartPhase, 
-			Weather, 
-			FrenchAdminPoints, 
-			ArmyOfSilesiaAdminPoints, 
-			ArmyOfBohemiaAdminPoints, 
-			ArmyOfTheNorthAdminPoints, 
-			FrenchReinforcementPoints, 
-			FrenchGuardReinforcementPoints, 
-			RussianReinforcementPoints, 
-			PrussianReinforcementPoints, 
-			AustrianReinforcementPoints, 
-			SwedishReinforcementPoints, 
-			FrenchMorale, 
-			AlliedMorale 
-		FROM Scenarios WHERE Scenarios.ID='%s')", 
-	$game_name,  
-	$scenario_id);
-
-if ($loglevel) fwrite($logfile, "done\n");
-if ($loglevel) fwrite($logfile, "Querying result...");
-
-$result = mysqli_query($conn, $sql);
-
-if ($loglevel) fwrite($logfile, "done\n");
-
-
-if ($result != TRUE) {
-	if ($loglevel > 0) fwrite($logfile, "INSERT failed\n");
-	die ("ERROR: " . mysqli_error($conn));
+$sql = sprintf ("CALL createNewGame('%s', '%s', @game_id)", $game_name, $scenario_id);
+if ($loglevel > 1) {
+  fprintf ($logfile, "SQL=%s", $sql);
 }
 
-$game_id = $conn->insert_id;
-
-//
-// Insert the leaders data from the scenario 
-//
-$sql = sprintf("INSERT INTO Leaders_Dynamic_Data (game_id, id, x, y, orientation, mode, parentId) SELECT '%s', id, x, y, orientation, mode, parentId FROM Scenario_Leaders_Data WHERE Scenario_Id='%s'", $game_id, $scenario_id);
-
-if ($loglevel > 1) fprintf($logfile, "SQL query: %s\n", $sql); 
-if ($loglevel > 0) fwrite($logfile, "Launching query...");
-
-$result = mysqli_query($conn, $sql);
-
-if ($loglevel > 0) fwrite($logfile, "done\n");
+$result = mysqli_query ($conn, $sql);
 
 
-if ($result == TRUE) {
-	if ($loglevel > 0) fwrite($logfile, "Success\n");
-} 
-else {
-	if ($loglevel > 0) fwrite($logfile, "INSERT failed\n");
-	die ("Error " . mysqli_error($conn));
+if ($loglevel > 0) {
+  if ($result == TRUE) {
+	  fwrite($logfile, "Success\n");
+  }
+	else {
+    fwrite($logfile, "Error\n");
+    die ("Error " . mysqli_error($conn));
+	}
 }
 
-
-//
-// Insert the units data from the scenario 
-//
-$sql = sprintf("INSERT INTO Units_Dynamic_Data (game_id, id, commandedBy, strength, entryTurn, exitTurn) SELECT '%s', id, commandedBy, strength, entryTurn, exitTurn FROM Scenario_Units_Data WHERE Scenario_Id='%s'", $game_id, $scenario_id);
-
-if ($loglevel > 1) fprintf($logfile, "SQL query: %s\n", $sql); 
-if ($loglevel > 0) fwrite($logfile, "Launching query...");
-
-$result = mysqli_query($conn, $sql);
-
-if ($loglevel > 0) fwrite($logfile, "done\n");
-
-
-if ($result == TRUE) {
-	if ($loglevel > 0) fwrite($logfile, "Success\n");
-} 
-else {
-	if ($loglevel > 0) fwrite($logfile, "INSERT failed\n");
-	die ("Error " . mysqli_error($conn));
+$sql = "SELECT @game_id as _game_id";
+if ($loglevel > 1) {
+  fprintf ($logfile, "SQL=%s", $sql);
 }
+
+$result = mysqli_query ($conn, $sql);
+
+if ($loglevel > 0) {
+  if ($result == TRUE) {
+	 fwrite($logfile, "Success\n");
+  }
+  else {
+	  fwrite($logfile, "Error\n");
+	  die ("Error " . mysqli_error($conn));
+	}
+}
+
+$row = $result->fetch_assoc();
+$game_id = $row['_game_id'];
 
 fprintf ($logfile, "Return value: %s\n", $game_id );
 
