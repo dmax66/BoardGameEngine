@@ -27,17 +27,11 @@ else if ($loglevel > 0)	{
 $sql = "USE game_engine";
 $result = mysqli_query($conn, $sql);
 
-
-$parentId = $_GET['parentId'] == "" ? 'NULL' : $_GET['parentId'];
-
-$sql = sprintf ("UPDATE Leaders_Dynamic_Data SET x=%s, y=%s, orientation=%s, mode='%s', zOrder=%s, parentId='%s' WHERE leaderId='%s' AND gameId=%s",
-  $_GET['x'],
-  $_GET['y'],
-  $_GET['orientation'],
-  $_GET['mode'],
-  $_GET['zOrder'],
-  $parentId,
-  $_GET['leaderId'],
+$sql = sprintf ("UPDATE Nations_Dynamic_Data SET infReplacementPoints=%s, cavReplacementPoints=%s, artReplacementPoints=%s WHERE nationId='%s' AND gameId=%s",
+  $_GET['infReplacementPoints'],
+  $_GET['cavReplacementPoints'],
+  $_GET['artReplacementPoints'],
+  $_GET['nationId'],
   $_GET['gameId']);
 
 if ($loglevel > 1) {
