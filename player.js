@@ -19,8 +19,8 @@ class Player {
     
     this.playerWidget = new UI_PlayerWidget (this.symbol, this.name, this.parentWidget);
     this.moraleWidget = new UI_MoraleWidget (this.symbol, this.name, this.playerWidget.moraleWidgetContainer);  
-
   }
+  
   show () {
     this.playerWidget.show();
   }
@@ -29,6 +29,29 @@ class Player {
     this.playerWidget.hide();
   }
   
+  addNation (nation) {
+    this.nations.push (nation);
+    nation.setPlayer (this);
+  }
+
+  addArmy (army) {
+    this.armies.push (army);
+    army.setPlayer (this);
+  }
+
+  addLeader (leader) {
+    this.leaders.push (leader);
+    leader.setPlayer (this);
+  }
+
+  addUnit (unit) {
+    this.units.push (units);
+    unit.setPlayer (this);
+  }
+
+  
+
+
   draw () {
     this.moraleWidget.value = this.morale;
 //    this.moraleWidget.draw();

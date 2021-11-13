@@ -13,11 +13,6 @@ function gameLoad (xhttp_obj) {
 }
 
 
-function gameGetID (xhttp_obj) {
-  theGame.id = xhttp_obj.responseText;
-}
-
-
 let game_mode = "Null";
 let scenario_data = null;
 
@@ -37,9 +32,7 @@ class Game {
     [ "Combat Phase", "Disorganization and Rally Segment" ]
   ];
 
-  static weatherTable=[];
-
-  constructor (id) {
+  constructor (id,  name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather) {
     this.id               = id;
     this.name             = "";
     this.scenarioId       = "";
@@ -49,36 +42,23 @@ class Game {
     this.currentSegment   = 0;
     this.weather          = ""; 
     this.players          = [];
+    this.nations          = [];
+    this.armies           = [];
     this.leaders          = [];
     this.units            = [];
-    this.armies           = [];
-    this.nations          = [];
-    
-    this.gameWidget = null;
     
     this.calendar = [];
     this.weatherTable = [];
-  }
 
-
-
-  constructor_old (id, name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather, players) {
-    this.id               = id;
-    this.name             = name;
-    this.scenarioId       = scenarioId;
-    this.currentPlayer    = 1 * currentPlayer;      
-    this.currentTurn      = 1 * currentTurn;
-    this.endTurn          = 1 * endTurn;
-    this.currentSegment   = 1 * currentSegment;
-    this.weather          = weather; 
-    this.players          = players;
-    
     this.gameWidget = null;
-    
-    this.calendar = [];
-    this.weatherTable = [];
   }
 
+  static responseFromDB = "";
+
+  static getid_callback (xhttp_obj) {
+    responseFromDB = xhttp_obj.responseText;
+  }
+  
 
   initFromScenario (scenario_id) {
     // Get scenario data from DB and populate internal structures
@@ -86,7 +66,8 @@ class Game {
     //  call_server_api_get (url, get_scenario_data);
     
     // Create the new game in the database, get the new game ID
-    call_server_api_get ("app/create_game_from_scenario.php?scenario_id=" + scenario_id + "&game_name=" + this.name, gameGetID);
+    call_server_api_get ("app/create_game_from_scenario.php?scenario_id=" + scenario_id + "&game_name=" + this.name, Game.getid_callback);
+    this.id = responseFromDB;
     loadDataFromDB (this.id);
   
     // Close the create game modal box
@@ -97,12 +78,13 @@ class Game {
     this.play();
   }
 
+/*
   load () {
     this.loadDataFromDB ();
     
     this.play();
   }
-  
+*/  
   create_UI_elements () {
     this.gameWidget = new UI_Game_Widget (document.getElementById ("StatusBar"));
     
@@ -116,7 +98,6 @@ class Game {
       for (let j = 0; j < this.players[i].armies.length; j++) {
         this.players[i].armies[j].create_UI_widgets (this.players[i].playerWidget.armyTable);
       }
-
     }
   }
   
@@ -216,14 +197,21 @@ let json_data = [];
 
 
 class GameFactory {
-  constructor () {}
-  
   static Players = [];
   static Nations = [];
   static Armies = [];
   static leaders = [];
   static units = [];
-  static gameData = null;
+  // static gameData = null;
+  
+  static players_data = null;
+  static nations_data = null;
+  static armies_data  = null;
+  static leaders_data = null;
+  static units_data   = null;
+  static gameData     = null;
+
+  constructor () {}
   
   
   static LoadGame (id) {
@@ -233,58 +221,103 @@ class GameFactory {
     call_server_api_get ("app/load_table_for_game.php?table=Nations&gameId=" + id, GameFactory.Nations_callback);
     call_server_api_get ("app/load_table_for_game.php?table=Armies&gameId="  + id, GameFactory.Armies_callback); 
     call_server_api_get ("app/load_table_for_game.php?table=Leaders&gameId=" + id, GameFactory.Leaders_callback);
-    call_server_api_get ("app/load_table_for_game.php?table=units&gameId="   + id, GameFactory.units_callback);
+    call_server_api_get ("app/load_table_for_game.php?table=units&gameId="   + id, GameFactory.Units_callback);
 
-    newGame = new Game (id);
-    newGame.units = units;
-    newGame.nations = nations;
-    newGame.armies = armies;
-    newgame.leaders = leaders; 
-
-    for (let i = 0; i < GameFactory.Players.length; i++) {
-      for (let j = 0; j < GameFactory.Nations.length; j++) {
-        if (GameFactory.Players[i].symbol == GameFactory.Nations[j].playerId) {
-          GameFactory.Players[i].nations.push (GameFactory.Nations[j]);
-        }      
-      }
-    
-      for (let j = 0; j < GameFactory.Armies.length; j++) {
-        if (GameFactory.Players[i].symbol == GameFactory.Armies[j].playerId) {
-          GameFactory.Players[i].armies.push (GameFactory.Armies[j]);
-        }      
-      }
-
-      for (let j = 0; j < GameFactory.leaders.length; j++) {
-        if (GameFactory.Players[i].symbol == GameFactory.leaders[j].player) {
-
-          // Assign the unit to a leader
-          for (let k = 0; k < GameFactory.units.length) {
-            if (GameFactory.units[k].parentId == GameFactory.Players[i].symbol)
-              GameFactory.leaders[i].units.push (GameFactory.units[k])
-            }
-
-          GameFactory.Players[i].leaders.push (GameFactory.leaders[j]);
-        }      
-      }
-
-      for (let j = 0; j < GameFactory.units.length; j++) {
-        if (GameFactory.Players[i].symbol == GameFactory.units[j].playerId) {
-          GameFactory.Players[i].units.push (GameFactory.units[j]);
-        }      
-      }
-    }
-
-    return new Game (
-      GameFactory.gameData.gameId, 
+    newGame = new Game (
+      id, 
       GameFactory.gameData.name, 
       GameFactory.gameData.scenarioId, 
       GameFactory.gameData.currentTurn, 
       GameFactory.gameData.endTurn, 
       GameFactory.gameData.currentPlayer, 
       GameFactory.gameData.currentSegment, 
-      GameFactory.gameData.weather, 
-      GameFactory.Players
-    );  
+      GameFactory.gameData.weather,
+      GameFactory.players,
+      GameFactory.nations,
+      GameFactory.armies,
+      GameFactory.leaders,
+      GameFactory.units
+    );
+    
+    for (let i = 0; i < players_data.length; i++) {
+      const newPlayer = new Player (players_data[i]);
+      newGame.Players.push (newPlayer);    
+    }
+
+    for (let i = 0; i < nations_data.length; i++) {
+      const newNation = new Nation (nations_data[i]);
+      newGame.Nations.push (newNation);    
+    }
+
+    for (let i = 0; i < armies_data.length; i++) {
+      const newArmy = new Army (armies_data[i]);
+      newGame.Armies.push (newArmy);    
+    }
+    
+    for (let i = 0; i < leaders_data.length; i++) {
+      const newLeader = new Leader (leaders_data[i]);
+      newGame.leaders.push (newLeader);    
+    }
+
+    for (let i = 0; i < units_data.length; i++) {
+      const newUnit = new Unit (units_data[i]);
+      newGame.units.push (newUnit);    
+    }
+
+
+    // Build the hierarchy
+    // Assign objects to the players
+    for (let i = 0; i < newGame.players.length; i++) {
+      thePlayer = newGame.players[i];
+
+      // Add Nations 
+      for (let j = 0; j < newGame.nations.length; j++) {
+        if (thePlayer.playerId == newGame.nations[j].playerId) {
+          thePlayer.addNation (newGame.nations[j]);
+        }      
+      }
+    
+      // Add Armies 
+      for (let j = 0; j < this.armies.length; j++) {
+        if (thePlayer.playerId == newGame.armies[j].playerId) {
+          thePlayer.addArmy (newGame.armies[j]);
+        }      
+      }
+
+      // Add leaders
+      for (let j = 0; j < newGame.leaders.length; j++) {
+        if (thePlayer.playerId == newGame.leaders[j].playerId) {
+          thePlayer.addLeader (newGame.leaders[j]);
+        }
+      }
+
+      // Add units
+      for (let j = 0; j < newGame.units.length; j++) {
+        if (thePlayer.playerId == newGame.units[j].playerId) {
+          thePlayer.addUnit (newGame.units[j]);
+        }
+      }
+    }
+    
+    // Add objects to leaders
+    for (let i = 0; i < newGame.leaders.length, i++) {
+    
+      // Add units
+      for (let j = 0; j < newGame.units.length; j++) {
+        if (newGame.units[j].parentId == newGame.leaders[i].leaderId) {
+          newGame.leaders[i].addUnit (newGame.units[j]);
+        }
+      }      
+
+      // Assign subordinates to their leaders  
+      for (let j = 0; j < newGame.leaders.length; j++) {
+        if (newGame.leaders[j].parentId == newGame.leaders[i].leaderId) {
+          newGame.leaders[i].addSubordinate (newGame.leaders[j]);
+        }
+      }      
+    }
+
+    return newGame;
   }
   
   static Game_callback (xhttp_obj) {
@@ -303,12 +336,7 @@ class GameFactory {
       return;
     }
     
-    json_data = JSON.parse (xhttp_obj.responseText);     
-
-    for (let i = 0; i < json_data.length; i++) {
-      const newPlayer = new Player (json_data[i]);
-      GameFactory.Players.push (newPlayer);    
-    }
+    GameFactory.players_data = JSON.parse (xhttp_obj.responseText);     
   }  
 
   static Nations_callback (xhttp_obj) {
@@ -317,12 +345,7 @@ class GameFactory {
       return;
     }
     
-    json_data = JSON.parse (xhttp_obj.responseText);     
-
-    for (let i = 0; i < json_data.length; i++) {
-      const newNation = new Nation (json_data[i]);
-      GameFactory.Nations.push (newNation);    
-    }
+    GameFactory.nations_data = JSON.parse (xhttp_obj.responseText);     
   }  
 
   static Armies_callback (xhttp_obj) {
@@ -331,26 +354,16 @@ class GameFactory {
       return;
     }
     
-    const json_data = JSON.parse (xhttp_obj.responseText);     
-
-    for (let i = 0; i < json_data.length; i++) {
-      const newArmy = new Army (json_data[i]);
-      GameFactory.Armies.push (newArmy);    
-    }
+    GameFactory.armies_data = JSON.parse (xhttp_obj.responseText);     
   }  
   
-  static units_callback (xhttp_obj) {
+  static Units_callback (xhttp_obj) {
     if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
       throw ("Unable to load Table: " + xhttp_obj.responseText);
       return;
     }
     
-    json_data = JSON.parse (xhttp_obj.responseText);     
-
-    for (let i = 0; i < json_data.length; i++) {
-      const newUnit = new Unit (json_data[i]);
-      GameFactory.units.push (newUnit);    
-    }
+    GameFactory.units_data = JSON.parse (xhttp_obj.responseText);     
   }  
 
   static Leaders_callback (xhttp_obj) {
@@ -359,12 +372,7 @@ class GameFactory {
       return;
     }
     
-    json_data = JSON.parse (xhttp_obj.responseText);     
-
-    for (let i = 0; i < json_data.length; i++) {
-      const newLeader = new Leader (json_data[i]);
-      GameFactory.leaders.push (newLeader);    
-    }
+    GameFactory.leaders_data = JSON.parse (xhttp_obj.responseText);     
   }  
 
   static generic_callback (xhttp_obj) {

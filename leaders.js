@@ -1,22 +1,18 @@
 'use strict';
 
 
-let leaders = [];
+// TODO
 const numLeadersInSameHex=1;
-
-
-
 
 
 
 
 class Leader {
   constructor (json_data) {
-    this.id                 = json_data.id;
-    this.parentId           = json_data.parentId;
+    this.leaderId           = json_data.leaderId;
     this.name               = json_data.name;
-    this.nation             = json_data.nation;
-    this.player             = json_data.player;
+    this.nationId           = json_data.nationId;
+    this.playerId           = json_data.playerId;
     this.armyName           = json_data.armyName;
     this.initiative         = 1 * json_data.initiative;
     this.hasBonus           = (json_data.hasBonus == 1 ? true : false);
@@ -28,8 +24,11 @@ class Leader {
     this.x                  = 1 * json_data.X;
     this.y                  = 1 * json_data.Y;
     this.zOrder             = 1 * json_data.zOrder;
+    this.parentId           = json_data.parentId;
+    this.parent             = null;
+    this.subordinates       = null;
     
-    this.widget = new UI_LeaderWidget (this.id, this.name, this.type, this.nation)
+    this.widget = new UI_LeaderWidget (this.id, this.name, this.type, this.nationId)
   }
     
     
@@ -47,70 +46,119 @@ class Leader {
   ];
 
 
-
-
   //
   // Returns i, where leaders[i].id == leaderId 
   //
   static findById (leaderId) {
-    for (let k = 0; k < theGame.players[theGame.currentPlayer].leaders.length; k++) {
-      if (theGame.players[theGame.currentPlayer].leaders[k].id == leaderId) {
-        return k;
+    for (let i = 0; i < theGame.leaders.length; i++) {
+      if (theGame.leaders[i].leaderId == leaderId) {
+        return theGame.leaders[i];
       }
     }
 
-   return (-1);
+   return null;
   }
 
 
-  findUnit (unitId) {
-    var i;
+  // Returns an instance of class Unit whose id == unitId
+  getUnit (unitId) {
+    for (let i = 0; i < this.units.length; i++)
+      if (this.units[i].unitId == unitId)
+        return this.units[i];
   
-    for (i=0; i < this.units.length; i++)
-      if (this.units[i].id == unitId)
+    return null;
+  }
+  
+  // Returns the index of the units array whose id == unitId
+  findUnit (unitId) {
+    for (let i = 0; i < this.units.length; i++)
+      if (this.units[i].unitId == unitId)
         return i;
   
-    return undefined;
+    return (-1);
   }
-
-
+  
+  
+  // aUnit is an instance of class Unit
   addUnit (aUnit) {
-    aUnit.parent = this;
+    aUnit.setParent (this);
     this.units.push (aUnit);
   }
+
 
   // Remove the unit identified by unitId. Returns the unit itself
   removeUnit (unitId) {
     if (this.units.length == 0) throw ("Cannot remove unit from a leader with no units");
     
-    var unitIndex = this.findUnit (unitId);
-    if (unitIndex != undefined)
+    const unitIdx = this.findUnit (unitId);
+    if (unitIdx != -1)
     {
-      var unit = this.units.splice (unitIndex, 1);
-      unit.parent = undefined;
-      return unit;
+      const removedUnits = this.units.splice (unitIndex, 1); 
+      const removedUnit = removedUnits[0];                        // unitId is a unique id, so only one unit in the resultset
+      
+      removedUnit.unsetParent ();
+      return removedUnit; 
     }
     else
     {
-      console.log ("Warning: Leader.prototype.removeUnit: unit not found");
-      return undefined;
+      console.log ("Warning: Leader.removeUnit: unit not found");
+      return null;
     }
   }
   
+  
+  // subordinate is an instance of class Leader
+  // Returns true if success, false if there's an error
+  addSubordinate (subordinate) {
+    // Sanity check #1: check that it is not referencing itself
+    if (this.leaderId == subordinate.leaderId) {
+      throw ("Unit.addSubordinate: trying to add leader to itself");
+      return false;
+    }
+    
+    // Sanity check #2: they must be of the same playerId
+    if (this.playerId != subordinate.playerId)
+      throw ("Unit.addSubordinate: trying to add leader to other playerId");
+      return false;
+    }
+    
+    this.subordinates.push (subordinate);
+    this.subordinatea.setParent (this);
+    
+    return true;
+  }  
+  
+
+  // parent is an instance of class Leader
+  // Returns true if success, false if there's an error
+  setParent (parent) {
+    // Sanity check #1: check that it is not referencing itself
+    if (this.leaderId == subordinate.leaderId) {
+      throw ("Unit.addSubordinate: trying to add leader to itself");
+      return false;
+    }
+    
+    // Sanity check #2: they must be of the same playerId
+    if (this.playerId != parent.playerId)
+      throw ("Unit.addSubordinate: trying to add leader to other playerId");
+      return false;
+    }
+    
+    this.
+    
   
   // Return the strength of all controlled units (both directly and indirectly) of type t
   strength (t) {
     let s = 0;
     
     // Units directly commanded
-    for (let i = 0; i < theGame.players[theGame.currentPlayer].units.length; i++)
-      if (theGame.players[theGame.currentPlayer].units[i].commandedBy == this.id && theGame.players[theGame.currentPlayer].units[i].type == t)
-          s += 1 * theGame.players[theGame.currentPlayer].units[i].strength;  // Force conversion to number
+    for (let i = 0; i < this.units.length; i++)
+      if (this.units[i].type == t)
+          s += 1 * this.units[i].strength;  // Force conversion to number
 
     // Subordinate Leaders
-    for (let i = 0; i < theGame.players[theGame.currentPlayer].leaders.length; i++)
-      if (theGame.players[theGame.currentPlayer].leaders[i].parent == this.id)
-          s += theGame.players[theGame.currentPlayer].leaders[i].strength(t);
+    for (let i = 0; i < this.subordinates.length; i++)
+      s += this.subordinates[i].strength (t);
 
     return s;
   }
@@ -139,7 +187,7 @@ class Leader {
   }
 
   moveFL () {
-    const curOrientation = 1*this.orientation;
+    const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
     
     switch (this.mode) {
@@ -166,7 +214,7 @@ class Leader {
   }
 
   moveF () {
-    const curOrientation = 1*this.orientation;
+    const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
     
     switch (this.mode) {
@@ -188,7 +236,7 @@ class Leader {
   }
 
   moveFR () {
-    const curOrientation = 1*this.orientation;
+    const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
     
     switch (this.mode) {
@@ -215,7 +263,7 @@ class Leader {
   }
 
   uTurn () {
-    const curOrientation = 1*this.orientation;
+    const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
     
 
@@ -241,7 +289,7 @@ class Leader {
   }
   
   rotateCW () {
-    const curOrientation = 1*this.orientation;
+    const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
     
 
@@ -263,7 +311,7 @@ class Leader {
   }
   
   rotateCCW () {
-    const curOrientation = 1*this.orientation;
+    const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
     
 

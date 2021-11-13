@@ -10,6 +10,7 @@ class Unit {
     this.commandedBy = json_data.commandedBy;
     this.strength    = json_data.strength;
     this.playerId    = json_data.playerId;
+    this.parent      = null;
     
     this.unitIconName = "";
     
@@ -54,17 +55,34 @@ class Unit {
     return this.unitIconName;
   }
 
+
+  // parentLeader is an object of class Leader
+  setParent (parentLeader) {
+    this.commandedBy = parentLeader.leaderId;
+    this.parent = parentLeader; 
+  }
+  
+  
+  unsetParent () {
+    this.commandedBy = (-1);
+    this.parent = null; 
+  }
+  
+  
   static modifyStrength () {
     alert ("modifyStrength");
   }
+  
   
   static makeMajGen () {
     alert ("makeMajGen");
   }
   
+  
   static transferToLeader () {
     alert ("transferToLeader");
   }
+
 
   static possibleActions = [
     { entry: "Modify Strength",        func: Controller.modifyUnitStrength },
@@ -74,15 +92,14 @@ class Unit {
   ];
 
 
-  transferToLeader (newLeaderId)
+  transferToLeader (newLeader)
   {
-    var iOldLeader = indexOfLeaderById (oldLeaderId);
-    var iNewLeader = indexOfLeaderById (newLeaderId);
-    var theUnit = leaders[iOldLeader].units [ leaders[iOldLeader].findUnit (unitId)] ;
+    var oldLeader = this.parent;
   
-    leaders[iOldLeader].removeUnit (unitId);
-    leaders[iNewLeader].addUnit (theUnit);
+    oldLeader.removeUnit (this);
+    newLeader.addUnit (this);
   
+    // Move to the controller
     // Close the unit window menu  
     var unitMenu = document.getElementById ("MU:" + unitId);
     if (unitMenu)
@@ -94,9 +111,7 @@ class Unit {
       hideLeaderInfo (leaderInfoWidget.id);
   }
 
-
-
-};
+}; // End of class
 
 
 
