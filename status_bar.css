@@ -1,0 +1,108 @@
+/*
+
+  Styles for the status bar
+  
+*/
+
+
+.status_bar {
+  position: fixed;
+  width: 100%;
+  top: 0px;
+  left: 0px;
+  height: 32px;  
+  background-color: burlywood;
+  z-index: 1;
+}
+
+
+.indicators {
+  font-size:15px;
+}
+
+.game {
+	position: absolute;
+	right: 0;
+	top: 32px;
+	height: auto;
+	padding-left: 5px;
+	padding-right: 5px;
+	background-color: black;
+}
+
+.game-progress {
+	position: fixed;
+	left: 180px;
+	top: 0px;
+	width: max-content;
+	width: max-content;
+	border-block-style: inset;
+	border-left-width: 3px;
+	border-left-style: solid;
+	border-right-width: 3px;
+	border-right-style: solid;
+	padding-right: 3px;
+	padding-left: 3px;
+	color: blanchedalmond;
+}
+
+.phase-and-segment-widget {
+  position: relative;
+  left: 0px;
+  top: 0px;
+  font-size: 15px;
+  color: black;
+	margin-bottom: 0px;
+	margin-top: 0px;
+}
+
+.turn-widget {
+  position: relative;
+  left: 0px;
+  top: 0px;
+  font-size: 12px;
+  color: white;
+  font-weight: normal;
+	margin-bottom: 8px;
+	margin-top: 8px;
+}
+
+.date-widget {
+  font-size: 16px;
+  color: white; 
+  font-weight: bold;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+.player-widget {
+  position: fixed;
+  top: 0px;
+  left: 600px;
+  font-size: 12px;
+  background-color: burlywood;
+  color: black;
+  padding: 0px 0px 0px 0px;
+  border-style: outset;  
+	border-radius: 10px;
+	border-top-width: 0px;
+	border-left-width: 2px;
+	border-bottom-width: 2px;
+	border-right-width: 2px;
+	
+	vertical-align: top;
+}
+
+.rp-widget {
+  width: 20px;
+}
+
+.morale-widget {
+  width: 20px;
+}
+
+.ap-widget {
+  width: 20px;
+  
+}
+

@@ -21,6 +21,10 @@
   font-size: 15px;
   color: black;
   font-weight: bold;
+	padding-right: 10px;
+	padding-left: 10px;
+	padding-top: 3px;
+}
 }
 
 .menu_symbol:hover {

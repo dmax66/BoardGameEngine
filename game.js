@@ -1,46 +1,37 @@
-// 
-// Helper functions to handle AJAX callbacks
-//
-
-//
-// Possible improvement: theGame created when the data is loaded
-//
-
 'use strict';
 
-function gameLoad (xhttp_obj) {
+// Used to load data from the DB
+let json_data = [];
 
-}
-
-
-let game_mode = "Null";
-let scenario_data = null;
-
-const frPlayerIndex = 0;
-const alPlayerIndex = 1;
 
 
 class Game {
   static sequenceOfPlay = [   
-    [ "Command Phase", "Administrative Segment" ],
-    [ "Command Phase", "Organization Segment" ],
-    [ "Movement Phase", "Movement Command Segment" ],
-    [ "Movement Phase", "Individual Initiative Segment" ],
-    [ "Movement Phase", "Bridge Segment" ],
-    [ "Combat Phase", "Forced March Segment" ],
-    [ "Combat Phase", "Battle Resolution Segment" ],
-    [ "Combat Phase", "Disorganization and Rally Segment" ]
+    { phase:"Command Phase",  segment:"Weather Determination",             action: Game.determineWeather },
+    { phase:"Command Phase",  segment:"Move Supply Source",                action: Game.moveSS           },
+    { phase:"Command Phase",  segment:"Disband COP",                       action: Game.disbandCOP       },
+    { phase:"Command Phase",  segment:"Activate Supply Source",            action: Game.activateSS       },
+    { phase:"Command Phase",  segment:"Get AP",                            action: Game.getAP            },
+    { phase:"Command Phase",  segment:"Allocate AP",                       action: Game.allocateAP       },
+    { phase:"Command Phase",  segment:"Organization Segment",              action: Game.doNothing        },
+    { phase:"Movement Phase", segment:"Movement Commands",                 action: Game.doNothing        },
+    { phase:"Movement Phase", segment:"Move COP",                          action: Game.moveCOP          },
+    { phase:"Movement Phase", segment:"Individual Initiative Segment",     action: Game.doNothing        },
+    { phase:"Movement Phase", segment:"Bridge Segment",                    action: Game.doNothing        },
+    { phase:"Combat Phase",   segment:"Forced March Segment",              action: Game.doNothing        },
+    { phase:"Combat Phase",   segment:"Battle Resolution Segment",         action: Game.doNothing        },
+    { phase:"Combat Phase",   segment:"Disorganization and Rally Segment", action: Game.doNothing        }
   ];
 
   constructor (id,  name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather) {
     this.id               = id;
     this.name             = "";
     this.scenarioId       = "";
-    this.currentPlayer    = 0;      
-    this.currentTurn      = 0;
-    this.endTurn          = 0;
-    this.currentSegment   = 0;
-    this.weather          = ""; 
+    this.currentPlayer    = currentPlayer;      
+    this.currentTurn      = currentTurn;
+    this.endTurn          = endTurn;
+    this.currentSegment   = currentSegment;
+    this.weather          = weather; 
     this.players          = [];
     this.nations          = [];
     this.armies           = [];
@@ -78,50 +69,100 @@ class Game {
     this.play();
   }
 
-/*
-  load () {
-    this.loadDataFromDB ();
-    
-    this.play();
+
+  // Returns the index of the units array whose id == unitId
+  findUnit (unitId) {
+    for (let i = 0; i < this.units.length; i++)
+      if (this.units[i].unitId == unitId)
+        return i;
+  
+    return (-1);
   }
-*/  
+  
+
+  // Returns an instance of class Unit whose id == unitId
+  getUnit (unitId) {
+    for (let i = 0; i < this.units.length; i++)
+      if (this.units[i].unitId == unitId)
+        return this.units[i];
+  
+    return null;
+  }
+  
+
+  // Returns the index of the leaders array whose Id == leadertId
+  findLeader (leaderId) {
+    for (let i = 0; i < this.leaders.length; i++)
+      if (this.leaders[i].leaderId == leaderId)
+        return i;
+  
+    return (-1);
+  }
+  
+
+  // Returns an instance of class Leader whose id == unitId
+  getLeader (leaderId) {
+    for (let i = 0; i < this.leaders.length; i++)
+      if (this.leaders[i].leaderId == leaderId)
+        return this.leaders[i];
+  
+    return null;
+  }
+  
+
+  numOfLeadersInHex (x, y)
+  {
+    let n = 0;
+    
+    for (let i = 0; i < this.leaders.length; i++) {
+      if (this.leaders[i].x == x && this.leaders[i].y == y) { 
+        n++;
+      }
+    }
+        
+    return n;
+  }
+  
+  
+  // Move to the controller?
+
   create_UI_elements () {
-    this.gameWidget = new UI_Game_Widget (document.getElementById ("StatusBar"));
+    const statusBar = document.getElementById ("StatusBar");
+    this.gameWidget = new UI_Game_Widget (statusBar);
     
     for (let i = 0; i < this.players.length; i++) {
-      this.players[i].create_UI_widgets (document.getElementById ("StatusBar"));
-
-      for (let j = 0; j < this.players[i].nations.length; j++) {
-        this.players[i].nations[j].create_UI_widgets (this.players[i].playerWidget.nationTable);
-      }
+      this.players[i].create_UI_widgets (statusBar);
 
       for (let j = 0; j < this.players[i].armies.length; j++) {
         this.players[i].armies[j].create_UI_widgets (this.players[i].playerWidget.armyTable);
       }
+
+      for (let j = 0; j < this.players[i].nations.length; j++) {
+        this.players[i].nations[j].create_UI_widgets (this.players[i].playerWidget.nationTable);
+      }
     }
   }
+
   
-  play () {
-    // Close the load game modal box
-     // @TODO: move to the UI modules
-    document.getElementById("loadgame_box").style.display="none";
-    
-    // Close the main menu
-    // @TODO: move to the UI modules
-    document.getElementById("main_menu_id").style.display="none";
-    
+  resume () {
     this.create_UI_elements ();
     this.loadCalendar ();
     this.loadWeatherTable ();    
     
     // Update weather, turn, phase, segment widgets
-    this.gameWidget.updateWeather ("fair");
     this.gameWidget.updateTurn ("Turn " + this.currentTurn);
-    this.gameWidget.updateDate ("16 Apr");      
-    this.gameWidget.updatePhaseAndSegment (Game.sequenceOfPlay[this.currentSegment][0] + ":" + Game.sequenceOfPlay[this.currentSegment][1]);      
+    this.gameWidget.updateDate (this.calendar[this.currentTurn].days);      
     
+    if (this.currentSegment == -1)
+    {
+      // Begin of a scenario
+      // Start with currentSegment == -1
+      // Move to state 0, triggering all actions
+      this.advanceGame ();
+    }
     // Draw the player status
     this.players[this.currentPlayer].show ();
+    this.players[this.currentPlayer].draw ();
     
     // Draw own the units
     const numLeaders = this.players[this.currentPlayer].leaders.length;
@@ -147,34 +188,34 @@ class Game {
   otherPlayer () {
     return this.currentPlayer == 0 ? 1 : 0;
   }
+  
     
   advanceGame () {
     this.currentSegment++;
 
-    if (this.currentSegment >= game.sequencePlay.length) {
+    if (this.currentSegment >= Game.sequenceOfPlay.length) 
+    {
       this.currentPlayer++;
-      if (this.currentPlayer >= this.players.length) {
+      if (this.currentPlayer >= this.players.length) 
+      {
         // New turn
         this.currentPlayer = 0;            
         this.currentSegment = 0;
         this.currenTurn++;
-      
-      // Update the weather
       }
 
       if (this.currenTurn > this.endTurn ) {
         // Game ended
       }
-    }  
+    }
+    
+    // Update the phase/sgment widget
+    this.gameWidget.updatePhaseAndSegment (Game.sequenceOfPlay[this.currentSegment].phase + ":" + Game.sequenceOfPlay[this.currentSegment].segment);      
+    
+    // And execute the actions for the current state
+    Game.sequenceOfPlay[this.currentSegment].action();     
   }
   
-  rollDieForWeather () {
-    const i = Math.floor ((Math.random() * 6) + 1);  
-    
-    const season = this.calendar.season (currentTurn);
-    weather = weatherTable [season][i]; 
-  }
-
   loadWeatherTable ()
   {
     GameFactory.LoadTable ("Weather_Static_Data");
@@ -186,208 +227,48 @@ class Game {
     GameFactory.LoadTable ("Calendar");
     this.calendar = json_data;     
   }
-
-}
-
-
-// Used to load data from the DB
-let json_data = [];
-
-
-
-
-class GameFactory {
-  static Players = [];
-  static Nations = [];
-  static Armies = [];
-  static leaders = [];
-  static units = [];
-  // static gameData = null;
+ 
+  //
+  //
+  // ACTIONS TRIGGERED WHEN GAME ADVANCES
+  //
+  // 
+ 
   
-  static players_data = null;
-  static nations_data = null;
-  static armies_data  = null;
-  static leaders_data = null;
-  static units_data   = null;
-  static gameData     = null;
-
-  constructor () {}
-  
-  
-  static LoadGame (id) {
-    call_server_api_get ("app/load_table_for_game.php?table=Games&gameId="   + id, GameFactory.Game_callback);
-
-    call_server_api_get ("app/load_table_for_game.php?table=Players&gameId=" + id, GameFactory.Players_callback); 
-    call_server_api_get ("app/load_table_for_game.php?table=Nations&gameId=" + id, GameFactory.Nations_callback);
-    call_server_api_get ("app/load_table_for_game.php?table=Armies&gameId="  + id, GameFactory.Armies_callback); 
-    call_server_api_get ("app/load_table_for_game.php?table=Leaders&gameId=" + id, GameFactory.Leaders_callback);
-    call_server_api_get ("app/load_table_for_game.php?table=units&gameId="   + id, GameFactory.Units_callback);
-
-    newGame = new Game (
-      id, 
-      GameFactory.gameData.name, 
-      GameFactory.gameData.scenarioId, 
-      GameFactory.gameData.currentTurn, 
-      GameFactory.gameData.endTurn, 
-      GameFactory.gameData.currentPlayer, 
-      GameFactory.gameData.currentSegment, 
-      GameFactory.gameData.weather,
-      GameFactory.players,
-      GameFactory.nations,
-      GameFactory.armies,
-      GameFactory.leaders,
-      GameFactory.units
-    );
-    
-    for (let i = 0; i < players_data.length; i++) {
-      const newPlayer = new Player (players_data[i]);
-      newGame.Players.push (newPlayer);    
-    }
-
-    for (let i = 0; i < nations_data.length; i++) {
-      const newNation = new Nation (nations_data[i]);
-      newGame.Nations.push (newNation);    
-    }
-
-    for (let i = 0; i < armies_data.length; i++) {
-      const newArmy = new Army (armies_data[i]);
-      newGame.Armies.push (newArmy);    
-    }
-    
-    for (let i = 0; i < leaders_data.length; i++) {
-      const newLeader = new Leader (leaders_data[i]);
-      newGame.leaders.push (newLeader);    
-    }
-
-    for (let i = 0; i < units_data.length; i++) {
-      const newUnit = new Unit (units_data[i]);
-      newGame.units.push (newUnit);    
-    }
-
-
-    // Build the hierarchy
-    // Assign objects to the players
-    for (let i = 0; i < newGame.players.length; i++) {
-      thePlayer = newGame.players[i];
-
-      // Add Nations 
-      for (let j = 0; j < newGame.nations.length; j++) {
-        if (thePlayer.playerId == newGame.nations[j].playerId) {
-          thePlayer.addNation (newGame.nations[j]);
-        }      
-      }
-    
-      // Add Armies 
-      for (let j = 0; j < this.armies.length; j++) {
-        if (thePlayer.playerId == newGame.armies[j].playerId) {
-          thePlayer.addArmy (newGame.armies[j]);
-        }      
-      }
-
-      // Add leaders
-      for (let j = 0; j < newGame.leaders.length; j++) {
-        if (thePlayer.playerId == newGame.leaders[j].playerId) {
-          thePlayer.addLeader (newGame.leaders[j]);
-        }
-      }
-
-      // Add units
-      for (let j = 0; j < newGame.units.length; j++) {
-        if (thePlayer.playerId == newGame.units[j].playerId) {
-          thePlayer.addUnit (newGame.units[j]);
-        }
-      }
-    }
-    
-    // Add objects to leaders
-    for (let i = 0; i < newGame.leaders.length, i++) {
-    
-      // Add units
-      for (let j = 0; j < newGame.units.length; j++) {
-        if (newGame.units[j].parentId == newGame.leaders[i].leaderId) {
-          newGame.leaders[i].addUnit (newGame.units[j]);
-        }
-      }      
-
-      // Assign subordinates to their leaders  
-      for (let j = 0; j < newGame.leaders.length; j++) {
-        if (newGame.leaders[j].parentId == newGame.leaders[i].leaderId) {
-          newGame.leaders[i].addSubordinate (newGame.leaders[j]);
-        }
-      }      
-    }
-
-    return newGame;
-  }
-  
-  static Game_callback (xhttp_obj) {
-    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
-      throw ("Unable to load Table: " + xhttp_obj.responseText);
-      return;
-    }
-    
-    GameFactory.gameData = JSON.parse(xhttp_obj.responseText)[0];
+  static determineWeather ()
+  {
+    Controller.showWeatherDialog ();
   }
 
 
-  static Players_callback (xhttp_obj) {
-    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
-      throw ("Unable to load Table: " + xhttp_obj.responseText);
-      return;
-    }
-    
-    GameFactory.players_data = JSON.parse (xhttp_obj.responseText);     
-  }  
-
-  static Nations_callback (xhttp_obj) {
-    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
-      throw ("Unable to load Table: " + xhttp_obj.responseText);
-      return;
-    }
-    
-    GameFactory.nations_data = JSON.parse (xhttp_obj.responseText);     
-  }  
-
-  static Armies_callback (xhttp_obj) {
-    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
-      throw ("Unable to load Table: " + xhttp_obj.responseText);
-      return;
-    }
-    
-    GameFactory.armies_data = JSON.parse (xhttp_obj.responseText);     
-  }  
-  
-  static Units_callback (xhttp_obj) {
-    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
-      throw ("Unable to load Table: " + xhttp_obj.responseText);
-      return;
-    }
-    
-    GameFactory.units_data = JSON.parse (xhttp_obj.responseText);     
-  }  
-
-  static Leaders_callback (xhttp_obj) {
-    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
-      throw ("Unable to load Table: " + xhttp_obj.responseText);
-      return;
-    }
-    
-    GameFactory.leaders_data = JSON.parse (xhttp_obj.responseText);     
-  }  
-
-  static generic_callback (xhttp_obj) {
-    if (xhttp_obj.responseText.substring (1,5) == "ERROR") {
-      throw ("Unable to load table: " + xhttp_obj.responseText);
-      return;
-    }
-    
-    json_data = JSON.parse (xhttp_obj.responseText);     
-  }  
-  
-  static LoadTable (tableName) {
-    call_server_api_get ("app/load_table.php?table=" + tableName, GameFactory.generic_callback); 
+  static moveSS ()
+  {
+    alert ("You can move your supply source now. Rules apply");
   }
-
+  
+  static disbandCOP ()
+  {
+    alert ("You can disband your Center of Operations now. Rules apply");
+  }
+  
+  static activateSS ()
+  {
+    alert ("You can activate a new Supply Source now. Rules apply");
+  }
+  
+  static getAP ()
+  {
+    alert ("You roll a die to get Admin Points. Rules apply");
+  }
+  
+  static allocateAP () 
+  {
+    alert ("You now have to decide how manu Admin Points to allocate to each army. Rules apply");
+  }
+  
+  static doNothing ()
+  {
+  }
 }
 
 

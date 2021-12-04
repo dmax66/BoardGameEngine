@@ -1,18 +1,6 @@
 'use strict';
 
 
-function numOfLeadersInHex (x, y)
-{
-  var i;
-  var n=0;
-  
-  for (i = 0; i < leaders.length; i++)
-    if (leaders[i].x == x && leaders[i].y == y) 
-      n++;
-      
-  return n;
-}
-
 
 
 function showLeaderActionMenu (leaderId)  
@@ -22,15 +10,14 @@ function showLeaderActionMenu (leaderId)
   if (leaderActionMenu != null) 
     leaderActionMenu.remove();
   
-  const leaderIdx = Leader.findById (leaderId);
-  const aLeader = theGame.players[theGame.currentPlayer].leaders[leaderIdx];   // Horrible!
+  const leader = theGame.getLeader (leaderId);
   
   // Now the menu does not exist - create it!
   leaderActionMenu = document.createElement ("DIV");
   leaderActionMenu.id = "leaderActionMenu";
   leaderActionMenu.setAttribute ("class", "popup-menu");
-  leaderActionMenu.style.left = (xMapCoordFromUnitCoord (aLeader.x) + 51) + "px";
-  leaderActionMenu.style.top = (xMapCoordFromUnitCoord (aLeader.y) - 10) + "px";
+  leaderActionMenu.style.left = (xMapCoordFromUnitCoord (leader.x) + 51) + "px";
+  leaderActionMenu.style.top = (xMapCoordFromUnitCoord (leader.y) - 10) + "px";
   document.getElementById("mapContainer").appendChild(leaderActionMenu);
 
   let menuContent = undefined;
@@ -43,7 +30,7 @@ function showLeaderActionMenu (leaderId)
   closeIcon.onclick = function() { leaderActionMenu.remove(); }
 
   menuContent = document.createElement ("P");
-  menuContent.innerHTML = "<b>" + aLeader.name + "</b>";
+  menuContent.innerHTML = "<b>" + leader.name + "</b>";
   leaderActionMenu.appendChild (menuContent);
 
   menuContent = document.createElement ("HR");
@@ -53,7 +40,7 @@ function showLeaderActionMenu (leaderId)
     menuContent = document.createElement ("INPUT");
     menuContent.type = "BUTTON";
     menuContent.value = Leader.possibleActions[i].action;
-    menuContent.onclick = function () { Leader.possibleActions[i].func (aLeader); UIRenderLeader(aLeader); }
+    menuContent.onclick = function () { Leader.possibleActions[i].func (leader); }
     leaderActionMenu.appendChild (menuContent);
   }
 }
@@ -61,16 +48,12 @@ function showLeaderActionMenu (leaderId)
 
  
  
-function findLeaderFromWidgetId (leaderWidgetId)
+function getLeaderFromWidgetId (leaderWidgetId)
 {
-  var tokens = leaderWidgetId.split(":");
+  const tokens = leaderWidgetId.split(":");
+  const leaderId = tokens[1];
   
-  var i;
-  for (i=0; i<leaders.length; i++)
-    if (leaders[i].id == tokens[1]) break;
-  if (i == leaders.length) throw ("Leader not found: " + leaderWidgetId);
-  
-  return i;
+  return theGame.getLeader (leaderId);
 }
 
 
@@ -142,16 +125,13 @@ function showLeaderInfo (leaderId) {
     return;
   }
   
-  const leaderIdx = Leader.findById (leaderId);
-  if (leaderIdx == -1) {
+  const aLeader = Leader.findById (leaderId);
+  if (aLeader == null) {
     return;
   }
-  const aLeader = theGame.players[theGame.currentPlayer].leaders[leaderIdx];   // Horrible!
-
-
   // Widget does not exist - create it!
   leaderInfoWindow= document.createElement ("DIV");
-  leaderInfoWindow.id = "LIW:" + aLeader.id;
+  leaderInfoWindow.id = "LIW:" + leaderId;
   leaderInfoWindow.setAttribute ("class", "leader-info");   // TODO: rename class
   leaderInfoWindow.style.left = (xMapCoordFromUnitCoord (aLeader.x, aLeader.y) + 40) + "px";
   leaderInfoWindow.style.top  = (yMapCoordFromUnitCoord (aLeader.x, aLeader.y) ) + "px";
@@ -199,12 +179,11 @@ function showLeaderInfo (leaderId) {
   unitTable.setAttribute ("class", "unit-table");
   leaderInfoWindow.appendChild (unitTable);    
   
-  for (let i=0; i < theGame.players[theGame.currentPlayer].units.length; i++) {
-    if (theGame.players[theGame.currentPlayer].units[i].commandedBy == aLeader.id) {
+  for (let i=0; i < aLeader.units.length; i++) {
       let tableCell = null;
 
       const tableRow = document.createElement ("TR");
-      tableRow.id = "UIdxW:" + i;
+      tableRow.id = "UIdxW:" + aLeader.units[i].unitId;
       tableRow.onclick =  function (event) { createUnitMenu (event) } 
       unitTable.appendChild (tableRow);
   
@@ -213,17 +192,16 @@ function showLeaderInfo (leaderId) {
 
       const unitIcon = document.createElement("IMG");
       tableCell.appendChild (unitIcon);
-      unitIcon.src = "img/" + theGame.players[theGame.currentPlayer].units[i].iconFileName();        
-      unitIcon.setAttribute ("class", theGame.players[theGame.currentPlayer].units[i].nation); 
+      unitIcon.src = "img/" + aLeader.units[i].iconFileName();        
+      unitIcon.setAttribute ("class", aLeader.units[i].nation); 
   
       tableCell = document.createElement ("TD");
-      tableCell.innerHTML = theGame.players[theGame.currentPlayer].units[i].name + " (" + theGame.players[theGame.currentPlayer].units[i].commander + ")";
+      tableCell.innerHTML = aLeader.units[i].name + " (" + aLeader.units[i].commander + ")";
       tableRow.appendChild (tableCell);    
 
       tableCell = document.createElement ("TD");
-      tableCell.innerHTML = theGame.players[theGame.currentPlayer].units[i].strength * 1000;
+      tableCell.innerHTML = aLeader.units[i].strength * 1000;
       tableRow.appendChild (tableCell);    
-    }
   }
 }
 
@@ -234,7 +212,7 @@ function hideLeaderInfo (leaderWidgetId)
   var aLeader = leaders[ findLeaderFromWidgetId (leaderWidgetId) ];
 
   // Check if the info widget already exists - if so, remove it
-  leaderInfoWindow = document.getElementById ("LIW:" + aLeader.id);
+  leaderInfoWindow = document.getElementById ("LIW:" + aLeader.leaderId);
   if (leaderInfoWindow != null)
     leaderInfoWindow.remove();
 }  
@@ -293,23 +271,6 @@ function endTurn()
     currentTurn++;
     processTimeTrackInfo();
   }
-}
-
-function advanceGame()
-{
-  var okToProceed = confirm ("Are you sure you want to advance the game?");
-  if (!okToProceed)
-    return;
-  
-  gameSequenceTracker++;
-    
-  if (gameSequenceTracker == sequenceOfPlay.length)
-  {
-     gameTurn++;
-     gameSequenceTracker = 0;
-  }
-  
-  updateAdminBoard();
 }
 
 

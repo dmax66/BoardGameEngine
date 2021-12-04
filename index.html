@@ -13,6 +13,8 @@
 <link rel="stylesheet" href="status_bar.css">
 <link rel="stylesheet" href="stuff.css">
 
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
 
 
 <style>
@@ -69,10 +71,10 @@ body {
 <script src="player.js"></script>
 <script src="leaders.js"></script>
 <script src="units.js"></script>
-<script src="game.js"></script>
 <script src="unit_ui.js"></script>
+<script src="game.js"></script>
+<script src="game_factory.js"></script>
 <script src="wargame_ui.js"></script>
-
 
 <script type="text/javascript">
 
@@ -184,20 +186,20 @@ const hexHeight = 30;
 
 const visibilityRadiusSquared = 16;
 
-function xxx (id) {
+function loadGame (id) {
+  document.getElementById("main_menu_id").style.display="none";
   theGame = GameFactory.LoadGame (id); 
-  theGame.play()
+  theGame.resume ();
 }
 
 </script>
 
-<body onload = "theStatusBar = new UI_RenderStatusBar(document.getElementById('game_status_bar'));" > 
+<body onload = "theStatusBar = new UI_RenderStatusBar (document.getElementById('game_status_bar'));" > 
 
 
 <font color="Silver">
 
 <!-- New game modal box -->
-<!--
 <div id="newgame_box" class="modal">
   <div class="modal-content">
     <span class="close">&times;</span>
@@ -210,7 +212,6 @@ function xxx (id) {
   </div>
 
 </div>
--->
 
 
 <!-- Load game modal box -->
@@ -218,12 +219,27 @@ function xxx (id) {
   <div class="modal-content">
     <span class="close">&times;</span>
     <label for="game_list"><h3>Select a game</h3></label>
-    <select id="game_list" name="games" onblur="theGame.id = this.value">
+    <select id="game_list" name="games">
     </select> 
-    <br><input type="button" value="Load" onclick="xxx(document.getElementById('game_list').value)">
+    <br><input type="button" value="Load" onclick="loadGame(document.getElementById('game_list').value); this.parentNode.parentNode.style.display='none'">
   </div>
-
 </div>
+
+
+<!-- Weather determination box -->
+<div id="weather_box" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    Roll a die for weather<br>
+    <input type="button" value="Roll a die" onclick="Controller.rollDieForWeather()">
+    <input type="text" id="weather_die_roll" readonly="true">
+    <br>
+    <input type="text" id="weather_text" readonly="true">
+    <br>
+    <input type="button" id="weather_ok_button" value="OK" onclick="this.parentNode.parentNode.style.display='none'; theGame.advanceGame ();" disabled>
+  </div>
+</div>
+
 
 
 <!-- Main manu -->
@@ -238,25 +254,13 @@ function xxx (id) {
 
 <!-- STATUS BAR -->
 <div id="StatusBar" class="status_bar" >
-  <span id="menu_symbol" class="menu_symbol" onclick="toggle_menu();" >&nbsp;&#9776;&nbsp; Main menu</span>
-  <span id="game_status_bar">
-<!--
-    Turn:                  <input type="text" id="turn_id"                 class="indicators" readonly style="width:20px">
-    Phase:                 <input type="text" id="phase_id"                class="indicators" readonly style="width:80px">
-    Segment:               <input type="text" id="segment_id"              class="indicators" readonly style="width:80px">
-    Weather:               <input type="text" id="weather_id"              class="indicators" readonly style="width:50px">
-    Player:                <input type="text" id="player_id"               class="indicators" readonly style="width:80px">
-    Administrative Points: <input type="text" id="admin_points_id"         class="indicators" readonly style="width:20px">
-    Reinforcement Points:  <input type="text" id="reinforcement_points_id" class="indicators" readonly style="width:20px">
-    Morale:                <input type="text" id="morale_id"               class="indicators" readonly style="width:20px"> -->  
-  </span>
-    
-  </div>
+  <div id="menu_symbol" class="menu_symbol" onclick="toggle_menu();" >&nbsp;&#9776;&nbsp; Main menu</span>
 
-<div class="pos_tracker" id="position-tracker"></div>
+  <div class="pos_tracker" id="position-tracker"></div>
+</div>
 
 <div id="mapContainer" class="map_container">
-<img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove(event)">
+  <img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove(event)">
 </div>
  
 </font>

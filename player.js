@@ -1,6 +1,6 @@
 class Player {
   constructor (json_data) {
-    this.symbol  = json_data.symbol;
+    this.playerId  = json_data.playerId;
     this.name    = json_data.name;
     this.morale  = json_data.morale;
     this.nations = [];
@@ -17,8 +17,8 @@ class Player {
     // Creates the UI elements
     this.parentWidget = parentWidget;
     
-    this.playerWidget = new UI_PlayerWidget (this.symbol, this.name, this.parentWidget);
-    this.moraleWidget = new UI_MoraleWidget (this.symbol, this.name, this.playerWidget.moraleWidgetContainer);  
+    this.playerWidget = new UI_PlayerWidget (this.playerId, this.name, this.parentWidget);
+    this.moraleWidget = new UI_MoraleWidget (this.playerId, this.name, this.playerWidget.moraleWidgetContainer);  
   }
   
   show () {
@@ -45,36 +45,26 @@ class Player {
   }
 
   addUnit (unit) {
-    this.units.push (units);
+    this.units.push (unit);
     unit.setPlayer (this);
   }
 
-  
-
 
   draw () {
-    this.moraleWidget.value = this.morale;
+    this.moraleWidget.setValue (this.morale);
 //    this.moraleWidget.draw();
     
-    for (let i = 0; i++; i < this.nations.length) {
-//      this.nations[i].draw(); 
+    for (let n of this.nations) 
+    {
+      n.draw(); 
     }
     
-    for (let i = 0; i++; i < this.armies.length) {
-//      this.armies[i].draw(); 
+    for (let a of this.armies) 
+    {
+      a.draw(); 
     }
   }    
-  
-  // Return true if player manages nation n
-  manageNation (n) {
-    for (let i = 0; i < nations.length; i++) {
-      if (nations[i].symbol == n) {
-        return true;  
-      }
-    }
-    
-    return false;
-  }
+
 } // End of class 
 
 

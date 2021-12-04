@@ -1,0 +1,37 @@
+.center-of-hex {
+  position: absolute;
+  width: 15px;
+  height: 15px;
+  padding: 0px 0px;
+  border: none;
+  text-align: center;
+  color: red;
+  background-color: transparent;
+  visibility: visible;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 15px;
+  z-index: 5;
+}
+
+
+.hex-shade {
+  position: absolute;
+  padding: 0px 0px;
+  border: none;
+  color: red;
+  background-color: transparent;
+  visibility: visible;
+  z-index: 5;
+  opacity: 0.3;
+}
+
+
+.ap-dialogbox {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  z-index: 100;
+}
+
+
+
+
