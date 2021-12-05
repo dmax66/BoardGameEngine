@@ -64,6 +64,8 @@ class Game {
     // Close the create game modal box
     // @TODO: move to the UI modules
     document.getElementById("newgame_box").style.display="none";
+
+    // Players must choose position of COPs and supply sources
     
     // And get the game begin
     this.play();
@@ -144,7 +146,8 @@ class Game {
   }
 
   
-  resume () {
+  resume () 
+  {
     this.create_UI_elements ();
     this.loadCalendar ();
     this.loadWeatherTable ();    
@@ -165,22 +168,32 @@ class Game {
     this.players[this.currentPlayer].draw ();
     
     // Draw own the units
-    const numLeaders = this.players[this.currentPlayer].leaders.length;
-    for (let i =0; i < numLeaders; i++) { 
-      if (this.players[this.currentPlayer].leaders[i].parentId == null) {
-        this.players[this.currentPlayer].leaders[i].draw();
+    for (let l of this.players[this.currentPlayer].leaders) 
+    { 
+      if (l.parentId == null) 
+      {
+        l.draw();
       }
     }
 
     // Draw enemy leaders within visibility range
     const otherPlayer = this.otherPlayer ();
-    for (let i =0; i < this.players[otherPlayer].leaders.length; i++) { 
-      if (this.players[otherPlayer].leaders[i].parentId == null) {
-        if (this.players[otherPlayer].leaders[i].nearEnemy()) {
-          this.players[otherPlayer].leaders[i].draw();
-        }
+    for (let l of this.players[otherPlayer].leaders)
+    { 
+      if (l.parentId == null && l.nearEnemy ()) 
+      {
+          l.draw();
       }
     }
+    
+    // Draw the COP (if active)
+    for (let a of this.players[this.currentPlayer].armies)
+    {
+      if (a.COP.isActive)
+      {
+        a.COP.draw ();      
+      }    
+    }    
   }
 
   // Return the index of the othger player
@@ -249,6 +262,9 @@ class Game {
   static disbandCOP ()
   {
     alert ("You can disband your Center of Operations now. Rules apply");
+    
+    // Move to the controller
+    document.getElementById("disband_cop_dialog").style.display="initial";
   }
   
   static activateSS ()

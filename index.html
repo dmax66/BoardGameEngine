@@ -15,8 +15,6 @@
 
 <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
 
-
-
 <style>
 .container {
   width: 4474px;
@@ -149,15 +147,15 @@ function do_nothing()
 
 
 function show_menu (flag) {
-  var menu_obj = document.getElementById("main_menu_id");
+  var menu_obj = document.getElementById("menu_items_id");
   
-  menu_obj.style.visibility = (flag == true) ? "visible" : "hidden";
+  menu_obj.style.display = (flag == true) ? "block" : "none";
 }
 
 function toggle_menu () {
-  var menu_obj = document.getElementById("main_menu_id");
+  var menu_obj = document.getElementById("menu_items_id");
   
-  menu_obj.style.visibility = (menu_obj.style.visibility != "visible") ? "visible" : "hidden";
+  menu_obj.style.display = (menu_obj.style.display != "none") ? "none" : "block";
 }
 
 function showMousePosition (evx, evy, x, y) {
@@ -174,12 +172,12 @@ function processMouseMove (ev) {
 }
 
 
-let theStatusBar = null;
+// let theStatusBar = null;
 let theGame = null;
 
 // MOVE TO DB!
-const alliedNations = ['a', 'p', 'r', 's']
-const frenchNations = ['f', 'pl'];
+// const alliedNations = ['a', 'p', 'r', 's']
+// const frenchNations = ['f', 'pl'];
 
 const hexWidth = 34;
 const hexHeight = 30;  
@@ -187,14 +185,16 @@ const hexHeight = 30;
 const visibilityRadiusSquared = 16;
 
 function loadGame (id) {
-  document.getElementById("main_menu_id").style.display="none";
+  document.getElementById("menu_items_id").style.display="none";
   theGame = GameFactory.LoadGame (id); 
   theGame.resume ();
 }
 
 </script>
 
-<body onload = "theStatusBar = new UI_RenderStatusBar (document.getElementById('game_status_bar'));" > 
+<body onload = "
+  theStatusBar = new UI_RenderStatusBar (document.getElementById('game_status_bar')); 
+  show_menu (false);" > 
 
 
 <font color="Silver">
@@ -242,19 +242,80 @@ function loadGame (id) {
 
 
 
-<!-- Main manu -->
-<div id="main_menu_id" class="main_menu">
-  <div id="menu_items_id" class="menu_items"> 
-    <div id="new_game_entry" class="menu_item" onclick="createNewGameDialog();" >New Game</div>
-    <div id="load_game_entry" class="menu_item" onclick="createLoadGameDialog();" >Load Game</div>
-    <div id="quit_game_entry" class="menu_item">Quit Game</div>
+<!-- Disband COP modal box -->
+<div id="disband_cop_dialog" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+
+    Do you want to disband your COP?<br>
+    <input type="BUTTON" id="dcop_cancel" onclick="
+      this.parentNode.parentNode.style.display='none';
+      theGame.advanceGame ();" value="Cancel">
+      
+    <input type="BUTTON" id="dcop_ok" onclick="
+      document.getElementById('dcop_text').style.display='inline';
+      document.getElementById('dcop_no').style.display='inline';
+      document.getElementById('dcop_yes').style.display='inline'" value="Disband">
+
+    <p id="dcop_text" style="display: none;"><br>Are you really sure?<br>This action cannot be undone!<br></p>
+    <input type="BUTTON" id="dcop_no" value="No!" onclick="
+      document.getElementById('dcop_text').style.display='none';
+      document.getElementById('dcop_no').style.display='none';
+      document.getElementById('dcop_yes').style.display='none'" style="display: none;">
+
+    <input type="BUTTON" id="dcop_yes" value="Yes" onclick="
+      this.parentNode.parentNode.style.display='none';
+      theGame.players[theGame.currentPlayer].disbandCOP ();
+      theGame.advanceGame ();"
+      style="display: none;">
+
   </div>
 </div>
 
 
+
+<!-- Advance game modal box -->
+<div id="advgame_dialog" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+
+    Do you want to move to the next segment?<br>
+    <input type="BUTTON" id="advgame_cancel" onclick="this.parentNode.parentNode.style.display='none'" value="Cancel">
+    
+    <input type="BUTTON" id="advgame_ok" onclick="
+      document.getElementById('advgame_text').style.display='inline';
+      document.getElementById('advgame_no').style.display  ='inline';
+      document.getElementById('advgame_yes').style.display ='inline'" value="Next segment">
+
+    <p id="advgame_text" style="display: none;"><br>Are you really sure?<br>This action cannot be undone!<br></p>
+    <input type="BUTTON" id="advgame_no"  value="No!" style="display: none;" onclick="
+      document.getElementById('advgame_text').style.display='none';
+      document.getElementById('advgame_no').style.display  ='none';
+      document.getElementById('advgame_yes').style.display ='none'" value="Next segment">
+
+    <input type="BUTTON" id="advgame_yes" value="Yes" style="display: none;" onclick="
+      this.parentNode.parentNode.style.display='none';
+      theGame.advanceGame ();">
+
+  </div>
+</div>
+
 <!-- STATUS BAR -->
 <div id="StatusBar" class="status_bar" >
-  <div id="menu_symbol" class="menu_symbol" onclick="toggle_menu();" >&nbsp;&#9776;&nbsp; Main menu</span>
+
+  <!-- Main menu -->
+<!-- <div id="menu_symbol" class="menu_symbol"  ></div>    -->
+<div id="main_menu_id" class="main_menu" onclick="toggle_menu();"><b>&#9776;&nbsp;Main menu</b>
+
+  <div id="menu_items_id" class="menu_items"> 
+    <input type="BUTTON" id="new_game_entry"  class="menu_item" onclick="createNewGameDialog();"  value="New Game">
+    <input type="BUTTON" id="load_game_entry" class="menu_item" onclick="createLoadGameDialog();" value="Load Game">
+    <input type="BUTTON" id="advance_game"    class="menu_item" onclick="document.getElementById ('advgame_dialog').style.display='initial'" value="Advance Game">
+    <input type="BUTTON" id="quit_game_entry" class="menu_item" value="Quit Game">
+  </div>
+</div>
+  
+
 
   <div class="pos_tracker" id="position-tracker"></div>
 </div>

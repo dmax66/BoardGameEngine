@@ -1,21 +1,43 @@
 
+class UI_COP
+{
+  constructor (armyId)
+  {
+    this.armyId = armyId;    
 
-function hideShow () { 
-  const widget = event.currentTarget;
+    this.widget = document.createElement ("DIV");  
+    document.getElementById ("mapContainer").appendChild (this.widget);  
+    this.widget.setAttribute ("class", "leader-counter");
+    this.widget.id = "COP:" + armyId;
+    this.widget.display = "none";
+
+    this.icon = document.createElement ("IMG");
+    this.icon.setAttribute ("class", "counter-icon");
+    this.icon.src = ("img/cop-" + armyId + ".png");
+    this.widget.appendChild (this.icon);
+  }
+
+  draw (x, y, zOrder)
+  {
+    this.widget.style.left      = (lineDrawInfo[0].xOffset + xMapCoordFromUnitCoord (x, y) + 3*zOrder) + "px";  
+    this.widget.style.top       = (lineDrawInfo[0].yOffset + yMapCoordFromUnitCoord (x, y) + 3*zOrder) + "px";
+    this.widget.style.zOrder    = zOrder;
+    this.show ();
+  }
   
-  if (widget.style.height != "32px") {
-    widget.style.height = "32px";
-    widget.style.overflow = "hidden";
+  show () 
+  {
+    this.widget.style.display = "block";
   }
-  else {
-    widget.style.height = "auto";
-    widget.style.overflow = "auto";
+  
+
+  hide () 
+  {
+    this.widget.style.display = "none";
   }
+
+
 }
-
-
-
-
 
 
 class UI_LeaderWidget {
@@ -93,12 +115,12 @@ class UI_LeaderWidget {
 
 
   show () {
-    this.leaderWidget.display = "initial";
+    this.leaderWidget.style.display = "block";
   }
   
 
   hide () {
-    this.leaderWidget.display = "none";
+    this.leaderWidget.style.display = "none";
   }
 
 
@@ -205,7 +227,7 @@ class UI_ReinforcementPointWidget
     this.widget = document.createElement("INPUT");
     this.widget.id = rpWidgetId
     this.widget.type = "TEXT";
-    this.widget.readonly = true;
+    this.widget.readOnly = true;
     this.widget.setAttribute ("class", "rp-widget");
     td2.appendChild (this.widget);
   }
@@ -232,7 +254,7 @@ class UI_MoraleWidget {
     this.widget = document.createElement ("INPUT");
     this.widget.id = moraleWidgetId;
     this.widget.type = "TEXT";
-    this.widget.readonly = true;
+    this.widget.readOnly = true;
     this.widget.setAttribute ("class", "morale-widget");
     td1.appendChild (this.widget);
   }
@@ -272,7 +294,7 @@ class UI_APwidget {
     this.widget = document.createElement ("INPUT");
     this.widget.id = apWidgetId;
     this.widget.type = "TEXT";
-    this.widget.readonly = true;
+    this.widget.readOnly = true;
     this.widget.setAttribute ("class", "ap-widget " + symbol);
     td2.appendChild (this.widget);
   }
@@ -289,7 +311,7 @@ class UI_PlayerWidget {
     this.divWidget = document.createElement("DIV");
     this.divWidget.id = "PW" + symbol;
     this.divWidget.setAttribute ("class", "player-widget");
-    this.divWidget.onclick = function () { hideShow (); }
+    this.divWidget.onclick = function () { UI_PlayerWidget.hideShow (); }
     parentWidget.appendChild (this.divWidget);
     
     // Add a table to separate the entries
@@ -343,7 +365,23 @@ class UI_PlayerWidget {
   hide () {
     this.divWidget.style.display = "none";  
   }
-
+  
+  static hideShow () 
+  { 
+    const widget = event.currentTarget;
+    
+    if (widget.style.height != "32px") 
+    {
+      widget.style.height = "32px";
+      widget.style.overflow = "hidden";
+    }
+    else 
+    {
+      widget.style.height = "auto";
+      widget.style.overflow = "auto";
+    }
+  }
+  
 }
 
 
@@ -448,7 +486,7 @@ class ModalDialog
     this.dieRollWidget = document.createElement ("INPUT");
     this.dieRollWidget.setAttribute ("class", "modal-box-result");
     this.dieRollWidget.id = "APMBDieRoll";
-    this.dieRollWidget.readonly = true;
+    this.dieRollWidget.readOnly = true;
     this.dieRollWidget.style.visibility = "hidden";
     iBox.appendChild (this.dieRollWidget);
   }

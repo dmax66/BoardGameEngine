@@ -1,3 +1,5 @@
+
+
 class Player {
   constructor (json_data) {
     this.playerId  = json_data.playerId;
@@ -49,6 +51,10 @@ class Player {
     unit.setPlayer (this);
   }
 
+  disbandCOP ()
+  {
+  
+  }
 
   draw () {
     this.moraleWidget.setValue (this.morale);

@@ -1,3 +1,41 @@
+class COP
+{
+  constructor (armyId, json_data)
+  {
+    this.x = json_data.COP_x;
+    this.y = json_data.COP_y;
+    this.isActive = json_data.COP_isActive;
+    this.turnToReactivate = json_data.COP_turnToReactivate;     // meaningless if isActive == true
+    
+    this.widget = new UI_COP (armyId);
+  }
+
+
+  disband ()
+  {
+    this.isActive = false;
+    this.turnToReactivate = theGame.currentTurn + 2;  
+  }
+  
+  reactivate ()
+  {
+    this.isActive = true;
+    this.turnToReactivate = -1;  
+  }
+
+  draw ()
+  {
+    this.widget.draw (this.x, this.y, 1);
+  }
+  
+  move (x, y)
+  {
+    this.x = x;
+    this.y = y;  
+  }
+}
+
+
 class Army {
 
   constructor (json_data) {
@@ -10,6 +48,8 @@ class Army {
     this.isActive    = true;
     this.player      = null;
     this.APwidget    = null;
+    
+    this.COP = new COP (this.armyId, json_data);
   }
 
   setPlayer (player) {

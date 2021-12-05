@@ -1,0 +1,28 @@
+<!-- Disband COP modal box -->
+<div id="disband_cop_dialog" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+
+    Do you want to disband your COP?<br>
+    <input type="BUTTON" id="dcop_cancel" onclick="this.parentNode.parentNode.style.display='none'">
+    <input type="BUTTON" id="dcop_ok" onclick="
+      document.getElementById('dcop_text').style.display='inline';
+      document.getElementById('dcop_no').style.display='inline';
+      document.getElementById('dcop_yes').style.display='inline'">
+
+    <p id="dcop_text" style="display: none;">Are you really sure?<br>This action cannot be undone!</p>
+    <input type="BUTTON" id="dcop_no" value="No!" onclick="
+      document.getElementById('dcop_text').style.display='none';
+      document.getElementById('dcop_no').style.display='none';
+      document.getElementById('dcop_yes').style.display='none'" style="display: none;">
+
+    <input type="BUTTON" id="dcop_yes" value="Yes" onclick="
+      this.parentNode.parentNode.style.display='none' 
+      theGame.players[theGame.currentPlayer].disbandCOP();
+      theGame.advanceGame ();"
+      style="display: none;">
+
+  </div>
+</div>
+
+

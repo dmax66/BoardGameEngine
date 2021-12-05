@@ -1,0 +1,117 @@
+.leader-counter {
+  position: absolute;
+  width: 60px;
+  height: 26px;
+  padding: 0px 0px;
+  border: none;
+  cursor: pointer;
+  border-radius: 0px;
+  text-align: center;
+  font-size: 10px;
+  font-family: Times, Roman, serif;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  display: none;
+}
+
+.counter-widget:hover {
+  border-top: 5px; 
+  border-left: 5px; 
+  border-right: 5px; 
+  border-bottom: 5px; 
+  border-color: rgba(239, 0, 0, 0.4); 
+  border-style: solid; 
+  border-radius: 8px 8px 8px 8px; 
+  box-shadow: -2px 19px 25px 0px rgba(76, 0, 0, 1.0); 
+  -webkit-box-shadow: -2px 19px 25px 0px rgba(76, 0, 0, 1.0); 
+}
+
+.counter-icon {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  z-index: 0;
+}
+
+.counter-name {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 60px;
+  height: 10px;
+  z-index: 1;
+  text-align: center;
+  font-size: 10px;
+  font-family: Times, Roman, serif;
+  color: black;
+}  
+
+
+
+.leader-info {
+  position: absolute;
+  color: black;
+  background-color: #efdf88;
+  min-width: 2px;
+  min-height: 2px;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 15px 15px 15px 15px; 
+  border-top: 1px; 
+  border-left: 1px; 
+  border-right: 1px; 
+  border-bottom: 1px;   
+  border-color: rgba(0, 0, 0, 1.0); 
+  border-style: double; 
+  border-radius: 8px; 
+  cursor: pointer;
+  text-align: left;
+  background-repeat: no-repeat;
+  box-shadow:7px 5px 7px #555555;
+  border-radius: 5px;
+  z-index: 1;
+  width: 200px;
+}
+
+
+.leader-table {
+  text-align: left;
+  font-size: 12px;
+  font-family: Times, Roman, serif;
+  font-weight: normal;
+}
+
+.leader-table tr {
+    border-bottom: 1px solid #aaa;
+}
+  
+.leader-table tr:hover {
+    background-color: #A0A0A0;
+}
+  
+
+.unit-table {
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: normal;
+  padding: 0px;
+  border: 5px black;
+}
+
+.unit-table tr {
+  border-bottom: 1px solid #aaa;
+  padding: 0px;
+  border: 5px black;
+}
+  
+.unit-table tr:hover {
+  background-color: #A0A0A0;
+}
+
+.unit-table td {
+  padding: 0px;
+  border: 0px;
+}
+  

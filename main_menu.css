@@ -9,12 +9,18 @@
   font-size:15px;
   color:black; 
   background-color: burlywood;
-  top: 30px;
-  width: 200px;
+  top: 0px;
+  width: 140px;
+  height: 32px;
   cursor: default;
-  visibility: hidden;
   z-index: 2;
 }
+
+.main_menu:hover {
+  color:burlywood; 
+  background-color: black;
+}
+
 
 
 .menu_symbol {
@@ -24,28 +30,54 @@
 	padding-right: 10px;
 	padding-left: 10px;
 	padding-top: 3px;
-}
+  width: 200px;
+  cursor: default;
+	z-index: 3;
 }
 
 .menu_symbol:hover {
   background-color: black;
   color: burlywood;
   cursor: default;
+  z-index: 3;
 }
+
+
+
+.menu_items {
+  color:black; 
+  background-color: burlywood;
+  cursor: default;
+  display: block;
+  
+}
+
 
 
 .menu_item {
   font-size: 15px;
-  height: 20px;
-  margin: 5px 5px 5px 5px;
+	margin-top: 1px;
+	margin-bottom: 1px;
+	border-bottom-width: 0px;
+	border-bottom-style: solid;
+	border-top-width: 0px;
+	border-top-style: solid;
+	border-left-width: 0px;
+	border-left-style: solid;
+	border-right-width: 0px;
+	border-right-style: solid;
+	height: fit-content;
+  width: 120px;
   color:black; 
   background-color: burlywood;
   cursor: default;
+  z-index: 3;
 }
 
 .menu_item:hover, .menu_item:focus {
   font-size:15px;
   color: burlywood;
   background-color: red;
+  z-index: 3;
 }
 
