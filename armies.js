@@ -2,10 +2,10 @@ class COP
 {
   constructor (armyId, json_data)
   {
-    this.x = json_data.COP_x;
-    this.y = json_data.COP_y;
-    this.isActive = json_data.COP_isActive;
-    this.turnToReactivate = json_data.COP_turnToReactivate;     // meaningless if isActive == true
+    this.x = 1 * json_data.COP_x;
+    this.y = 1 * json_data.COP_y;
+    this.isActive = 1 * json_data.COP_isActive;
+    this.turnToReactivate = 1* json_data.COP_turnToReactivate;     // meaningless if isActive == true
     
     this.widget = new UI_COP (armyId);
   }
@@ -36,6 +36,48 @@ class COP
 }
 
 
+class SupplySource
+{
+  constructor (armyId, json_data)
+  {
+    this.x        = 1 * json_data.x;
+    this.y        = 1 * json_data.y;
+    this.isActive = 1 * json_data.isActive;
+    this.name     = json_data.name;
+    
+    this.widget = new UI_SS (armyId);
+  }
+
+
+  move ()
+  {
+    this.isActive = false;
+  }
+  
+  
+  reactivate ()
+  {
+    if (this.isActive) {
+      return;
+    }
+
+    // Roll die to reactivate - 1 or 2 means the SS reactivation is successful
+  }
+
+
+  draw () {
+    this.widget.draw (this.x, this.y, 1);
+  }
+  
+
+  move (x, y) {
+    this.x = x;
+    this.y = y;  
+  }
+}
+
+
+
 class Army {
 
   constructor (json_data) {
@@ -50,6 +92,13 @@ class Army {
     this.APwidget    = null;
     
     this.COP = new COP (this.armyId, json_data);
+    this.supplySources = [];
+  }
+
+  addSS (json_data) 
+  {
+    const ss = new SupplySource (this.armyId, json_data);
+    this.supplySources.push (ss);
   }
 
   setPlayer (player) {

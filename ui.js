@@ -40,6 +40,47 @@ class UI_COP
 }
 
 
+class UI_SS
+{
+  constructor (armyId)
+  {
+    this.armyId = armyId;    
+
+    this.widget = document.createElement ("DIV");  
+    document.getElementById ("mapContainer").appendChild (this.widget);  
+    this.widget.setAttribute ("class", "leader-counter");
+    this.widget.id = "SS:" + armyId;
+    this.widget.display = "none";
+
+    this.icon = document.createElement ("IMG");
+    this.icon.setAttribute ("class", "counter-icon");
+    this.icon.src = ("img/SS-" + armyId + ".png");
+    this.widget.appendChild (this.icon);
+  }
+
+  draw (x, y, zOrder)
+  {
+    this.widget.style.left      = (lineDrawInfo[0].xOffset + xMapCoordFromUnitCoord (x, y) + 3*zOrder) + "px";  
+    this.widget.style.top       = (lineDrawInfo[0].yOffset + yMapCoordFromUnitCoord (x, y) + 3*zOrder) + "px";
+    this.widget.style.zOrder    = zOrder;
+    this.show ();
+  }
+  
+  show () 
+  {
+    this.widget.style.display = "block";
+  }
+  
+
+  hide () 
+  {
+    this.widget.style.display = "none";
+  }
+
+
+}
+
+
 class UI_LeaderWidget {
 
   constructor (id, name, type, nation) {

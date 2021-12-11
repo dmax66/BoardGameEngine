@@ -8,6 +8,9 @@
   position: absolute;
   top: 30px;
   left: 0px;
+  overflow: scroll;
+  width: 100%;
+  height: calc(100% - 32px);
 }
 
 .game_map {

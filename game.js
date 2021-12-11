@@ -193,6 +193,12 @@ class Game {
       {
         a.COP.draw ();      
       }    
+      
+      for (let ss of a.supplySources) {
+        if (ss.isActive) {
+          ss.draw ();        
+        }
+      }
     }    
   }
 
@@ -240,6 +246,7 @@ class Game {
     GameFactory.LoadTable ("Calendar");
     this.calendar = json_data;     
   }
+  
  
   //
   //
