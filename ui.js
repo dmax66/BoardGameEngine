@@ -1,5 +1,5 @@
 
-class UI_COP
+class UI_COPMarker
 {
   constructor (armyId)
   {
@@ -40,7 +40,7 @@ class UI_COP
 }
 
 
-class UI_SS
+class UI_SSMarker
 {
   constructor (armyId)
   {
@@ -306,43 +306,70 @@ class UI_MoraleWidget {
 }
 
 
-class UI_APwidget {
-  constructor (symbol, name, parentWidget) {
-    const apWidgetId = symbol + "-ap";
+class UI_ArmyPanel {
+  constructor (symbol, name, armyTable) {
+    const apWidgetId = symbol + "-at";
 
     // Add a row in the table 
-    const tr = document.createElement("TR");
-    parentWidget.appendChild (tr);
+    const tr = armyTable.insertRow (-1);
     
-    const td1 = document.createElement("TD");
-    tr.appendChild(td1);
+    const td0 = tr.insertCell (0);
         
     const armyIcon = document.createElement("IMG");
     armyIcon.src = "img/ArmyIcon.png";
     armyIcon.style.height = "25px";
     armyIcon.style.paddingRight = "5px";
-    td1.appendChild (armyIcon);
+    td0.appendChild (armyIcon);
 
-    const l = document.createElement ("LABEL");
-    l.setAttribute ("class", symbol);
-    l.htmlFor = apWidgetId;
-    l.innerHTML = name;
-    td1.appendChild (l);
+    // Second column: 
+    const td1 = tr.insertCell (1);
+    td1.innerHTML = name + "&nbsp;&nbsp;";
 
-    const td2 = document.createElement("TD");
-    tr.appendChild (td2);
-        
-    this.widget = document.createElement ("INPUT");
-    this.widget.id = apWidgetId;
-    this.widget.type = "TEXT";
-    this.widget.readOnly = true;
-    this.widget.setAttribute ("class", "ap-widget " + symbol);
-    td2.appendChild (this.widget);
+    // 3rd column: Admin points
+    this.AP = tr.insertCell (2);
+
+    // Status of COP
+    this.COPStatus = tr.insertCell (-1);
+
+    // Supply Source
+    this.SSStatus = tr.insertCell (-1);
+    
+    // Depots
+    this.depotCell = tr.insertCell (-1);
+  }
+
+  
+  setAP (value) {
+    this.AP.value = "AP: " + value;
+  } 
+
+  
+  setCOPStatus (isActive, x, y, name) 
+  {
+    if (isActive)
+    {
+      this.COPStatus.innerHTML = "COP: active (" + x + ", " + y + ")";
+    }
+    else 
+    {
+      this.COPStatus.innerHTML = "COP: inactive (disbanded on turn x)";
+    }
   }
   
-  setValue (value) {
-    this.widget.value = value;
-  } 
+  
+  setSSStatus (isActive, x, y, name)
+  {
+    if (isActive)
+    {
+      this.SSStatus.innerHTML = "Supply Source: active (" + x + ", " + y + ")";
+      
+      if (name != "")
+      {
+         this.SSStatus.innerHTML += " - " + name; 
+      }
+    }
+  }
+  
 }
 
 
@@ -359,41 +386,41 @@ class UI_PlayerWidget {
     const t = document.createElement("TABLE");
     this.divWidget.appendChild (t);
     
-    const headerRow = document.createElement("TR");
-    t.appendChild(headerRow);
+
+    const headerRow = t.insertRow (0);
     
     // Column 1: player info
-    const td1 = document.createElement("TD");
-    headerRow.appendChild (td1);
-    td1.style.verticalAlign = "top";
-    td1.innerHTML = "<b style='font-size: 15px'>Player:&nbsp;" + name + "</b>";
+    const pInfo = headerRow.insertCell (0);
+    pInfo.style.verticalAlign = "top";
+    pInfo.innerHTML = "<b style='font-size: 15px'>Player:&nbsp;" + name + "</b>";
 
-    this.moraleWidgetContainer = document.createElement("TD");
-    td1.appendChild (this.moraleWidgetContainer);
+    // Column 2: Armies    
+    const aInfo = headerRow.insertCell (1);
+    aInfo.style.verticalAlign = "top";
+    aInfo.innerHTML = "<b>Armies</b>";
+    
+    // Column 3: Reinforcement points
+    const rpInfo = headerRow.insertCell (2);
+    rpInfo.innerHTML = "<b style='font-size: 15px'>Reinforcement Points</b>";
+    rpInfo.style.verticalAlign = "top";
+    
+    // Data Row
+    const dataRow = t.insertRow (1);
+
+    // Column 1: morale
+    this.moraleWidgetContainer = dataRow.insertCell (0);   
     this.moraleWidgetContainer.innerHTML = "<b>Morale</b>";
     this.moraleWidgetContainer.style.verticalAlign = "top";
 
-    
-    // Column 2: Administrative Points    
-    const td2 = document.createElement("TD");
-    headerRow.appendChild (td2);
-    td2.innerHTML = "<b style='font-size:15px'>Administrative Points</b>";
-
-    // Add a table for the armies 
+    // Column 2: army table
     this.armyTable = document.createElement("TABLE");
-    td2.appendChild (this.armyTable);
+    const td2 = dataRow.insertCell (1).appendChild (this.armyTable);
     td2.style.verticalAlign = "top";
 
-    
     // Column 3: Reinforcement points
-    const td3 = document.createElement("TD");
-    headerRow.appendChild (td3);
-    td3.innerHTML = "<b style='font-size: 15px'>Reinforcement Points</b>";
-    td3.style.verticalAlign = "top";
-    
     // Add a table for the nations
     this.nationTable = document.createElement("TABLE");
-    td3.appendChild (this.nationTable);
+    const td3 = dataRow.insertCell (2).appendChild (this.nationTable);
     
     // And hide it
     this.divWidget.style.display = "none";  

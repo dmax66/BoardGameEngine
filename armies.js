@@ -7,7 +7,7 @@ class COP
     this.isActive = 1 * json_data.COP_isActive;
     this.turnToReactivate = 1* json_data.COP_turnToReactivate;     // meaningless if isActive == true
     
-    this.widget = new UI_COP (armyId);
+    this.marker = new UI_COPMarker (armyId);
   }
 
 
@@ -25,7 +25,7 @@ class COP
 
   draw ()
   {
-    this.widget.draw (this.x, this.y, 1);
+    this.marker.draw (this.x, this.y, 1);
   }
   
   move (x, y)
@@ -45,7 +45,7 @@ class SupplySource
     this.isActive = 1 * json_data.isActive;
     this.name     = json_data.name;
     
-    this.widget = new UI_SS (armyId);
+    this.marker = new UI_SSMarker (armyId);
   }
 
 
@@ -66,7 +66,7 @@ class SupplySource
 
 
   draw () {
-    this.widget.draw (this.x, this.y, 1);
+    this.marker.draw (this.x, this.y, 1);
   }
   
 
@@ -89,7 +89,7 @@ class Army {
     this.copY        = json_data.COP_Y;
     this.isActive    = true;
     this.player      = null;
-    this.APwidget    = null;
+    this.armyPanel   = null;
     
     this.COP = new COP (this.armyId, json_data);
     this.supplySources = [];
@@ -107,12 +107,23 @@ class Army {
 
   create_UI_widgets (parentWidget) {
     // Creates the UI elements
-    this.APwidget = new UI_APwidget (this.symbol, this.name, parentWidget);
+    this.armyPanel = new UI_ArmyPanel (this.symbol, this.name, parentWidget);
   }
 
 
-  draw () {
-    this.APwidget.setValue (this.adminPoints);
+  draw () 
+  {
+    this.armyPanel.setAP (this.adminPoints);
+    this.armyPanel.setCOPStatus (this.COP.isActive, this.COP.x, this.COP.y, );
+
+    for (let ss of this.supplySources)
+    {
+      if (ss.isActive) 
+      {
+        this.armyPanel.setSSStatus (true, ss.x, ss.y, ss.name);
+        break;      
+      }
+    }
   }
 
 }      
