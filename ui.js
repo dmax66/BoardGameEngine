@@ -1,101 +1,42 @@
 
-class UI_COPMarker
+class UI_COPMarker extends Marker
 {
   constructor (armyId)
   {
+    super ("leader-counter");
     this.armyId = armyId;    
-
-    this.widget = document.createElement ("DIV");  
-    document.getElementById ("mapContainer").appendChild (this.widget);  
-    this.widget.setAttribute ("class", "leader-counter");
-    this.widget.id = "COP:" + armyId;
-    this.widget.display = "none";
-
-    this.icon = document.createElement ("IMG");
-    this.icon.setAttribute ("class", "counter-icon");
     this.icon.src = ("img/cop-" + armyId + ".png");
-    this.widget.appendChild (this.icon);
   }
-
-  draw (x, y, zOrder)
-  {
-    this.widget.style.left      = (lineDrawInfo[0].xOffset + xMapCoordFromUnitCoord (x, y) + 3*zOrder) + "px";  
-    this.widget.style.top       = (lineDrawInfo[0].yOffset + yMapCoordFromUnitCoord (x, y) + 3*zOrder) + "px";
-    this.widget.style.zOrder    = zOrder;
-    this.show ();
-  }
-  
-  show () 
-  {
-    this.widget.style.display = "block";
-  }
-  
-
-  hide () 
-  {
-    this.widget.style.display = "none";
-  }
-
-
 }
 
 
-class UI_SSMarker
+class UI_SSMarker extends Marker
 {
   constructor (armyId)
   {
+    super ("leader-counter");
     this.armyId = armyId;    
-
-    this.widget = document.createElement ("DIV");  
-    document.getElementById ("mapContainer").appendChild (this.widget);  
-    this.widget.setAttribute ("class", "leader-counter");
-    this.widget.id = "SS:" + armyId;
-    this.widget.display = "none";
-
-    this.icon = document.createElement ("IMG");
-    this.icon.setAttribute ("class", "counter-icon");
     this.icon.src = ("img/SS-" + armyId + ".png");
-    this.widget.appendChild (this.icon);
   }
-
-  draw (x, y, zOrder)
-  {
-    this.widget.style.left      = (lineDrawInfo[0].xOffset + xMapCoordFromUnitCoord (x, y) + 3*zOrder) + "px";  
-    this.widget.style.top       = (lineDrawInfo[0].yOffset + yMapCoordFromUnitCoord (x, y) + 3*zOrder) + "px";
-    this.widget.style.zOrder    = zOrder;
-    this.show ();
-  }
-  
-  show () 
-  {
-    this.widget.style.display = "block";
-  }
-  
-
-  hide () 
-  {
-    this.widget.style.display = "none";
-  }
-
-
 }
 
 
-class UI_LeaderWidget {
+class UI_LeaderWidget extends Marker 
+{
 
-  constructor (id, name, type, nation) {
+  constructor (id, name, type, nation) 
+  {
+    super ("leader-counter");
+    
+    this.id = id;
     this.name = name;
     this.type = type;
     this.nation = nation;
-    this.id = id;
+    this.orientation = 0; 
 
-    this.leaderWidget = document.createElement ("DIV");  
-    document.getElementById ("mapContainer").appendChild (this.leaderWidget);  
-    this.leaderWidget.setAttribute ("class", "leader-counter");
-    this.leaderWidget.id = "L:" + id;
-    this.leaderWidget.display = "none";
+    this.widget.id = "L:" + id;
 
-    this.leaderWidget.onclick = function() { 
+    this.widget.onclick = function() { 
 //      this.leaderWidget.onmouseout = function () {}; 
       if (event.shiftKey) 
         showLeaderActionMenu (id);
@@ -103,15 +44,13 @@ class UI_LeaderWidget {
         showLeaderInfo (id); 
     }
   
-    this.leaderIcon = document.createElement ("IMG");
-    this.leaderIcon.setAttribute ("class", "counter-icon " + nation);
-    this.leaderWidget.appendChild (this.leaderIcon);
+    this.icon.setAttribute ("class", "counter-icon " + nation);
     
-    // Add the leader name (if in line mode)
+    // Add the leader name
     this.leaderName = document.createElement ("P");
     this.leaderName.setAttribute ("class", "counter-name");
     this.leaderName.innerHTML = this.name;
-    this.leaderWidget.appendChild (this.leaderName);
+    this.widget.appendChild (this.leaderName);
 
     // Move somewhere else - this is not for the counter 
     this.leaderImg = document.createElement ("IMG");
@@ -122,50 +61,59 @@ class UI_LeaderWidget {
   }  
 
 
-  draw (mode, orientation, x, y, zOrder) {
-    if (x < 0 || y < 0) {
-      this.hide();
+  setOrientation (orientation)
+  {
+    this.orientation = orientation;
+    this.draw ();  
+  }
+
+
+  setMode (mode)
+  {
+    if (mode != "l" && mode != "c") 
+    {
+       throw ("Mode invalid: " + mode);
+       return;
+    }  
+    
+    this.mode = mode;
+    this.draw ();
+  }
+
+
+  draw () 
+  {
+    if (this.x < 0 || this.y < 0) 
+    {
+      this.hide ();
       return;
     }
     
-    this.show();
-    
-    switch (mode) {
+    switch (this.mode) 
+    {
       case "l":
-        this.leaderIcon.src = (this.type == "c" ? "img/cavalry-line.png" : "img/infantry-line.png");
+        this.icon.src = (this.type == "c" ? "img/cavalry-line.png" : "img/infantry-line.png");
         this.leaderName.style.visibility = "visible";
-        this.leaderWidget.style.transform = "rotate(" + lineDrawInfo[orientation].angle + "deg)";
-        this.leaderWidget.style.left      = (lineDrawInfo[orientation].xOffset + xMapCoordFromUnitCoord (x, y) + 3*zOrder) + "px";  
-        this.leaderWidget.style.top       = (lineDrawInfo[orientation].yOffset + yMapCoordFromUnitCoord (x, y) + 3*zOrder) + "px";
-        this.leaderWidget.style.zOrder    = zOrder;
+        this.widget.style.transform = "rotate(" + lineDrawInfo[this.orientation].angle + "deg)";
+        this.widget.style.left      = (lineDrawInfo[this.orientation].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";  
+        this.widget.style.top       = (lineDrawInfo[this.orientation].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";
+        this.widget.style.zOrder    = this.zOrder;
         break;
   
       case "c":
-        this.leaderIcon.src = "img/column.png";
+        this.icon.src = "img/column.png";
         this.leaderName.style.visibility = "hidden";
-        this.leaderWidget.style.transform = "rotate(" + columnDrawInfo[orientation].angle + "deg)";
-        this.leaderWidget.style.left      = (columnDrawInfo[orientation].xOffset + xMapCoordFromUnitCoord (x, y) + 2*numLeadersInSameHex) + "px";  
-        this.leaderWidget.style.top       = (columnDrawInfo[orientation].yOffset + yMapCoordFromUnitCoord (x, y) + 2*numLeadersInSameHex) + "px";
-        this.leaderWidget.style.zOrder    = zOrder;
+        this.widget.style.transform = "rotate(" + columnDrawInfo[this.orientation].angle + "deg)";
+        this.widget.style.left      = (columnDrawInfo[this.orientation].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";  
+        this.widget.style.top       = (columnDrawInfo[this.orientation].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";
+        this.widget.style.zOrder    = this.zOrder;
         break;
-        
-      default:
-        throw ("mode invalid");
     }
-  }
 
-
-  show () {
-    this.leaderWidget.style.display = "block";
+    this.show();
   }
   
-
-  hide () {
-    this.leaderWidget.style.display = "none";
-  }
-
-
-}
+} // Class
 
 
 

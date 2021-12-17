@@ -8,6 +8,7 @@ class COP
     this.turnToReactivate = 1* json_data.COP_turnToReactivate;     // meaningless if isActive == true
     
     this.marker = new UI_COPMarker (armyId);
+    this.marker.setPosition (this.x, this.y);
   }
 
 
@@ -25,13 +26,14 @@ class COP
 
   draw ()
   {
-    this.marker.draw (this.x, this.y, 1);
+    this.marker.draw ();
   }
   
   move (x, y)
   {
     this.x = x;
     this.y = y;  
+    this.marker.setPosition (x, y);
   }
 }
 
@@ -46,6 +48,7 @@ class SupplySource
     this.name     = json_data.name;
     
     this.marker = new UI_SSMarker (armyId);
+    this.marker.setPosition (this.x, this.y);
   }
 
 
@@ -65,14 +68,17 @@ class SupplySource
   }
 
 
-  draw () {
-    this.marker.draw (this.x, this.y, 1);
+  draw () 
+  {
+    this.marker.draw ();
   }
   
 
-  move (x, y) {
+  move (x, y) 
+  {
     this.x = x;
     this.y = y;  
+    this.marker.setPosition (x, y);
   }
 }
 

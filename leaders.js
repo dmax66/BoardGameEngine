@@ -6,7 +6,6 @@ const numLeadersInSameHex=1;
 
 
 
-
 class Leader {
   constructor (json_data) {
     this.leaderId           = json_data.leaderId;
@@ -26,11 +25,21 @@ class Leader {
     this.zOrder             = 1 * json_data.zOrder;
     this.parentId           = json_data.parentId;
     this.parent             = null;
-    this.subordinates       = null;
+    this.units              = [];
+    this.subordinates       = [];
+    this.player             = null;
+    this.widget = new UI_LeaderWidget (this.leaderId, this.name, this.type, this.nationId);
     
-    this.widget = new UI_LeaderWidget (this.id, this.name, this.type, this.nationId)
+    this.widget.setPosition (this.x, this.y);
+    this.widget.setOrientation (this.orientation);
+    this.widget.setMode (this.mode);
+    this.widget.setZOrder (this.zOrder);
   }
     
+  setPlayer (player) {
+    this.player = player;
+  }
+
     
   // Move to the controller
   //
@@ -42,6 +51,10 @@ class Leader {
     { action: "Move forward-left",     func: function(aLeader) { aLeader.moveFL(); }},
     { action: "Move forward",          func: function(aLeader) { aLeader.moveF(); }},
     { action: "Move forward-right",    func: function(aLeader) { aLeader.moveFR(); }},
+    { action: "To bottom of stack",    func: function(aLeader) { aLeader.toBottomOfStack(); }},
+    { action: "To top of stack",       func: function(aLeader) { aLeader.toTopOfStack(); }},
+    { action: "Push down",             func: function(aLeader) { aLeader.pushDown(); }},
+    { action: "Push up",               func: function(aLeader) { aLeader.pushUp(); }},
     { action: "Manage units",          func: function(aLeader) {  }}
   ];
 
@@ -49,10 +62,13 @@ class Leader {
   //
   // Returns i, where leaders[i].id == leaderId 
   //
-  static findById (leaderId) {
-    for (let i = 0; i < theGame.leaders.length; i++) {
-      if (theGame.leaders[i].leaderId == leaderId) {
-        return theGame.leaders[i];
+  static findById (leaderId) 
+  {
+    for (let l of theGame.leaders) 
+    {
+      if (l.leaderId == leaderId) 
+      {
+        return l;
       }
     }
 
@@ -61,13 +77,19 @@ class Leader {
 
 
   // Returns an instance of class Unit whose id == unitId
-  getUnit (unitId) {
-    for (let i = 0; i < this.units.length; i++)
-      if (this.units[i].unitId == unitId)
-        return this.units[i];
+  getUnit (unitId) 
+  {
+    for (let u of this.units)
+    {
+      if (u.unitId == unitId)
+      {
+        return u;
+      }
+    }
   
     return null;
   }
+
   
   // Returns the index of the units array whose id == unitId
   findUnit (unitId) {
@@ -117,13 +139,13 @@ class Leader {
     }
     
     // Sanity check #2: they must be of the same playerId
-    if (this.playerId != subordinate.playerId)
+    if (this.playerId != subordinate.playerId) {
       throw ("Unit.addSubordinate: trying to add leader to other playerId");
       return false;
     }
     
     this.subordinates.push (subordinate);
-    this.subordinatea.setParent (this);
+    subordinate.setParent (this);
     
     return true;
   }  
@@ -133,46 +155,56 @@ class Leader {
   // Returns true if success, false if there's an error
   setParent (parent) {
     // Sanity check #1: check that it is not referencing itself
-    if (this.leaderId == subordinate.leaderId) {
+    if (this.leaderId == parent.leaderId) {
       throw ("Unit.addSubordinate: trying to add leader to itself");
       return false;
     }
     
     // Sanity check #2: they must be of the same playerId
-    if (this.playerId != parent.playerId)
+    if (this.playerId != parent.playerId) {
       throw ("Unit.addSubordinate: trying to add leader to other playerId");
       return false;
     }
-    
-    this.
+
+    this.parent = parent;
+  }    
     
   
   // Return the strength of all controlled units (both directly and indirectly) of type t
-  strength (t) {
+  strength (t) 
+  {
     let s = 0;
     
     // Units directly commanded
-    for (let i = 0; i < this.units.length; i++)
-      if (this.units[i].type == t)
-          s += 1 * this.units[i].strength;  // Force conversion to number
+    for (let u of this.units) {
+      if (u.type == t) 
+      {
+        s += 1 * u.strength; 
+      }
+    }
 
     // Subordinate Leaders
-    for (let i = 0; i < this.subordinates.length; i++)
-      s += this.subordinates[i].strength (t);
+    for (let sl of this.subordinates) 
+    {
+      s += sl.strength (t);
+    }
 
     return s;
   }
 
 
-  draw () {
-    this.widget.draw (this.mode, this.orientation, this.x, this.y, this.zOrder);
+  draw () 
+  {
+    this.widget.draw ();
   }
   
-  hide () {
+  hide () 
+  {
     this.widget.hide ();  
   }
   
-  flipMode () {
+  flipMode () 
+  {
     if (this.mode == "l") { 
       this.mode = "c";
     }
@@ -183,6 +215,7 @@ class Leader {
     else 
       throw ("Invalid stack mode: " + this.mode);
       
+    this.widget.setMode (this.mode);
     this.draw();
   }
 
@@ -209,6 +242,9 @@ class Leader {
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
 
+    this.widget.setPosition (this.x, this.y);
+    this.widget.setOrientation (this.orientation);
+    
     this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
@@ -231,6 +267,9 @@ class Leader {
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
 
+    this.widget.setPosition (this.x, this.y);
+    this.widget.setOrientation (this.orientation);
+    
     this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
@@ -258,6 +297,9 @@ class Leader {
         throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
+    this.widget.setPosition (this.x, this.y);
+    this.widget.setOrientation (this.orientation);
+    
     this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
@@ -285,6 +327,9 @@ class Leader {
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
+    this.widget.setPosition (this.x, this.y);
+    this.widget.setOrientation (this.orientation);
+    
     this.draw();
   }
   
@@ -306,6 +351,9 @@ class Leader {
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
+    this.widget.setPosition (this.x, this.y);
+    this.widget.setOrientation (this.orientation);
+    
     this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
@@ -331,11 +379,33 @@ class Leader {
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
+    this.widget.setPosition (this.x, this.y);
+    this.widget.setOrientation (this.orientation);
+    
     this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }  
   
-  nearEnemy () {
+  
+  pushDown ()
+  {
+  }  
+  
+  pushUp ()
+  {
+  }
+  
+  toBottomOfStack ()
+  {
+  }
+  
+  toTopOfStack ()
+  {
+  }
+ 
+  // IS IT CORRECT???? 
+  nearEnemy () 
+  {
     const numOtherLeaders = theGame.players[theGame.currentPlayer].leaders.length; 
 
     for (let i = 0; i < numOtherLeaders; i++) {
@@ -346,7 +416,8 @@ class Leader {
         xMapCoordFromUnitCoord (this.x, this.y)
       );
         
-      if (distanceSquared < visibilityRadiusSquared) {
+      if (distanceSquared < visibilityRadiusSquared) 
+      {
         return true;
       }
     }
@@ -356,33 +427,41 @@ class Leader {
   
 
   // Returns an array of Leader
-  enemiesWithinVisibilityRange () {
+  enemiesWithinVisibilityRange () 
+  {
     let result = [];
-    const otherPlayer = theGame.otherPlayer ();
-    const numOtherLeaders = theGame.players[otherPlayer].leaders.length; 
 
-    for (let i = 0; i < numOtherLeaders; i++) {
-    
+    for (let l of theGame.leaders) 
+    {
+      if (l.player.playerId == this.player.playerId)
+      {
+        continue;      
+      }
+      
       const distanceSquared = distanceSquareInUnitCoords (
-        xMapCoordFromUnitCoord (theGame.players[otherPlayer].leaders[i].x, theGame.players[otherPlayer].leaders[i].y),
-        yMapCoordFromUnitCoord (theGame.players[otherPlayer].leaders[i].x, theGame.players[otherPlayer].leaders[i].y),
+        xMapCoordFromUnitCoord (l.x, l.y),
+        yMapCoordFromUnitCoord (l.x, l.y),
         yMapCoordFromUnitCoord (this.x, this.y), 
         xMapCoordFromUnitCoord (this.x, this.y)
       );
         
-       if (distanceSquared < visibilityRadiusSquared) {
-        result.push (theGame.players[otherPlayer].leaders[i]);
+      if (distanceSquared < visibilityRadiusSquared) 
+      {
+        result.push (l);
       }
     }
     
     return result;  
   }
 
-  drawEnemiesWithinVisibilityRange () {
+
+  drawEnemiesWithinVisibilityRange () 
+  {
     const enemyLeaders = this.enemiesWithinVisibilityRange ();
     
-    for (let i=0; i < enemyLeaders.length; i++) {
-      enemyLeaders[i].draw ();
+    for (let el of enemyLeaders) 
+    {
+      el.draw ();
     }
   }
 

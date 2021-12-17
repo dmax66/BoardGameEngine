@@ -51,14 +51,8 @@ class Player {
     unit.setPlayer (this);
   }
 
-  disbandCOP ()
-  {
-  
-  }
-
   draw () {
     this.moraleWidget.setValue (this.morale);
-//    this.moraleWidget.draw();
     
     for (let n of this.nations) 
     {
@@ -69,6 +63,8 @@ class Player {
     {
       a.draw(); 
     }
+
+
   }    
 
 } // End of class 
