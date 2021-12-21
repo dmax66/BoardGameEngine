@@ -6,8 +6,10 @@ const numLeadersInSameHex=1;
 
 
 
-class Leader {
-  constructor (json_data) {
+class Leader 
+{
+  constructor (json_data) 
+  {
     this.leaderId           = json_data.leaderId;
     this.name               = json_data.name;
     this.nationId           = json_data.nationId;
@@ -28,12 +30,16 @@ class Leader {
     this.units              = [];
     this.subordinates       = [];
     this.player             = null;
-    this.widget = new UI_LeaderWidget (this.leaderId, this.name, this.type, this.nationId);
+    this.widget = new LeaderWidget (this.leaderId, this.name, this.type, this.nationId);
     
     this.widget.setPosition (this.x, this.y);
     this.widget.setOrientation (this.orientation);
     this.widget.setMode (this.mode);
     this.widget.setZOrder (this.zOrder);
+
+    unitMap.set (this.leaderId, this);
+    
+    this.updateBalloonInfo();
   }
     
   setPlayer (player) {
@@ -57,6 +63,12 @@ class Leader {
     { action: "Push up",               func: function(aLeader) { aLeader.pushUp(); }},
     { action: "Manage units",          func: function(aLeader) {  }}
   ];
+
+  updateBalloonInfo ()
+  {
+    this.widget.updateBalloonInfo (this.name + "<br>Infantry: " + this.strength ("i")*1000 + "<br>Cavalry: " + this.strength ("c")*1000 + "<br>Artillery: " + this.strength ("a")*1000);
+  }
+
 
 
   //
@@ -92,7 +104,8 @@ class Leader {
 
   
   // Returns the index of the units array whose id == unitId
-  findUnit (unitId) {
+  findUnit (unitId) 
+  {
     for (let i = 0; i < this.units.length; i++)
       if (this.units[i].unitId == unitId)
         return i;
@@ -102,14 +115,18 @@ class Leader {
   
   
   // aUnit is an instance of class Unit
-  addUnit (aUnit) {
+  addUnit (aUnit) 
+  {
     aUnit.setParent (this);
     this.units.push (aUnit);
+    
+    this.updateBalloonInfo ();
   }
 
 
   // Remove the unit identified by unitId. Returns the unit itself
-  removeUnit (unitId) {
+  removeUnit (unitId) 
+  {
     if (this.units.length == 0) throw ("Cannot remove unit from a leader with no units");
     
     const unitIdx = this.findUnit (unitId);
@@ -119,6 +136,8 @@ class Leader {
       const removedUnit = removedUnits[0];                        // unitId is a unique id, so only one unit in the resultset
       
       removedUnit.unsetParent ();
+      
+      this.updateBalloonInfo ();
       return removedUnit; 
     }
     else
@@ -131,7 +150,8 @@ class Leader {
   
   // subordinate is an instance of class Leader
   // Returns true if success, false if there's an error
-  addSubordinate (subordinate) {
+  addSubordinate (subordinate) 
+  {
     // Sanity check #1: check that it is not referencing itself
     if (this.leaderId == subordinate.leaderId) {
       throw ("Unit.addSubordinate: trying to add leader to itself");
@@ -147,13 +167,15 @@ class Leader {
     this.subordinates.push (subordinate);
     subordinate.setParent (this);
     
+    this.updateBalloonInfo ();
     return true;
   }  
   
 
   // parent is an instance of class Leader
   // Returns true if success, false if there's an error
-  setParent (parent) {
+  setParent (parent) 
+  {
     // Sanity check #1: check that it is not referencing itself
     if (this.leaderId == parent.leaderId) {
       throw ("Unit.addSubordinate: trying to add leader to itself");

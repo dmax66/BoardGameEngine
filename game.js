@@ -4,7 +4,6 @@
 let json_data = [];
 
 
-
 class Game {
   static sequenceOfPlay = [   
     { phase:"Command Phase",  segment:"Weather Determination",             action: Game.determineWeather },
@@ -27,10 +26,10 @@ class Game {
     this.id               = id;
     this.name             = "";
     this.scenarioId       = "";
-    this.currentPlayer    = currentPlayer;      
-    this.currentTurn      = currentTurn;
-    this.endTurn          = endTurn;
-    this.currentSegment   = currentSegment;
+    this.currentPlayer    = 1 * currentPlayer;      
+    this.currentTurn      = 1 * currentTurn;
+    this.endTurn          = 1 * endTurn;
+    this.currentSegment   = 1 * currentSegment;
     this.weather          = weather; 
     this.players          = [];
     this.nations          = [];
@@ -194,10 +193,9 @@ class Game {
         a.COP.draw ();      
       }    
       
-      for (let ss of a.supplySources) {
-        if (ss.isActive) {
-          ss.draw ();        
-        }
+      if (a.activeSS.isActive) 
+      {
+          a.activeSS.draw ();        
       }
     }    
   }
@@ -291,6 +289,41 @@ class Game {
   
   static doNothing ()
   {
+  }
+  
+  numberOfMarkersInHex (x, y)
+  {
+    let result = 0;
+    
+    // Leaders
+    for (let l of this.leaders)
+    {
+      if (l.x == x && l.y == y)
+      {
+        result++;      
+      }
+    }  
+    
+    // Supply sources
+    
+    // CoPs
+    for (let a of this.armies)
+    {
+      if(a.COP.x == x && a.COP.y == y)
+      {
+        result++;      
+      }    
+      
+      for (let ss of a.supplySources)
+      {
+        if (ss.x == x && ss.y == y)
+        {
+          result++;  
+        }      
+      }
+    }
+    
+    return result;
   }
 }
 

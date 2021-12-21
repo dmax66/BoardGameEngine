@@ -58,7 +58,10 @@ body {
 
 </style>
 
+<script>
+unitMap = new Map ();
 
+</script>
 <script src="map_geometry_funcs.js"></script>
 <script src="ajax.js"></script>
 <script src="statusbar_ui.js"></script>
@@ -169,7 +172,7 @@ function processMouseMove (ev) {
   const y = yUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
 
   showMousePosition (ev.offsetX, ev.offsetY, x, y);
-  showStackContent (x, y);
+//  showStackContent (x, y);
 }
 
 
@@ -323,9 +326,9 @@ function loadGame (id) {
 
 <div id="mapContainer" class="map_container">
   <img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove(event)">
+  <div id="counter-balloon" class="stack_info" style="display:none"></div>
 </div>
  
-</font>
 
 <script>
 
@@ -338,7 +341,8 @@ close_button.onclick = function() {
 }  
   
 const newgame_box = document.getElementById("newgame_box");
- 
+const hoverBalloonWidget = document.getElementById ("counter-balloon");
+
 // const aPoint = { x:10, y:10 }; 
 // const setOfHexes = sixHexesAround (aPoint);
 // UIDrawSetOfHexes (setOfHexes);

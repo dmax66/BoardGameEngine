@@ -20,14 +20,13 @@ class GameFactory {
   
   
   static LoadGame (id) {
-    call_server_api_get ("app/load_table_for_game.php?table=Games&gameId="   + id, GameFactory.Game_callback);
-
-    call_server_api_get ("app/load_table_for_game.php?table=Players&gameId=" + id, GameFactory.Players_callback); 
-    call_server_api_get ("app/load_table_for_game.php?table=Nations&gameId=" + id, GameFactory.Nations_callback);
-    call_server_api_get ("app/load_table_for_game.php?table=Armies&gameId="  + id, GameFactory.Armies_callback); 
-    call_server_api_get ("app/load_table_for_game.php?table=Leaders&gameId=" + id, GameFactory.Leaders_callback);
-    call_server_api_get ("app/load_table_for_game.php?table=Units&gameId="   + id, GameFactory.Units_callback);
-    call_server_api_get ("app/load_table_for_game.php?table=SupplySources&gameId="   + id, GameFactory.SupplySource_callback);
+    call_server_api_get ("app/load_table_for_game.php?table=Games&gameId="         + id, GameFactory.Game_callback);
+    call_server_api_get ("app/load_table_for_game.php?table=Players&gameId="       + id, GameFactory.Players_callback); 
+    call_server_api_get ("app/load_table_for_game.php?table=Nations&gameId="       + id, GameFactory.Nations_callback);
+    call_server_api_get ("app/load_table_for_game.php?table=Armies&gameId="        + id, GameFactory.Armies_callback); 
+    call_server_api_get ("app/load_table_for_game.php?table=Leaders&gameId="       + id, GameFactory.Leaders_callback);
+    call_server_api_get ("app/load_table_for_game.php?table=Units&gameId="         + id, GameFactory.Units_callback);
+    call_server_api_get ("app/load_table_for_game.php?table=SupplySources&gameId=" + id, GameFactory.SupplySource_callback);
 
     const newGame = new Game (
       id, 
@@ -119,9 +118,12 @@ class GameFactory {
     }
 
     // Add Supply Sources to Armies
-    for (let a of newGame.armies) {
-      for (let ss of this.ss_data) {
-        if (ss.armyId == a.armyId) {
+    for (let a of newGame.armies) 
+    {
+      for (let ss of this.ss_data) 
+      {
+        if (ss.armyId == a.armyId) 
+        {
           a.addSS (ss)        
         }      
       }    

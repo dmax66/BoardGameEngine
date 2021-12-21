@@ -1,32 +1,9 @@
-
-class UI_COPMarker extends Marker
-{
-  constructor (armyId)
-  {
-    super ("leader-counter");
-    this.armyId = armyId;    
-    this.icon.src = ("img/cop-" + armyId + ".png");
-  }
-}
-
-
-class UI_SSMarker extends Marker
-{
-  constructor (armyId)
-  {
-    super ("leader-counter");
-    this.armyId = armyId;    
-    this.icon.src = ("img/SS-" + armyId + ".png");
-  }
-}
-
-
-class UI_LeaderWidget extends Marker 
+class LeaderWidget extends Marker 
 {
 
   constructor (id, name, type, nation) 
   {
-    super ("leader-counter");
+    super ("map-counter", id);
     
     this.id = id;
     this.name = name;
@@ -34,7 +11,7 @@ class UI_LeaderWidget extends Marker
     this.nation = nation;
     this.orientation = 0; 
 
-    this.widget.id = "L:" + id;
+    this.widget.id = id;
 
     this.widget.onclick = function() { 
 //      this.leaderWidget.onmouseout = function () {}; 
