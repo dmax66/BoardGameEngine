@@ -2,36 +2,46 @@ class COP
 {
   constructor (playerId, armyId, json_data)
   {
-    this.playerId = playerId;
-    this.armyId   = armyId;
-    this.x        = 1 * json_data.COP_x;
-    this.y        = 1 * json_data.COP_y;
-    this.isActive = (1 * json_data.COP_isActive) == 1;
+    this.playerId         = playerId;
+    this.armyId           = armyId;
+    this.name             = "Center of Ops";
+    this.x                = 1 * json_data.COP_x;
+    this.y                = 1 * json_data.COP_y;
+    this.orientation      = 0;
+    this.isActive         = (1 * json_data.COP_isActive) == 1;
     this.turnToReactivate = 1 * json_data.COP_turnToReactivate;     // meaningless if isActive == true
+    this.hasMoved         = false;   // must be taken from the DB
     
     this.marker = new COPMarker (armyId);
     this.marker.setPosition (this.x, this.y);
     this.marker.setZOrder (2);
+    this.marker.setOrientation (this.orientation);
+    this.marker.enable (this.isActive);
     this.updateBalloonInfo ();
     
     unitMap.set ( "COP-" + armyId, this);
   }
 
 
-  static possibleActions = [
-    { action: "Rotate clockwise",      func: function (aCOP) { aCOP.rotateCW(); }},
-    { action: "Rotate anti-clockwise", func: function (aCOP) { aCOP.rotateCCW(); }},
-    { action: "Move forward-left",     func: function (aCOP) { aCOP.moveFL(); }},
-    { action: "Move forward-right",    func: function (aCOP) { aCOP.moveFR(); }},
-    { action: "Disband",               func: function (aCOP) { aCOP.disband(); }}
+  static _possibleActions = [
+    { action: "Rotate clockwise",      func: function(aCOP) { aCOP.rotateCW(); }},
+    { action: "Rotate anti-clockwise", func: function(aCOP) { aCOP.rotateCCW(); }},
+    { action: "Move forward-left",     func: function(aCOP) { aCOP.moveFL(); }},
+    { action: "Move forward-right",    func: function(aCOP) { aCOP.moveFR(); }},
+    { action: "Disband",               func: function(aCOP) { aCOP.disband(); }}
   ];
 
+  possibleActions ()
+  {
+    return COP._possibleActions;
+  }
 
   disband ()
   {
     this.isActive = false;
     this.turnToReactivate = theGame.currentTurn + 2;  
     this.updateBalloonInfo ();  
+    this.marker.enable (false);
   }
   
   
@@ -40,6 +50,7 @@ class COP
     this.isActive = true;
     this.turnToReactivate = -1; 
     this.updateBalloonInfo ();
+    this.marker.enable (true);
   }
 
 
@@ -80,13 +91,13 @@ class COP
     const newOrientation = orientationPrev (orientationPrev (curOrientation)); 
     this.x += xOffset (newOrientation, isOddRow);
     this.y += yOffset (newOrientation, isOddRow);
+    this.hasMoved = true;
      
 
-    this.widget.setPosition (this.x, this.y);
-    this.widget.setOrientation (this.orientation);
+    this.marker.setPosition (this.x, this.y);
+    this.marker.setOrientation (this.orientation);
     
     this.draw();
-    this.drawEnemiesWithinVisibilityRange();
   }
   
 
@@ -100,13 +111,13 @@ class COP
     const newOrientation = orientationPrev (curOrientation); 
     this.x += xOffset (newOrientation, isOddRow);
     this.y += yOffset (newOrientation, isOddRow);
+    this.hasMoved = true;
      
 
-    this.widget.setPosition (this.x, this.y);
-    this.widget.setOrientation (this.orientation);
+    this.marker.setPosition (this.x, this.y);
+    this.marker.setOrientation (this.orientation);
     
     this.draw();
-    this.drawEnemiesWithinVisibilityRange();
   }
 
 
@@ -116,12 +127,12 @@ class COP
     const isOddRow = this.y % 2;
     
     this.orientation = orientationNext (curOrientation);
+    this.hasMoved = true;
         
-    this.widget.setPosition (this.x, this.y);
-    this.widget.setOrientation (this.orientation);
+    this.marker.setPosition (this.x, this.y);
+    this.marker.setOrientation (this.orientation);
     
     this.draw();
-    this.drawEnemiesWithinVisibilityRange();
   }
   
   
@@ -135,11 +146,10 @@ class COP
     this.y += yOffset (this.orientation, isOddRow);
     this.moveFL();
 
-    this.widget.setPosition (this.x, this.y);
-    this.widget.setOrientation (this.orientation);
+    this.marker.setPosition (this.x, this.y);
+    this.marker.setOrientation (this.orientation);
     
     this.draw();
-    this.drawEnemiesWithinVisibilityRange();
   }  
   
 }
@@ -151,6 +161,7 @@ class SupplySource
   {
     this.playerId = playerId;
     this.armyId   = armyId;
+    this.name     = "Supply Source";
     this.x        = 1 * json_data.SS_x;
     this.y        = 1 * json_data.SS_y;
     this.isActive = (1 * json_data.SS_isActive) == 1;
@@ -165,15 +176,22 @@ class SupplySource
   }
 
 
-  static possibleActions = [
-    { action: "Move",      func: function (aSS) { aSS.move(); }}
+  static _possibleActions = [
+    { action: "Switch to another SS",      func:function(aSS) { aSS.move(); }}
   ];
 
 
+  possibleActions ()
+  {
+    return SupplySource._possibleActions;  
+  }
+  
+  
   move ()
   {
     this.isActive = false;
     this.updateBalloonInfo ();
+    this.marker.enable (false);
   }
   
   
@@ -186,6 +204,7 @@ class SupplySource
 
     // Roll die to reactivate - 1 or 2 means the SS reactivation is successful
     this.updateBalloonInfo ();
+    this.marker.enable (true);
   }
 
 

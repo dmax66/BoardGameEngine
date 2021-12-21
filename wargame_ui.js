@@ -3,50 +3,6 @@
 
 
 
-function showLeaderActionMenu (leaderId)  
-{
-  // Check if the info widget already exists - if so, close the previous one
-  let leaderActionMenu = document.getElementById ("leaderActionMenu");
-  if (leaderActionMenu != null) 
-    leaderActionMenu.remove();
-  
-  const leader = theGame.getLeader (leaderId);
-  
-  // Now the menu does not exist - create it!
-  leaderActionMenu = document.createElement ("DIV");
-  leaderActionMenu.id = "leaderActionMenu";
-  leaderActionMenu.setAttribute ("class", "popup-menu");
-  leaderActionMenu.style.left = (xMapCoordFromUnitCoord (leader.x) + 51) + "px";
-  leaderActionMenu.style.top = (xMapCoordFromUnitCoord (leader.y) - 10) + "px";
-  document.getElementById("mapContainer").appendChild(leaderActionMenu);
-
-  let menuContent = undefined;
-  
-  // The close icon
-  const closeIcon = document.createElement ("IMG");
-  leaderActionMenu.appendChild (closeIcon);
-  closeIcon.setAttribute ("class", "close-icon");
-  closeIcon.src = "img/close.png";
-  closeIcon.onclick = function() { leaderActionMenu.remove(); }
-
-  menuContent = document.createElement ("P");
-  menuContent.innerHTML = "<b>" + leader.name + "</b>";
-  leaderActionMenu.appendChild (menuContent);
-
-  menuContent = document.createElement ("HR");
-  leaderActionMenu.appendChild (menuContent);
-  
-  for (let i=0; i < Leader.possibleActions.length; i++) {
-    menuContent = document.createElement ("INPUT");
-    menuContent.type = "BUTTON";
-    menuContent.value = Leader.possibleActions[i].action;
-    menuContent.onclick = function () { Leader.possibleActions[i].func (leader); }
-    leaderActionMenu.appendChild (menuContent);
-  }
-}
-
-
- 
  
 function getLeaderFromWidgetId (leaderWidgetId)
 {

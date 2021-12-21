@@ -1,99 +1,3 @@
-class LeaderWidget extends Marker 
-{
-
-  constructor (id, name, type, nation) 
-  {
-    super ("map-counter", id);
-    
-    this.id = id;
-    this.name = name;
-    this.type = type;
-    this.nation = nation;
-    this.orientation = 0; 
-
-    this.widget.id = id;
-
-    this.widget.onclick = function() { 
-//      this.leaderWidget.onmouseout = function () {}; 
-      if (event.shiftKey) 
-        showLeaderActionMenu (id);
-      else 
-        showLeaderInfo (id); 
-    }
-  
-    this.icon.setAttribute ("class", "counter-icon " + nation);
-    
-    // Add the leader name
-    this.leaderName = document.createElement ("P");
-    this.leaderName.setAttribute ("class", "counter-name");
-    this.leaderName.innerHTML = this.name;
-    this.widget.appendChild (this.leaderName);
-
-    // Move somewhere else - this is not for the counter 
-    this.leaderImg = document.createElement ("IMG");
-    this.leaderImg.id = "IMG:" + this.name;
-    this.leaderImg.src ="img/" + this.name + ".png";
-    this.leaderImg.style.width = "50px";
-    this.leaderImg.display = "none";
-  }  
-
-
-  setOrientation (orientation)
-  {
-    this.orientation = orientation;
-    this.draw ();  
-  }
-
-
-  setMode (mode)
-  {
-    if (mode != "l" && mode != "c") 
-    {
-       throw ("Mode invalid: " + mode);
-       return;
-    }  
-    
-    this.mode = mode;
-    this.draw ();
-  }
-
-
-  draw () 
-  {
-    if (this.x < 0 || this.y < 0) 
-    {
-      this.hide ();
-      return;
-    }
-    
-    switch (this.mode) 
-    {
-      case "l":
-        this.icon.src = (this.type == "c" ? "img/cavalry-line.png" : "img/infantry-line.png");
-        this.leaderName.style.visibility = "visible";
-        this.widget.style.transform = "rotate(" + lineDrawInfo[this.orientation].angle + "deg)";
-        this.widget.style.left      = (lineDrawInfo[this.orientation].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";  
-        this.widget.style.top       = (lineDrawInfo[this.orientation].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";
-        this.widget.style.zOrder    = this.zOrder;
-        break;
-  
-      case "c":
-        this.icon.src = "img/column.png";
-        this.leaderName.style.visibility = "hidden";
-        this.widget.style.transform = "rotate(" + columnDrawInfo[this.orientation].angle + "deg)";
-        this.widget.style.left      = (columnDrawInfo[this.orientation].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";  
-        this.widget.style.top       = (columnDrawInfo[this.orientation].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";
-        this.widget.style.zOrder    = this.zOrder;
-        break;
-    }
-
-    this.show();
-  }
-  
-} // Class
-
-
-
 
 function UIDrawPointAtCenterOfHex (hex) {
   const thePoint = document.createElement ("DIV");  
@@ -231,8 +135,10 @@ class UI_MoraleWidget {
 }
 
 
-class UI_ArmyPanel {
-  constructor (symbol, name, armyTable) {
+class UI_ArmyPanel 
+{
+  constructor (symbol, name, armyTable) 
+  {
     const apWidgetId = symbol + "-at";
 
     // Add a row in the table 
@@ -264,7 +170,8 @@ class UI_ArmyPanel {
   }
 
   
-  setAP (value) {
+  setAP (value) 
+  {
     this.AP.value = "AP: " + value;
   } 
 

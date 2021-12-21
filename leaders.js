@@ -47,22 +47,37 @@ class Leader
   }
 
     
-  // Move to the controller
-  //
-  static possibleActions = [
-    { action: "Flip Line-Column",      func: function(aLeader) { aLeader.flipMode(); }},
-    { action: "Rotate clockwise",      func: function(aLeader) { aLeader.rotateCW(); }},
-    { action: "Rotate anti-clockwise", func: function(aLeader) { aLeader.rotateCCW(); }},
-    { action: "Flip direction",        func: function(aLeader) { aLeader.uTurn(); }},
-    { action: "Move forward-left",     func: function(aLeader) { aLeader.moveFL(); }},
-    { action: "Move forward",          func: function(aLeader) { aLeader.moveF(); }},
-    { action: "Move forward-right",    func: function(aLeader) { aLeader.moveFR(); }},
-    { action: "To bottom of stack",    func: function(aLeader) { aLeader.toBottomOfStack(); }},
-    { action: "To top of stack",       func: function(aLeader) { aLeader.toTopOfStack(); }},
-    { action: "Push down",             func: function(aLeader) { aLeader.pushDown(); }},
-    { action: "Push up",               func: function(aLeader) { aLeader.pushUp(); }},
-    { action: "Manage units",          func: function(aLeader) {  }}
+  static _possibleActions = [
+    { action: "Flip Line-Column",      filter: ['c', 'l'],   func: function(aLeader) { aLeader.flipMode(); }},
+    { action: "Rotate clockwise",      filter: ['l'],        func: function(aLeader) { aLeader.rotateCW(); }},
+    { action: "Rotate anti-clockwise", filter: ['l'],        func: function(aLeader) { aLeader.rotateCCW(); }},
+    { action: "Flip direction",        filter: ['c', 'l'],   func: function(aLeader) { aLeader.uTurn(); }},
+    { action: "Move forward-left",     filter: ['c', 'l'],   func: function(aLeader) { aLeader.moveFL(); }},
+    { action: "Move forward",          filter: ['c'],        func: function(aLeader) { aLeader.moveF(); }},
+    { action: "Move forward-right",    filter: ['c', 'l'],   func: function(aLeader) { aLeader.moveFR(); }},
+    { action: "To bottom of stack",    filter: ['c', 'l'],   func: function(aLeader) { aLeader.toBottomOfStack(); }},
+    { action: "To top of stack",       filter: ['c', 'l'],   func: function(aLeader) { aLeader.toTopOfStack(); }},
+    { action: "Push down",             filter: ['c', 'l'],   func: function(aLeader) { aLeader.pushDown(); }},
+    { action: "Push up",               filter: ['c', 'l'],   func: function(aLeader) { aLeader.pushUp(); }},
+    { action: "Manage units",          filter: ['c', 'l'],   func: function(aLeader) {  }}
   ];
+
+
+  possibleActions ()
+  {
+    let result = [];
+    
+    for (let a of Leader._possibleActions)
+    {
+      if (a.filter.includes (this.mode))
+      {
+        result.push (a);      
+      }    
+    }  
+  
+    return result;
+  }
+
 
   updateBalloonInfo ()
   {
