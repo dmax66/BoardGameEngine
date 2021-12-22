@@ -1,7 +1,7 @@
 function createUnitMenu (event) {
   const unitWidget = event.currentTarget.id;
-  const i = unitWidget.split(":")[1];
-  const unit = theGame.players[theGame.currentPlayer].units[i];
+  const unitId = unitWidget.split(":")[1];
+  const unit = theGame.getUnit (unitId);
   
   const menuWidget = document.createElement ("DIV"); 
   document.getElementById ("mapContainer").appendChild (menuWidget);
@@ -60,11 +60,11 @@ function createUnitMenu (event) {
 
   // Corp and Commanding Leader
   k = Leader.findById (unit.commandedBy);
-  const cmdLeaderWidget = document.createElement ("P");
-  cmdLeaderWidget.innerHTML = "Corp Commander: " + theGame.players[theGame.currentPlayer].leaders[k].name;
-  cmdLeaderWidget.setAttribute ("class", "popup-menu-title");
-  cmdLeaderWidget.style.margin = "auto";
-  menuWidget.appendChild (cmdLeaderWidget);
+  const cmdLeaderMarker = document.createElement ("P");
+  cmdLeaderMarker.innerHTML = "Corp Commander: " + unit.parent.name;
+  cmdLeaderMarker.setAttribute ("class", "popup-menu-title");
+  cmdLeaderMarker.style.margin = "auto";
+  menuWidget.appendChild (cmdLeaderMarker);
 /*  
   const corpWidget = document.createElement ("P");
   corpWidget.innerHTML = "Corp: " + leaders[k].;

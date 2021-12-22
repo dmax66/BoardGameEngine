@@ -80,6 +80,7 @@ class Marker
   setZOrder (zOrder)
   {
     this.zOrder = zOrder;
+    this.draw ();
   }
 
   
@@ -160,6 +161,7 @@ class Marker
     actionMenu.setAttribute ("class", "popup-menu");
     actionMenu.style.left = (xMapCoordFromUnitCoord (owner.x) + 51) + "px";
     actionMenu.style.top  = (xMapCoordFromUnitCoord (owner.y) - 10) + "px";
+    actionMenu.style.zIndex = 20;
     document.getElementById ("mapContainer").appendChild (actionMenu);
   
     let menuContent = undefined;
@@ -231,7 +233,7 @@ class SSMarker extends Marker
 
 
 
-class LeaderWidget extends Marker 
+class LeaderMarker extends Marker 
 {
 
   constructor (id, name, type, nation) 
@@ -281,6 +283,13 @@ class LeaderWidget extends Marker
   }
 
 
+  setZOrder (zOrder)
+  {
+    this.zOrder = zOrder;
+    this.draw ();
+  }
+
+  
   draw () 
   {
     if (this.x < 0 || this.y < 0) 
@@ -295,18 +304,18 @@ class LeaderWidget extends Marker
         this.icon.src = (this.type == "c" ? "img/cavalry-line.png" : "img/infantry-line.png");
         this.leaderName.style.visibility = "visible";
         this.widget.style.transform = "rotate(" + lineDrawInfo[this.orientation].angle + "deg)";
-        this.widget.style.left      = (lineDrawInfo[this.orientation].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";  
-        this.widget.style.top       = (lineDrawInfo[this.orientation].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";
-        this.widget.style.zOrder    = this.zOrder;
+        this.widget.style.left      = (lineDrawInfo[this.orientation].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*(this.zOrder - 1 - mapZOrder)) + "px";  
+        this.widget.style.top       = (lineDrawInfo[this.orientation].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 3*(this.zOrder - 1 - mapZOrder)) + "px";
+        this.widget.style.zIndex    = this.zOrder;
         break;
   
       case "c":
         this.icon.src = "img/column.png";
         this.leaderName.style.visibility = "hidden";
         this.widget.style.transform = "rotate(" + columnDrawInfo[this.orientation].angle + "deg)";
-        this.widget.style.left      = (columnDrawInfo[this.orientation].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";  
-        this.widget.style.top       = (columnDrawInfo[this.orientation].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 2*numLeadersInSameHex) + "px";
-        this.widget.style.zOrder    = this.zOrder;
+        this.widget.style.left      = (columnDrawInfo[this.orientation].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*(this.zOrder - 1 - mapZOrder)) + "px";  
+        this.widget.style.top       = (columnDrawInfo[this.orientation].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 3*(this.zOrder - 1 - mapZOrder)) + "px";
+        this.widget.style.zIndex    = this.zOrder;
         break;
     }
 

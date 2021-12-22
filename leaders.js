@@ -24,21 +24,21 @@ class Leader
     this.mode               = json_data.mode;
     this.x                  = 1 * json_data.X;
     this.y                  = 1 * json_data.Y;
-    this.zOrder             = 1 * json_data.zOrder;
     this.parentId           = json_data.parentId;
     this.parent             = null;
-    this.units              = [];
-    this.subordinates       = [];
+    this.units              = new Map ();
+    this.subordinates       = new Map ();
     this.player             = null;
-    this.widget = new LeaderWidget (this.leaderId, this.name, this.type, this.nationId);
+    this.marker = new LeaderMarker (this.leaderId, this.name, this.type, this.nationId);
     
-    this.widget.setPosition (this.x, this.y);
-    this.widget.setOrientation (this.orientation);
-    this.widget.setMode (this.mode);
-    this.widget.setZOrder (this.zOrder);
+    this.marker.setPosition (this.x, this.y);
+    this.marker.setOrientation (this.orientation);
+    this.marker.setMode (this.mode);
+    this.marker.setZOrder (this.zOrder);
 
     unitMap.set (this.leaderId, this);
     
+    this.setZOrder (1 * json_data.zOrder);
     this.updateBalloonInfo();
   }
     
@@ -81,44 +81,34 @@ class Leader
 
   updateBalloonInfo ()
   {
-    this.widget.updateBalloonInfo (this.name + "<br>Infantry: " + this.strength ("i")*1000 + "<br>Cavalry: " + this.strength ("c")*1000 + "<br>Artillery: " + this.strength ("a")*1000);
+    this.marker.updateBalloonInfo (this.name + "<br>Infantry: " + this.strength ("i")*1000 + "<br>Cavalry: " + this.strength ("c")*1000 + "<br>Artillery: " + this.strength ("a")*1000);
   }
 
 
+  setZOrder (z)
+  {
+    this.zOrder = z;
+    this.marker.setZOrder (this.zOrder);
+  }
 
   //
   // Returns i, where leaders[i].id == leaderId 
   //
   static findById (leaderId) 
   {
-    for (let l of theGame.leaders) 
-    {
-      if (l.leaderId == leaderId) 
-      {
-        return l;
-      }
-    }
-
-   return null;
+   return unitMap.get (leaderId);
   }
 
 
   // Returns an instance of class Unit whose id == unitId
   getUnit (unitId) 
   {
-    for (let u of this.units)
-    {
-      if (u.unitId == unitId)
-      {
-        return u;
-      }
-    }
-  
-    return null;
+    this.units.get (unitId);
   }
 
   
   // Returns the index of the units array whose id == unitId
+/*
   findUnit (unitId) 
   {
     for (let i = 0; i < this.units.length; i++)
@@ -127,39 +117,24 @@ class Leader
   
     return (-1);
   }
-  
+*/  
   
   // aUnit is an instance of class Unit
   addUnit (aUnit) 
   {
     aUnit.setParent (this);
-    this.units.push (aUnit);
+    this.units.set (aUnit.unitId, aUnit);
     
     this.updateBalloonInfo ();
   }
 
 
-  // Remove the unit identified by unitId. Returns the unit itself
+  // Remove the unit identified by unitId. 
   removeUnit (unitId) 
   {
-    if (this.units.length == 0) throw ("Cannot remove unit from a leader with no units");
-    
-    const unitIdx = this.findUnit (unitId);
-    if (unitIdx != -1)
-    {
-      const removedUnits = this.units.splice (unitIndex, 1); 
-      const removedUnit = removedUnits[0];                        // unitId is a unique id, so only one unit in the resultset
-      
-      removedUnit.unsetParent ();
-      
-      this.updateBalloonInfo ();
-      return removedUnit; 
-    }
-    else
-    {
-      console.log ("Warning: Leader.removeUnit: unit not found");
-      return null;
-    }
+    this.units.delete (unitId)
+ 
+    this.updateBalloonInfo ();
   }
   
   
@@ -179,8 +154,8 @@ class Leader
       return false;
     }
     
-    this.subordinates.push (subordinate);
     subordinate.setParent (this);
+    this.subordinates.set (subordinate.leaderId, subordinate);
     
     this.updateBalloonInfo ();
     return true;
@@ -213,17 +188,18 @@ class Leader
     let s = 0;
     
     // Units directly commanded
-    for (let u of this.units) {
-      if (u.type == t) 
+    for (let u of this.units.entries ()) 
+    {
+      if (u[1].type == t) 
       {
-        s += 1 * u.strength; 
+        s += 1 * u[1].strength; 
       }
     }
 
     // Subordinate Leaders
-    for (let sl of this.subordinates) 
+    for (let sl of this.subordinates.entries ()) 
     {
-      s += sl.strength (t);
+      s += sl[1].strength (t);
     }
 
     return s;
@@ -232,13 +208,15 @@ class Leader
 
   draw () 
   {
-    this.widget.draw ();
+    this.marker.draw ();
   }
+
   
   hide () 
   {
-    this.widget.hide ();  
+    this.marker.hide ();  
   }
+
   
   flipMode () 
   {
@@ -252,9 +230,10 @@ class Leader
     else 
       throw ("Invalid stack mode: " + this.mode);
       
-    this.widget.setMode (this.mode);
+    this.marker.setMode (this.mode);
     this.draw();
   }
+  
 
   moveFL () {
     const curOrientation = this.orientation;
@@ -279,12 +258,14 @@ class Leader
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
 
-    this.widget.setPosition (this.x, this.y);
-    this.widget.setOrientation (this.orientation);
-    
+    this.marker.setPosition (this.x, this.y);
+    this.marker.setOrientation (this.orientation);
+    this.recalcZOrder ();
+        
     this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
+  
 
   moveF () {
     const curOrientation = this.orientation;
@@ -304,12 +285,14 @@ class Leader
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
 
-    this.widget.setPosition (this.x, this.y);
-    this.widget.setOrientation (this.orientation);
-    
+    this.marker.setPosition (this.x, this.y);
+    this.marker.setOrientation (this.orientation);
+    this.recalcZOrder ();
+        
     this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
+  
 
   moveFR () {
     const curOrientation = this.orientation;
@@ -334,12 +317,14 @@ class Leader
         throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
-    this.widget.setPosition (this.x, this.y);
-    this.widget.setOrientation (this.orientation);
-    
+    this.marker.setPosition (this.x, this.y);
+    this.marker.setOrientation (this.orientation);
+    this.recalcZOrder ();
+        
     this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
+  
 
   uTurn () {
     const curOrientation = this.orientation;
@@ -364,11 +349,13 @@ class Leader
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
-    this.widget.setPosition (this.x, this.y);
-    this.widget.setOrientation (this.orientation);
-    
+    this.marker.setPosition (this.x, this.y);
+    this.marker.setOrientation (this.orientation);
+    this.recalcZOrder ();
+        
     this.draw();
   }
+  
   
   rotateCW () {
     const curOrientation = this.orientation;
@@ -388,12 +375,14 @@ class Leader
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
-    this.widget.setPosition (this.x, this.y);
-    this.widget.setOrientation (this.orientation);
-    
+    this.marker.setPosition (this.x, this.y);
+    this.marker.setOrientation (this.orientation);
+    this.recalcZOrder ();
+        
     this.draw();
     this.drawEnemiesWithinVisibilityRange();
   }
+  
   
   rotateCCW () {
     const curOrientation = this.orientation;
@@ -416,8 +405,9 @@ class Leader
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
-    this.widget.setPosition (this.x, this.y);
-    this.widget.setOrientation (this.orientation);
+    this.marker.setPosition (this.x, this.y);
+    this.marker.setOrientation (this.orientation);
+    this.recalcZOrder ();
     
     this.draw();
     this.drawEnemiesWithinVisibilityRange();
@@ -426,29 +416,91 @@ class Leader
   
   pushDown ()
   {
+    // if already at bottom of the stack, do nothing
+    if (this.zOrder == mapZOrder + 1)
+    {
+      return;    
+    }    
+         
+    const z = this.zOrder;
+    
+    // Find the leader l with l.zOrder == this.zOrder - 1;
+    for (let l of unitMap.entries ())
+    {
+      if (l[1].x == this.x && l[1].y == this.y && this.playerId == l[1].playerId && this.leaderId != l[1].leaderId && l[1].zOrder == (this.zOrder - 1)) 
+      {
+        l[1].setZOrder (z);
+        this.setZOrder (z - 1);
+        
+        return;
+      }
+    }
   }  
   
+
   pushUp ()
   {
+    const z = this.zOrder;
+    
+    // Find the leader l with l.zOrder == this.zOrder + 1;
+    for (let l of unitMap.entries ())
+    {
+      if (l[1].x == this.x && l[1].y == this.y && this.playerId == l[1].playerId && this.leaderId != l[1].leaderId && l[1].zOrder == (this.zOrder + 1)) 
+      {
+        l[1].setZOrder (z);
+        this.setZOrder (z + 1);
+        
+        return;
+      }
+    }
   }
+  
   
   toBottomOfStack ()
   {
+    let z = mapZOrder + 1;
+
+    this.setZOrder (z);
+    z++;    
+    
+    for (let l of unitMap.entries ())
+    {
+      if (l[1].x == this.x && l[1].y == this.y && this.playerId == l[1].playerId && this.leaderId != l[1].leaderId) 
+      {
+        l[1].setZOrder (z);
+        z++;           
+      }   
+    }
   }
+ 
   
   toTopOfStack ()
   {
+    let z = mapZOrder + 1;
+    
+    for (let l of unitMap.entries ())
+    {
+      if (l[1].x == this.x && l[1].y == this.y && this.playerId == l[1].playerId && this.leaderId != l[1].leaderId) 
+      {
+        l[1].setZOrder (z);
+        z++;           
+      }   
+    }
+    
+    this.setZOrder (z);    
   }
+ 
  
   // IS IT CORRECT???? 
   nearEnemy () 
   {
     const numOtherLeaders = theGame.players[theGame.currentPlayer].leaders.length; 
 
-    for (let i = 0; i < numOtherLeaders; i++) {
+    for (let l of theGame.players[theGame.currentPlayer].leaders) 
+    {
       const distanceSquared = distanceSquareInUnitCoords (
-        xMapCoordFromUnitCoord (theGame.players[theGame.currentPlayer].leaders[i].x, theGame.players[theGame.currentPlayer].leaders[i].y),
-        yMapCoordFromUnitCoord (theGame.players[theGame.currentPlayer].leaders[i].x, theGame.players[theGame.currentPlayer].leaders[i].y),
+        xMapCoordFromUnitCoord (l.x, l.y),
+        yMapCoordFromUnitCoord (l.x, l.y),
         yMapCoordFromUnitCoord (this.x, this.y), 
         xMapCoordFromUnitCoord (this.x, this.y)
       );
@@ -502,6 +554,50 @@ class Leader
     }
   }
 
+
+  numberOfFriendlyUnitsInHex (x, y)
+  {
+    let result = 0;
+    
+    for (let l of unitMap.entries ())
+    {
+      if (l[1].x == x && l[1].y == y && this.playerId == l[1].playerId) 
+      {
+        result++;      
+      }   
+    }    
+    
+    return result;
+  }
+
+
+  enemyUnitsInHex (x, y)
+  {
+    let result = false;
+    
+    for (let l of unitMap.entries ())
+    {
+      if (l[1].x == x && l[1].y == y && this.playerId != l[1].playerId) 
+      {
+        result = true;
+        break;      
+      }   
+    }    
+    
+    return result;
+  }
+
+
+  // The leader that has just entered a hex gets the higher zOrder
+  recalcZOrder ()
+  {
+    const n = this.numberOfFriendlyUnitsInHex (this.x, this.y)
+    
+    this.zOrder = mapZOrder + n + 1;
+    this.marker.setZOrder (this.zOrder);
+  }
+  
+  
 } // End of Class
 
 
