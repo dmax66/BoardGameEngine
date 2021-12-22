@@ -117,20 +117,14 @@ class UI_MoraleWidget {
     const tr = document.createElement("TR");
     parentWidget.appendChild (tr);
     
-    const td1 = document.createElement("TD");
-    tr.appendChild(td1);
-        
-    // Simple approach : just a box with a label 
-    this.widget = document.createElement ("INPUT");
+    this.widget = document.createElement("TD");
     this.widget.id = moraleWidgetId;
-    this.widget.type = "TEXT";
-    this.widget.readOnly = true;
     this.widget.setAttribute ("class", "morale-widget");
-    td1.appendChild (this.widget);
+    tr.appendChild (this.widget);
   }
   
   setValue (value) {
-    this.widget.value = value;
+    this.widget.innerHTML = value;
   } 
 }
 
@@ -172,34 +166,19 @@ class UI_ArmyPanel
   
   setAP (value) 
   {
-    this.AP.value = "AP: " + value;
+    this.AP.innerHTML = "AP: " + value;
   } 
 
   
   setCOPStatus (isActive, x, y, name) 
   {
-    if (isActive)
-    {
-      this.COPStatus.innerHTML = "COP: active (" + x + ", " + y + ")";
-    }
-    else 
-    {
-      this.COPStatus.innerHTML = "COP: inactive (disbanded on turn x)";
-    }
+    this.COPStatus.innerHTML = "COP: " + (isActive ? "active" : "inactive (disbanded on turn x)");
   }
   
   
   setSSStatus (isActive, x, y, name)
   {
-    if (isActive)
-    {
-      this.SSStatus.innerHTML = "Supply Source: active (" + x + ", " + y + ")";
-      
-      if (name != "")
-      {
-         this.SSStatus.innerHTML += " - " + name; 
-      }
-    }
+    this.SSStatus.innerHTML = "Supply Source: " + (isActive ? "active" : "inactive");
   }
   
 }
