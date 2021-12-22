@@ -34,8 +34,8 @@ class Game {
     this.players          = [];
     this.nations          = [];
     this.armies           = [];
-    this.leaders          = [];
-    this.units            = [];
+    this.leaders          = new Map ();
+    this.units            = new Map ();
     
     this.calendar = [];
     this.weatherTable = [];
@@ -72,26 +72,26 @@ class Game {
 
 
   // Returns the index of the units array whose id == unitId
-  findUnit (unitId) {
+/*  findUnit (unitId) 
+  {
+
     for (let i = 0; i < this.units.length; i++)
       if (this.units[i].unitId == unitId)
         return i;
   
     return (-1);
   }
-  
+  */
 
   // Returns an instance of class Unit whose id == unitId
-  getUnit (unitId) {
-    for (let i = 0; i < this.units.length; i++)
-      if (this.units[i].unitId == unitId)
-        return this.units[i];
-  
-    return null;
+  getUnit (unitId) 
+  {
+    return units.get (unitId);
   }
   
 
   // Returns the index of the leaders array whose Id == leadertId
+/*
   findLeader (leaderId) {
     for (let i = 0; i < this.leaders.length; i++)
       if (this.leaders[i].leaderId == leaderId)
@@ -99,18 +99,16 @@ class Game {
   
     return (-1);
   }
-  
+*/  
 
   // Returns an instance of class Leader whose id == unitId
-  getLeader (leaderId) {
-    for (let i = 0; i < this.leaders.length; i++)
-      if (this.leaders[i].leaderId == leaderId)
-        return this.leaders[i];
-  
-    return null;
+  getLeader (leaderId) 
+  {
+    return leaders.get (leaderId);
   }
   
 
+/*
   numOfLeadersInHex (x, y)
   {
     let n = 0;
@@ -123,7 +121,7 @@ class Game {
         
     return n;
   }
-  
+*/  
   
   // Move to the controller?
 
@@ -167,21 +165,28 @@ class Game {
     this.players[this.currentPlayer].draw ();
     
     // Draw own the units
-    for (let l of this.players[this.currentPlayer].leaders) 
+    for (let l of this.players[this.currentPlayer].leaders.entries()) 
     { 
-      if (l.parentId == null) 
+      if (l[1].parentId == null) 
       {
-        l.draw();
+        l[1].draw();
       }
     }
 
     // Draw enemy leaders within visibility range
-    const otherPlayer = this.otherPlayer ();
-    for (let l of this.players[otherPlayer].leaders)
+    for (let p = 0; p < this.players.length; p++)
     { 
-      if (l.parentId == null && l.nearEnemy ()) 
+      if (p == this.currentPlayer)
       {
-          l.draw();
+        continue;
+      }
+
+      for (l of this.players[p].leaders.entries ())
+      {
+        if (l[1].parentId == null && l.nearEnemy ()) 
+        {
+            l[1].draw();
+        }
       }
     }
     
@@ -200,13 +205,6 @@ class Game {
     }    
   }
 
-  // Return the index of the othger player
-  // Should be scalable to n players
-  otherPlayer () {
-    return this.currentPlayer == 0 ? 1 : 0;
-  }
-  
-    
   advanceGame () {
     this.currentSegment++;
 

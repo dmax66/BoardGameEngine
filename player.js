@@ -7,8 +7,8 @@ class Player {
     this.morale  = json_data.morale;
     this.nations = [];
     this.armies  = [];
-    this.leaders = [];
-    this.units   = [];
+    this.leaders = new Map ();
+    this.units   = new Map ();
 
     this.parentWdiget = null;
     this.playerWidget = null;
@@ -42,13 +42,13 @@ class Player {
   }
 
   addLeader (leader) {
-    this.leaders.push (leader);
     leader.setPlayer (this);
+    this.leaders.set (leader.leaderId, leader);
   }
 
   addUnit (unit) {
-    this.units.push (unit);
     unit.setPlayer (this);
+    this.units.set (unit.unitId, unit);
   }
 
   draw () {

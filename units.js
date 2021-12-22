@@ -1,7 +1,7 @@
 
 class Unit {
   constructor (json_data) {
-    this.id          = json_data.id;
+    this.unitId      = json_data.unitId;
     this.name        = json_data.name;
     this.nation      = json_data.nation;
     this.commander   = json_data.commander;
@@ -11,6 +11,7 @@ class Unit {
     this.strength    = json_data.strength;
     this.playerId    = json_data.playerId;
     this.parent      = null;
+    this.player      = null;
     
     this.unitIconName = "";
     
@@ -51,35 +52,41 @@ class Unit {
     this.unitIconName += ".png";
   }
 
+  setPlayer (player) {
+    this.player = player;
+  }
+
   iconFileName () {
     return this.unitIconName;
   }
 
 
   // parentLeader is an object of class Leader
-  setParent (parentLeader) {
+  setParent (parentLeader) 
+  {
     this.commandedBy = parentLeader.leaderId;
     this.parent = parentLeader; 
   }
   
   
-  unsetParent () {
+  unsetParent () 
+  {
     this.commandedBy = (-1);
     this.parent = null; 
   }
-  
-  
-  static modifyStrength () {
+
+
+  modifyStrength () {
     alert ("modifyStrength");
   }
   
   
-  static makeMajGen () {
+  makeMajGen () {
     alert ("makeMajGen");
   }
   
   
-  static transferToLeader () {
+  transferToLeader () {
     alert ("transferToLeader");
   }
 

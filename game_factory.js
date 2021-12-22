@@ -39,80 +39,96 @@ class GameFactory {
       GameFactory.gameData.weather
     );
     
-    for (let i = 0; i < GameFactory.players_data.length; i++) {
-      const newPlayer = new Player (GameFactory.players_data[i]);
+    for (let d of GameFactory.players_data) 
+    {
+      const newPlayer = new Player (d);
       newGame.players.push (newPlayer);    
     }
 
-    for (let i = 0; i < GameFactory.nations_data.length; i++) {
-      const newNation = new Nation (GameFactory.nations_data[i]);
+    for (let d of GameFactory.nations_data) 
+    {
+      const newNation = new Nation (d);
       newGame.nations.push (newNation);    
     }
 
-    for (let i = 0; i < GameFactory.armies_data.length; i++) {
-      const newArmy = new Army (GameFactory.armies_data[i]);
+    for (let d of GameFactory.armies_data) 
+    {
+      const newArmy = new Army (d);
       newGame.armies.push (newArmy);    
     }
     
-    for (let i = 0; i < GameFactory.leaders_data.length; i++) {
-      const newLeader = new Leader (GameFactory.leaders_data[i]);
-      newGame.leaders.push (newLeader);    
+    for (let d of GameFactory.leaders_data) 
+    {
+      const newLeader = new Leader (d);
+      newGame.leaders.set (newLeader.leaderId, newLeader);    
     }
 
-    for (let i = 0; i < GameFactory.units_data.length; i++) {
-      const newUnit = new Unit (GameFactory.units_data[i]);
-      newGame.units.push (newUnit);    
+    for (let d of GameFactory.units_data) 
+    {
+      const newUnit = new Unit (d);
+      newGame.units.set (newUnit.unitId, newUnit);    
     }
 
 
     // Build the hierarchy
     // Assign objects to the players
-    for (let i = 0; i < newGame.players.length; i++) {
-      const thePlayer = newGame.players[i];
-
+    for (let thePlayer of newGame.players) 
+    {
       // Add Nations 
-      for (let j = 0; j < newGame.nations.length; j++) {
-        if (thePlayer.playerId == newGame.nations[j].playerId) {
-          thePlayer.addNation (newGame.nations[j]);
+      for (let n of newGame.nations) 
+      {
+        if (thePlayer.playerId == n.playerId) 
+        {
+          thePlayer.addNation (n);
         }      
       }
     
       // Add Armies 
-      for (let j = 0; j < newGame.armies.length; j++) {
-        if (thePlayer.playerId == newGame.armies[j].playerId) {
-          thePlayer.addArmy (newGame.armies[j]);
+      for (let a of newGame.armies) 
+      {
+        if (thePlayer.playerId == a.playerId) 
+        {
+          thePlayer.addArmy (a);
         }      
       }
 
       // Add leaders
-      for (let j = 0; j < newGame.leaders.length; j++) {
-        if (thePlayer.playerId == newGame.leaders[j].playerId) {
-          thePlayer.addLeader (newGame.leaders[j]);
+      for (let l of newGame.leaders.entries())
+      {
+        if (thePlayer.playerId == l.playerId) 
+        {
+          thePlayer.addLeader (l[1]);
         }
       }
 
       // Add units
-      for (let j = 0; j < newGame.units.length; j++) {
-        if (thePlayer.playerId == newGame.units[j].playerId) {
-          thePlayer.addUnit (newGame.units[j]);
+      for (let u of newGame.units.entries ()) 
+      {
+        if (thePlayer.playerId == u.playerId) 
+        {
+          thePlayer.addUnit (u[1]);
         }
       }
     }
     
     // Add objects to leaders
-    for (let i = 0; i < newGame.leaders.length; i++) {
-    
+    for (let l of newGame.leaders.entries ()) 
+    {
       // Add units
-      for (let j = 0; j < newGame.units.length; j++) {
-        if (newGame.units[j].commandedBy == newGame.leaders[i].leaderId) {
-          newGame.leaders[i].addUnit (newGame.units[j]);
+      for (let u of newGame.units.entries ()) 
+      {
+        if (u[1].commandedBy == l[1].leaderId) 
+        {
+          l[1].addUnit (u[1]);
         }
       }      
 
       // Assign subordinates to their leaders  
-      for (let j = 0; j < newGame.leaders.length; j++) {
-        if (newGame.leaders[j].parentId == newGame.leaders[i].leaderId) {
-          newGame.leaders[i].addSubordinate (newGame.leaders[j]);
+      for (let sl of newGame.leaders.entries ()) 
+      {
+        if (sl[1].parentId == l[1].leaderId) 
+        {
+          l[1].addSubordinate (sl[1]);
         }
       }      
     }

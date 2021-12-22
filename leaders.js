@@ -132,7 +132,10 @@ class Leader
   // Remove the unit identified by unitId. 
   removeUnit (unitId) 
   {
-    this.units.delete (unitId)
+    const unit = this.units.get (unitId);
+    
+    this.units.delete (unitId);
+    unit.unsetParent ();
  
     this.updateBalloonInfo ();
   }
@@ -520,23 +523,23 @@ class Leader
   {
     let result = [];
 
-    for (let l of theGame.leaders) 
+    for (let l of theGame.leaders.entries ()) 
     {
-      if (l.player.playerId == this.player.playerId)
+      if (l[1].playerId == this.playerId)
       {
         continue;      
       }
       
       const distanceSquared = distanceSquareInUnitCoords (
-        xMapCoordFromUnitCoord (l.x, l.y),
-        yMapCoordFromUnitCoord (l.x, l.y),
+        xMapCoordFromUnitCoord (l[1].x, l[1].y),
+        yMapCoordFromUnitCoord (l[1].x, l[1].y),
         yMapCoordFromUnitCoord (this.x, this.y), 
         xMapCoordFromUnitCoord (this.x, this.y)
       );
         
       if (distanceSquared < visibilityRadiusSquared) 
       {
-        result.push (l);
+        result.push (l[1]);
       }
     }
     
