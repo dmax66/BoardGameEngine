@@ -29,8 +29,8 @@ class Leader
     this.units              = new Map ();
     this.subordinates       = new Map ();
     this.player             = null;
+
     this.marker = new LeaderMarker (this.leaderId, this.name, this.type, this.nationId);
-    
     this.marker.setPosition (this.x, this.y);
     this.marker.setOrientation (this.orientation);
     this.marker.setMode (this.mode);
@@ -170,13 +170,15 @@ class Leader
   setParent (parent) 
   {
     // Sanity check #1: check that it is not referencing itself
-    if (this.leaderId == parent.leaderId) {
+    if (this.leaderId == parent.leaderId) 
+    {
       throw ("Unit.addSubordinate: trying to add leader to itself");
       return false;
     }
     
     // Sanity check #2: they must be of the same playerId
-    if (this.playerId != parent.playerId) {
+    if (this.playerId != parent.playerId) 
+    {
       throw ("Unit.addSubordinate: trying to add leader to other playerId");
       return false;
     }
@@ -241,38 +243,45 @@ class Leader
   moveFL () {
     const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
+    let newX = 0;
+    let newY = 0;
+    let newOrientation = 0;
+    
     
     switch (this.mode) {
       case "l": 
         // Orientation remains the same
         // The correct offsets are those corresponding to ( current orientation - 2)
-        const newOrientation = orientationPrev (orientationPrev (curOrientation)); 
-        this.x += xOffset (newOrientation, isOddRow);
-        this.y += yOffset (newOrientation, isOddRow);
+        newOrientation = orientationPrev (orientationPrev (curOrientation)); 
+        newX = this.x + xOffset (newOrientation, isOddRow);
+        newY = this.y + yOffset (newOrientation, isOddRow);
         break;
          
       case "c":
-        this.orientation = orientationPrev (curOrientation);
-        this.x += xOffset (this.orientation, isOddRow);
-        this.y += yOffset (this.orientation, isOddRow);
+        newOrientation = orientationPrev (curOrientation);
+        newX = this.x + xOffset (newOrientation, isOddRow);
+        newY = this.y + yOffset (newOrientation, isOddRow);
         break;
          
         default:
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
 
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setOrientation (this.orientation);
-    this.recalcZOrder ();
-        
-    this.draw();
-    this.drawEnemiesWithinVisibilityRange();
+    if (this.canEnterHex (newX, newY))
+    {
+      this.x = newX;
+      this.y = newY;        
+      this.orientation = newOrientation;
+      this.doPostMovementActions ()  
+    }
   }
   
 
   moveF () {
-    const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
+    let newX = 0;
+    let newY = 0;
+    let newOrientation = 0;
     
     switch (this.mode) {
       case "l":
@@ -280,52 +289,58 @@ class Leader
         break;
          
       case "c":
-        this.x += xOffset (this.orientation, isOddRow);
-        this.y += yOffset (this.orientation, isOddRow);
+        newOrientation = this.orientation;
+        newX = this.x + xOffset (this.orientation, isOddRow);
+        newY = this.y + yOffset (this.orientation, isOddRow);
         break;
          
         default:
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
 
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setOrientation (this.orientation);
-    this.recalcZOrder ();
-        
-    this.draw();
-    this.drawEnemiesWithinVisibilityRange();
+    if (this.canEnterHex (newX, newY))
+    {
+      this.x = newX;
+      this.y = newY;        
+      this.orientation = newOrientation;
+      this.doPostMovementActions ()  
+    }
   }
   
 
   moveFR () {
     const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
+    let newX = 0;
+    let newY = 0;
+    let newOrientation = 0;
     
     switch (this.mode) {
       case "l": 
         // Orientation remains the same
         // The correct offsets are those corresponding to (current orientation - 1)
-        const newOrientation = orientationPrev (curOrientation); 
-        this.x += xOffset (newOrientation, isOddRow);
-        this.y += yOffset (newOrientation, isOddRow);
+        newOrientation = this.orientation;
+        newX = this.x + xOffset (newOrientation, isOddRow);
+        newY = this.y + yOffset (newOrientation, isOddRow);
         break;
          
       case "c":
-        this.orientation = orientationNext (curOrientation);
-        this.x += xOffset (this.orientation, isOddRow);
-        this.y += yOffset (this.orientation, isOddRow);
+        newOrientation = orientationNext (curOrientation);
+        newX = this.x + xOffset (newOrientation, isOddRow);
+        newY = this.y + yOffset (newOrientation, isOddRow);
         break;
          
       default:
         throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setOrientation (this.orientation);
-    this.recalcZOrder ();
-        
-    this.draw();
-    this.drawEnemiesWithinVisibilityRange();
+    if (this.canEnterHex (newX, newY))
+    {
+      this.x = newX;
+      this.y = newY;        
+      this.orientation = newOrientation;
+      this.doPostMovementActions ()  
+    }
   }
   
 
@@ -352,11 +367,7 @@ class Leader
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setOrientation (this.orientation);
-    this.recalcZOrder ();
-        
-    this.draw();
+    this.doPostMovementActions ()  
   }
   
   
@@ -378,27 +389,24 @@ class Leader
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setOrientation (this.orientation);
-    this.recalcZOrder ();
-        
-    this.draw();
-    this.drawEnemiesWithinVisibilityRange();
+    this.doPostMovementActions ()  
   }
   
   
   rotateCCW () {
     const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
+    let newX = 0;
+    let newY = 0;
+    let newOrientation = 0;
     
 
     switch (this.mode)
     {
       case "l":
-        this.orientation = orientationPrev (curOrientation);
-        this.x += xOffset (this.orientation, isOddRow);
-        this.y += yOffset (this.orientation, isOddRow);
-        this.moveFL();
+        newOrientation = orientationPrev (curOrientation);
+        newX = this.x + xOffset (this.orientation, isOddRow);
+        newY = this.y + yOffset (this.orientation, isOddRow);
         break;
         
       case "c":
@@ -408,6 +416,30 @@ class Leader
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
+    if (this.canEnterHex (newX, newY))
+    {  
+      this.x = newX;
+      this.y = newY;
+      this.orientation = newOrientation;
+      this.moveFL();
+      this.doPostMovementActions ()  
+    }
+  }  
+  
+  canEnterHex (x, y)
+  {
+    if (this.enemyUnitsInHex (x ,y))
+    {
+      return false;    
+    }  
+    else 
+    {
+      return true;
+    }
+  }
+  
+  doPostMovementActions ()
+  {
     this.marker.setPosition (this.x, this.y);
     this.marker.setOrientation (this.orientation);
     this.recalcZOrder ();
@@ -493,17 +525,15 @@ class Leader
     this.setZOrder (z);    
   }
  
- 
-  // IS IT CORRECT???? 
+
+  // Returns true if this leader is near an enemy unit
   nearEnemy () 
   {
-    const numOtherLeaders = theGame.players[theGame.currentPlayer].leaders.length; 
-
-    for (let l of theGame.players[theGame.currentPlayer].leaders) 
+    for (let l of theGame.players[theGame.currentPlayer].leaders.entries ()) 
     {
       const distanceSquared = distanceSquareInUnitCoords (
-        xMapCoordFromUnitCoord (l.x, l.y),
-        yMapCoordFromUnitCoord (l.x, l.y),
+        xMapCoordFromUnitCoord (l[1].x, l[1].y),
+        yMapCoordFromUnitCoord (l[1].x, l[1].y),
         yMapCoordFromUnitCoord (this.x, this.y), 
         xMapCoordFromUnitCoord (this.x, this.y)
       );
@@ -518,7 +548,7 @@ class Leader
   }  
   
 
-  // Returns an array of Leader
+  // Returns an array of enemy leaders within visibility range
   enemiesWithinVisibilityRange () 
   {
     let result = [];
@@ -533,8 +563,8 @@ class Leader
       const distanceSquared = distanceSquareInUnitCoords (
         xMapCoordFromUnitCoord (l[1].x, l[1].y),
         yMapCoordFromUnitCoord (l[1].x, l[1].y),
-        yMapCoordFromUnitCoord (this.x, this.y), 
-        xMapCoordFromUnitCoord (this.x, this.y)
+        xMapCoordFromUnitCoord (this.x, this.y), 
+        yMapCoordFromUnitCoord (this.x, this.y)
       );
         
       if (distanceSquared < visibilityRadiusSquared) 
@@ -556,6 +586,7 @@ class Leader
       el.draw ();
     }
   }
+
 
 
   numberOfFriendlyUnitsInHex (x, y)

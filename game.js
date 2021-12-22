@@ -181,9 +181,9 @@ class Game {
         continue;
       }
 
-      for (l of this.players[p].leaders.entries ())
+      for (let l of this.players[p].leaders.entries ())
       {
-        if (l[1].parentId == null && l.nearEnemy ()) 
+        if (l[1].parentId == null && l[1].nearEnemy ()) 
         {
             l[1].draw();
         }

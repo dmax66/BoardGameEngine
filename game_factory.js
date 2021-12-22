@@ -95,7 +95,7 @@ class GameFactory {
       // Add leaders
       for (let l of newGame.leaders.entries())
       {
-        if (thePlayer.playerId == l.playerId) 
+        if (thePlayer.playerId == l[1].playerId) 
         {
           thePlayer.addLeader (l[1]);
         }
@@ -104,7 +104,7 @@ class GameFactory {
       // Add units
       for (let u of newGame.units.entries ()) 
       {
-        if (thePlayer.playerId == u.playerId) 
+        if (thePlayer.playerId == u[1].playerId) 
         {
           thePlayer.addUnit (u[1]);
         }

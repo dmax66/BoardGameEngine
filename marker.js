@@ -80,7 +80,6 @@ class Marker
   setZOrder (zOrder)
   {
     this.zOrder = zOrder;
-    this.draw ();
   }
 
   
@@ -159,8 +158,8 @@ class Marker
     actionMenu = document.createElement ("DIV");
     actionMenu.id = "actionMenu";
     actionMenu.setAttribute ("class", "popup-menu");
-    actionMenu.style.left = (xMapCoordFromUnitCoord (owner.x) + 51) + "px";
-    actionMenu.style.top  = (xMapCoordFromUnitCoord (owner.y) - 10) + "px";
+    actionMenu.style.left = xMapCoordFromUnitCoord (this.x, this.y) + 51 + "px";
+    actionMenu.style.top  = yMapCoordFromUnitCoord (this.x, this.y) - 10 + "px";
     actionMenu.style.zIndex = 20;
     document.getElementById ("mapContainer").appendChild (actionMenu);
   
@@ -177,9 +176,6 @@ class Marker
     menuContent.innerHTML = "<b>" + owner.name + "</b>";
     actionMenu.appendChild (menuContent);
   
-    menuContent = document.createElement ("HR");
-    actionMenu.appendChild (menuContent);
-    
     for (let a of owner.possibleActions()) 
     {
       menuContent = document.createElement ("INPUT");
@@ -211,7 +207,7 @@ class COPMarker extends Marker
   setOrientation (orientation)
   {
     this.orientation = orientation;
-    this.draw ();  
+//    this.draw ();  
   }
 
 }
@@ -266,7 +262,6 @@ class LeaderMarker extends Marker
   setOrientation (orientation)
   {
     this.orientation = orientation;
-    this.draw ();  
   }
 
 
@@ -279,14 +274,12 @@ class LeaderMarker extends Marker
     }  
     
     this.mode = mode;
-    this.draw ();
   }
 
 
   setZOrder (zOrder)
   {
     this.zOrder = zOrder;
-    this.draw ();
   }
 
   
