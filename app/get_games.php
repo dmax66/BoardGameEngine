@@ -19,8 +19,12 @@ if ($conn->connect_error)
 else if ($loglevel > 0)	fwrite ($logfile, "success\n");
 
 
-$sql = "USE game_engine";
+$sql = "USE " . $schemaname;;
 $result = mysqli_query($conn, $sql);
+if (! $result)
+{
+  if ($loglevel > 0) fwrite ($logfile, "USE game_engine failed\n");
+}
 
 
 $sql = "SELECT G.gameId AS 'ID', G.name as 'Name', S.Description FROM Games G, Scenarios S WHERE G.scenarioId=S.ID";

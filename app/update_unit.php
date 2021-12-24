@@ -1,8 +1,5 @@
 <?php
 
-//
-// UPDATE_LEADER (game_id, leader_id, x, y, orientation, mode, zOrder, parentId)
-
 
 include 'db_params.php';
 include 'log.php';
@@ -24,7 +21,7 @@ else if ($loglevel > 0)	{
   fprintf ($logfile, "success\n");
 }
 
-$sql = "USE game_engine";
+$sql = "USE " . $schemaname;;
 $result = mysqli_query($conn, $sql);
 
 $sql = sprintf ("UPDATE Units_Dynamic_Data SET commandedBy='%s',strength=%s WHERE unitId='%s' AND gameId=%s",

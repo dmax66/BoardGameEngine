@@ -24,7 +24,7 @@ else if ($loglevel > 0)	{
   fprintf ($logfile, "success\n");
 }
 
-$sql = "USE game_engine";
+$sql = "USE " . $schemaname;;
 $result = mysqli_query($conn, $sql);
 
 

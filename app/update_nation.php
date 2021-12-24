@@ -24,7 +24,7 @@ else if ($loglevel > 0)	{
   fprintf ($logfile, "success\n");
 }
 
-$sql = "USE game_engine";
+$sql = "USE " . $schemaname;;
 $result = mysqli_query($conn, $sql);
 
 $sql = sprintf ("UPDATE Nations_Dynamic_Data SET infReplacementPoints=%s, cavReplacementPoints=%s, artReplacementPoints=%s WHERE nationId='%s' AND gameId=%s",

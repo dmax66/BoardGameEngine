@@ -19,7 +19,7 @@ if ($conn->connect_error)
 else if ($loglevel > 0)	fwrite ($logfile, "success\n");
 
 
-$sql = "USE game_engine";
+$sql = "USE " . $schemaname;;
 $result = mysqli_query($conn, $sql);
 
 
