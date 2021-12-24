@@ -24,16 +24,26 @@ class COP
 
 
   static _possibleActions = [
-    { action: "Rotate clockwise",      func: function(aCOP) { aCOP.rotateCW(); }},
-    { action: "Rotate anti-clockwise", func: function(aCOP) { aCOP.rotateCCW(); }},
-    { action: "Move forward-left",     func: function(aCOP) { aCOP.moveFL(); }},
-    { action: "Move forward-right",    func: function(aCOP) { aCOP.moveFR(); }},
-    { action: "Disband",               func: function(aCOP) { aCOP.disband(); }}
+    { action: "Rotate clockwise",      segmentFilter: ["mCOP"], func: function(aCOP) { aCOP.rotateCW(); }},
+    { action: "Rotate anti-clockwise", segmentFilter: ["mCOP"], func: function(aCOP) { aCOP.rotateCCW(); }},
+    { action: "Move forward-left",     segmentFilter: ["mCOP"], func: function(aCOP) { aCOP.moveFL(); }},
+    { action: "Move forward-right",    segmentFilter: ["mCOP"], func: function(aCOP) { aCOP.moveFR(); }},
+    { action: "Disband",               segmentFilter: ["dCOP"], func: function(aCOP) { aCOP.disband(); }}
   ];
 
   possibleActions ()
   {
-    return COP._possibleActions;
+    let result = [];
+    
+    for (let a of COP._possibleActions)
+    {
+      if (a.segmentFilter.includes (Game.sequenceOfPlay[theGame.currentSegment].id))
+      {
+        result.push (a);      
+      }    
+    }  
+  
+    return result;
   }
 
   disband ()
@@ -157,67 +167,50 @@ class COP
 
 class SupplySource
 {
-  constructor (playerId, armyId, json_data)
+  constructor (playerId, armyId, name, x, y)
   {
     this.playerId = playerId;
     this.armyId   = armyId;
-    this.name     = "Supply Source";
-    this.x        = 1 * json_data.SS_x;
-    this.y        = 1 * json_data.SS_y;
-    this.isActive = (1 * json_data.SS_isActive) == 1;
+    this.id       = name;
+    this.name     = name;
+    this.x        = 1 * x;
+    this.y        = 1 * y;
     
-    this.marker = new SSMarker (armyId);
+    this.marker = new SSMarker (armyId, name);
     this.marker.setPosition (this.x, this.y);
     this.marker.setZOrder (1);
     
     this.updateBalloonInfo ();    
     
-    unitMap.set ( "SS-" + armyId, this);
+    unitMap.set ("SS-" + name, this);
   }
 
 
-  static _possibleActions = [
-    { action: "Switch to another SS",      func:function(aSS) { aSS.move(); }}
+  static _possibleActions = 
+  [
+    { action: "Switch to another SS",      segmentFilter:["mSS"],  func:function(aSS) { aSS.deactivate(); }}
   ];
 
 
   possibleActions ()
   {
-    return SupplySource._possibleActions;  
-  }
-  
-  
-  move ()
-  {
-    this.isActive = false;
-    this.updateBalloonInfo ();
-    this.marker.enable (false);
-  }
-  
-  
-  reactivate ()
-  {
-    if (this.isActive) 
+    let result = [];
+    
+    for (let a of SupplySource._possibleActions)
     {
-      return;
-    }
-
-    // Roll die to reactivate - 1 or 2 means the SS reactivation is successful
-    this.updateBalloonInfo ();
-    this.marker.enable (true);
+      if (a.segmentFilter.includes (Game.sequenceOfPlay[theGame.currentSegment].id))
+      {
+        result.push (a);      
+      }    
+    }  
+  
+    return result;
   }
-
-
+  
+  
   updateBalloonInfo ()
   {
-    if (this.isActive) 
-    {
-      this.marker.updateBalloonInfo ("Supply Source - army " + this.armyId + "<br>Active");
-    }
-    else 
-    {
-      this.marker.updateBalloonInfo = ("Supply Source - army " + this.armyId + "<br>Inactive");
-    }
+    this.marker.updateBalloonInfo ("Supply Source - army " + this.name);
   }
   
   
@@ -227,63 +220,85 @@ class SupplySource
   }
   
 
-  move (x, y) 
+  activate ()
   {
-    this.x = x;
-    this.y = y;  
-    this.marker.setPosition (x, y);
+    this.marker.enable (true);
+    this.draw ();
   }
-}
+
+
+  deactivate () 
+  {
+    alert ("Are you sure?");
+    
+    for (let a of theGame.armies)
+    {
+      if (a.armyId == this.armyId)
+      {
+        a.deactivateSS (this.name);
+        this.marker.enable (false);
+      }    
+    }
+  }
+
+} // Class
 
 
 
-class Army {
-
+class Army 
+{
   constructor (json_data) 
   {
     this.armyId      = json_data.armyId;
     this.name        = json_data.name;
     this.playerId    = json_data.playerId;
     this.adminPoints = json_data.adminPoints;  
-    this.copX        = json_data.COP_X;
-    this.copY        = json_data.COP_Y;
-    this.isActive    = true;
     this.player      = null;
     this.armyPanel   = null;
     
     this.COP = new COP (this.playerId, this.armyId, json_data);
-    this.supplySources = [];
-    this.activeSS = new SupplySource (this.playerId, this.armyId, json_data);
- }
+    this.supplySources = new Map ();
+    this.activeSSName = (json_data.activeSSId != "" ? json_data.activeSSId : null); 
+  }
 
   addSS (json_data) 
   {
-    this.supplySources.push (json_data);
+    this.supplySources.set (json_data.name, new SupplySource (this.playerId, this.armyId, json_data.name, json_data.x, json_data.y));
   }
 
-  setPlayer (player) {
+
+  setPlayer (player) 
+  {
     this.player = player;
   }
 
-  create_UI_widgets (parentWidget) {
+  create_UI_widgets (parentWidget) 
+  {
     // Creates the UI elements
     this.armyPanel = new UI_ArmyPanel (this.symbol, this.name, parentWidget);
   }
 
 
+  deactivateSS (ssName)
+  {
+    this.activeSSName = null;  
+  }
+
+
+  activateSS (ssName)
+  {
+    this.activeSSName = ssName;
+    
+    const newSS = this.supplySources.get (ssName);
+    newSS.activate ();
+  }
+
+
   draw () 
   {
-    this.armyPanel.setAP (this.adminPoints);
-    this.armyPanel.setCOPStatus (this.COP.isActive, this.COP.x, this.COP.y, );
-
-    for (let ss of this.supplySources)
-    {
-      if (ss.isActive) 
-      {
-        this.armyPanel.setSSStatus (true, ss.x, ss.y, ss.name);
-        break;      
-      }
-    }
+    this.armyPanel.setAP        (this.adminPoints);
+    this.armyPanel.setCOPStatus (this.COP.isActive);
+    this.armyPanel.setSSStatus  (this.activeSSName, this.activeSSName != null);
   }
 
 }      

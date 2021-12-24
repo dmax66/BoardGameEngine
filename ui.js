@@ -170,15 +170,15 @@ class UI_ArmyPanel
   } 
 
   
-  setCOPStatus (isActive, x, y, name) 
+  setCOPStatus (isActive) 
   {
     this.COPStatus.innerHTML = "COP: " + (isActive ? "active" : "inactive (disbanded on turn x)");
   }
   
   
-  setSSStatus (isActive, x, y, name)
+  setSSStatus (name, isActive)
   {
-    this.SSStatus.innerHTML = "Supply Source: " + (isActive ? "active" : "inactive");
+    this.SSStatus.innerHTML = "Supply Source" + (isActive ? ": active (" + name + ")" : ": inactive");
   }
   
 }
@@ -208,7 +208,7 @@ class UI_PlayerWidget {
     // Column 2: Armies    
     const aInfo = headerRow.insertCell (1);
     aInfo.style.verticalAlign = "top";
-    aInfo.innerHTML = "<b>Armies</b>";
+    aInfo.innerHTML = "<b style='font-size: 15px'>Armies</b>";
     
     // Column 3: Reinforcement points
     const rpInfo = headerRow.insertCell (2);

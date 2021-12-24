@@ -6,20 +6,20 @@ let json_data = [];
 
 class Game {
   static sequenceOfPlay = [   
-    { phase:"Command Phase",  segment:"Weather Determination",             action: Game.determineWeather },
-    { phase:"Command Phase",  segment:"Move Supply Source",                action: Game.moveSS           },
-    { phase:"Command Phase",  segment:"Disband COP",                       action: Game.disbandCOP       },
-    { phase:"Command Phase",  segment:"Activate Supply Source",            action: Game.activateSS       },
-    { phase:"Command Phase",  segment:"Get AP",                            action: Game.getAP            },
-    { phase:"Command Phase",  segment:"Allocate AP",                       action: Game.allocateAP       },
-    { phase:"Command Phase",  segment:"Organization Segment",              action: Game.doNothing        },
-    { phase:"Movement Phase", segment:"Movement Commands",                 action: Game.doNothing        },
-    { phase:"Movement Phase", segment:"Move COP",                          action: Game.moveCOP          },
-    { phase:"Movement Phase", segment:"Individual Initiative Segment",     action: Game.doNothing        },
-    { phase:"Movement Phase", segment:"Bridge Segment",                    action: Game.doNothing        },
-    { phase:"Combat Phase",   segment:"Forced March Segment",              action: Game.doNothing        },
-    { phase:"Combat Phase",   segment:"Battle Resolution Segment",         action: Game.doNothing        },
-    { phase:"Combat Phase",   segment:"Disorganization and Rally Segment", action: Game.doNothing        }
+    { id: "WD",   phase:"Command Phase",  segment:"Weather Determination",             action: Game.determineWeather },
+    { id: "mSS",  phase:"Command Phase",  segment:"Move Supply Source",                action: Game.moveSS           },
+    { id: "dCOP", phase:"Command Phase",  segment:"Disband COP",                       action: Game.doNothing        },
+    { id: "aSS",  phase:"Command Phase",  segment:"Activate Supply Source",            action: Game.activateSS       },
+    { id: "gAP",  phase:"Command Phase",  segment:"Get AP",                            action: Game.getAP            },
+    { id: "aAP",  phase:"Command Phase",  segment:"Allocate AP",                       action: Game.allocateAP       },
+    { id: "OS",   phase:"Command Phase",  segment:"Organization Segment",              action: Game.doNothing        },
+    { id: "MC",   phase:"Movement Phase", segment:"Movement Commands",                 action: Game.doNothing        },
+    { id: "mCOP", phase:"Movement Phase", segment:"Move COP",                          action: Game.moveCOP          },
+    { id: "IIS",  phase:"Movement Phase", segment:"Individual Initiative Segment",     action: Game.doNothing        },
+    { id: "BS",   phase:"Movement Phase", segment:"Bridge Segment",                    action: Game.doNothing        },
+    { id: "FMS",  phase:"Combat Phase",   segment:"Forced March Segment",              action: Game.doNothing        },
+    { id: "BRS",  phase:"Combat Phase",   segment:"Battle Resolution Segment",         action: Game.doNothing        },
+    { id: "DRS",  phase:"Combat Phase",   segment:"Disorganization and Rally Segment", action: Game.doNothing        }
   ];
 
   constructor (id,  name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather) {
@@ -190,7 +190,7 @@ class Game {
       }
     }
     
-    // Draw the COP (if active)
+    // Draw the COP (if active) and SS fpr each army
     for (let a of this.players[this.currentPlayer].armies)
     {
       if (a.COP.isActive)
@@ -198,9 +198,10 @@ class Game {
         a.COP.draw ();      
       }    
       
-      if (a.activeSS.isActive) 
+      if (a.activeSSName != null) 
       {
-          a.activeSS.draw ();        
+        const ss = a.supplySources.get (a.activeSSName);
+        ss.draw ();        
       }
     }    
   }
@@ -265,14 +266,25 @@ class Game {
   static disbandCOP ()
   {
     alert ("You can disband your Center of Operations now. Rules apply");
-    
-    // Move to the controller
-    document.getElementById("disband_cop_dialog").style.display="initial";
   }
   
   static activateSS ()
   {
-    alert ("You can activate a new Supply Source now. Rules apply");
+    let isReactivationNeeded = false;
+    
+    for (let a of theGame.players[theGame.currentPlayer].armies)
+    {
+      if (a.activeSSName == null)
+      {
+        const dlgBox = new ActivateSSDialogBox ("activate_SS", true, theGame.currentPlayer);
+        dlgBox.open ();
+        return;      
+      }    
+    }
+    
+    // No armies need to reactivatre their supply source
+    alert ("All your armies have active Supply Sources");
+    
   }
   
   static getAP ()

@@ -87,7 +87,11 @@ class Marker
   {
     this.isEnabled = flag;
     
-    if (!this.isEnabled)
+    if (this.isEnabled)
+    {
+      this.show ();    
+    }
+    else
     {
       this.hide ();  
     }  
@@ -217,9 +221,9 @@ class COPMarker extends Marker
 
 class SSMarker extends Marker
 {
-  constructor (armyId)
+  constructor (armyId, SSId)
   {
-    super ("map-counter", "SS-" + armyId);
+    super ("map-counter", "SS-" + SSId);
     this.armyId = armyId;    
     this.icon.src = ("img/SS-" + armyId + ".png");
   }
