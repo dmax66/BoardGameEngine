@@ -1,9 +1,8 @@
 class ModalDialogBox
 {
-  constructor (baseWidgetName, hasCloseIcon)
+  constructor (baseWidgetName)
   {
     this.baseWidget = document.getElementById (baseWidgetName);
-    this.hasCloseIcon = hasCloseIcon;
   }
 
   open ()
@@ -18,11 +17,87 @@ class ModalDialogBox
 }
 
 
+class YesNoDialogBox extends ModalDialogBox 
+{
+  constructor ()
+  {
+    super ("yesno-dialog");
+    this.yesButton = document.getElementById ("yes-button");
+    this.noButton = document.getElementById ("no-button");
+    this.prompt = document.getElementById ("yesno-prompt");
+    this.gif = document.getElementById ("yesno-gif");
+    this.retVal = document.getElementById ("yesno-result");
+  }
+  
+  open (gif, prompt, labelYes, labelNo)
+  {
+    this.prompt.innerHTML = prompt;
+    this.gif.src = "img/" + gif;
+    this.yesButton.value = labelYes;
+    this.noButton.value = labelNo;
+    
+    this.retVal.value = "";
+    
+    ModalDialogBox.prototype.open.call (this);
+  }
+
+  getResult ()
+  {
+    return this.retVal.value;  
+  }
+}
+
+
+
+class DieRollDialogBox extends ModalDialogBox
+{
+  constructor ()
+  {
+    super ("die-roll-dialog", false);
+    this.gif = document.getElementById ("rolling-die");
+    this.retVal = document.getElementById ("die_roll_result");
+    this.okButton = document.getElementById ("die_roll_ok")
+  }
+
+  open ()
+  {
+    document.getElementById ("rolling-die").style.visibility = "visible";
+    document.getElementById ("die_roll_result").style.visibility = "hidden";
+    document.getElementById ("die_roll_ok").disabled = true;
+
+    this.retVal.value = Controller.rollOneDie ();
+    
+    ModalDialogBox.prototype.open.call (this);
+
+    // Show the gif
+    this.gif.style.display = "block";
+    
+    // Wait 2 secs and hide the gif
+    window.setTimeout ( 
+      function () 
+      {
+        document.getElementById ("rolling-die").style.visibility = "hidden";
+        document.getElementById ("die_roll_result").style.visibility = "visible";
+        document.getElementById ("die_roll_ok").disabled = false;
+      }        
+      , 2000);
+    
+  }
+  
+  
+  getDieRoll ()
+  {
+    return this.retVal.value;   
+  }
+
+}
+
+
 class ActivateSSDialogBox extends ModalDialogBox
 {
-  constructor (baseWidget, hasCloseIcon, playerIdx) 
+  constructor (baseWidget, playerIdx) 
   {
-    super (baseWidget, hasCloseIcon);
+    super (baseWidget);
     
     this.armyTable = document.getElementById ("army_SS");
 
@@ -94,9 +169,17 @@ class ActivateSSDialogBox extends ModalDialogBox
       if (a.armyId == armyId)
       {
         // TODO: roll die        
-          
-        a.activateSS (ssName);        
-        alert ("Supply Source activated:" + ssName);  
+        dieRollDialogBox.open ();
+        
+        if (dieRollDialogBox.getDieRoll() <= 2 )  
+        {
+          a.activateSS (ssName);        
+          alert ("Supply Source activated:" + ssName);
+        }
+        else 
+        {
+          alert ("Supply Source reactivation failed"); 
+        }
       }  
     }    
   }

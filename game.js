@@ -276,7 +276,7 @@ class Game {
     {
       if (a.activeSSName == null)
       {
-        const dlgBox = new ActivateSSDialogBox ("activate_SS", true, theGame.currentPlayer);
+        const dlgBox = new ActivateSSDialogBox ("activate_SS", theGame.currentPlayer);
         dlgBox.open ();
         return;      
       }    

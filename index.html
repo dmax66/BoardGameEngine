@@ -78,6 +78,7 @@ const mapZOrder = 1;
 <script src="game.js"></script>
 <script src="game_factory.js"></script>
 <script src="wargame_ui.js"></script>
+<script src="modal.js"></script>
 
 <script type="text/javascript">
 
@@ -234,14 +235,15 @@ function loadGame (id) {
 <!-- Weather determination box -->
 <div id="weather_box" class="modal">
   <div class="modal-content">
-    <span class="close">&times;</span>
-    Roll a die for weather<br>
-    <input type="button" value="Roll a die" onclick="Controller.rollDieForWeather()">
-    <input type="text" id="weather_die_roll" readonly="true">
-    <br>
-    <input type="text" id="weather_text" readonly="true">
-    <br>
-    <input type="button" id="weather_ok_button" value="OK" onclick="this.parentNode.parentNode.style.display='none'; theGame.advanceGame ();" disabled>
+    <p style="text-align: center;">
+      <strong>Roll a die for weather</strong><br>
+
+      <input type="button" value="Roll a die" onclick="this.disabled=true; document.getElementById('weather_ok_button').disabled=false; Controller.rollDieForWeather()">
+      <br>
+      <label for="weather_text">Weather: </label><input type="text" id="weather_text" readonly="true" style="visibility:hidden">
+      <br>
+      
+      <input type="button" id="weather_ok_button" value="Done" disabled onclick="this.parentNode.parentNode.parentNode.style.display='none'; theGame.advanceGame ();" >
   </div>
 </div>
 
@@ -278,8 +280,62 @@ function loadGame (id) {
 </div>
 
 
+<!-- Reactivate Supply Sources dialog box -->
+<div id="activate_SS" class="modal">
+  <div class="modal-content">
+
+    <p style="text-align: center;">
+      <strong>Reactivate Supply Sources</strong>
+    </p>
+    
+    <table id="army_SS" style="border-collapse: collapse; width: 100%; margin-left: auto; margin-right: auto;">
+      <tr> <!-- header row -->
+        <td style="width: 32.4655%;"><strong>Army</strong></td>
+        <td style="width: 44.7844%;"><strong>Possible Supply Sources</strong></td>
+        <td style="width: 22.696%;"></td>
+      </tr>
+    </table>
+    
+    <p style="text-align: center;">
+      <input type="button" onclick="this.parentNode.parentNode.parentNode.style='display: none'" value="Done">
+    </p>
+    
+  </div>
+</div>
+
+<!-- Die roll box -->
+<div id="die-roll-dialog" class="modal" style="z-index: 50">
+  <div class="modal-content">
+    <p style="text-align: center;">
+      <img id="rolling-die" src="./img/animated-die.gif" style="visibility:hidden; margin: 0 auto;">
+    </p>
+    <p style="text-align: center;">
+      <label for="die_roll_result">Die roll: </label> <input id="die_roll_result" type="text" style="visibility:hidden" size=1 readonly>
+      <br>
+      <input id="die_roll_ok" type="button" onclick="this.parentNode.parentNode.parentNode.style='display: none'" disabled value="Done">
+    </p>
+  </div>
+</div>
+  
+
+<!-- Yes/No box -->
+<div id="yesno-dialog" class="modal" style="z-index: 60">
+  <div class="modal-content">
+    <p style="text-align: center;">
+      <img id="yesno-gif" src="" style="margin: 0 auto; width:100px">
+      <span id="yesno-prompt"></span>
+    </p>
+    <p style="text-align: center;">
+      <input id="yes-button" type="button" class="yesno-button" onclick="document.getElementById('yesno-result').value='yes'; this.parentNode.parentNode.parentNode.style='display: none'; theGame.advanceGame(); " value="">
+      <input id="no-button"  type="button" class="yesno-button" onclick="document.getElementById('yesno-result').value='no';  this.parentNode.parentNode.parentNode.style='display: none'" value="">
+      <input id="yesno-result" type="text" style="display: none">
+    </p>
+  </div>
+</div>
+  
 
 <!-- Advance game modal box -->
+<!-- 
 <div id="advgame_dialog" class="modal">
   <div class="modal-content">
     <span class="close">&times;</span>
@@ -304,18 +360,20 @@ function loadGame (id) {
 
   </div>
 </div>
+-->
 
-<!-- STATUS BAR -->
+
+<!-- Status bar -->
 <div id="StatusBar" class="status_bar" >
 
-  <!-- Main menu -->
+<!-- Main menu -->
 <!-- <div id="menu_symbol" class="menu_symbol"  ></div>    -->
 <div id="main_menu_id" class="main_menu" onclick="toggle_menu();"><b>&#9776;&nbsp;Main menu</b>
-
   <div id="menu_items_id" class="menu_items"> 
     <input type="BUTTON" id="new_game_entry"  class="menu_item" onclick="createNewGameDialog();"  value="New Game">
     <input type="BUTTON" id="load_game_entry" class="menu_item" onclick="createLoadGameDialog();" value="Load Game">
-    <input type="BUTTON" id="advance_game"    class="menu_item" onclick="document.getElementById ('advgame_dialog').style.display='initial'" value="Advance Game">
+    <hr>  
+    <input type="BUTTON" id="advance_game"    class="menu_item" onclick="yesNoDialogBox.open('warning2.svg', 'Are you sure?', 'Yes', 'No');" value="Advance game">
     <input type="BUTTON" id="quit_game_entry" class="menu_item" value="Quit Game">
   </div>
 </div>
@@ -341,8 +399,11 @@ close_button.onclick = function() {
   document.getElementById("newgame_box").style.display = "none";
 }  
   
-const newgame_box = document.getElementById("newgame_box");
+const newgame_box = document.getElementById ("newgame_box");
 const hoverBalloonWidget = document.getElementById ("counter-balloon");
+
+const dieRollDialogBox = new DieRollDialogBox ();
+const yesNoDialogBox = new YesNoDialogBox ();
 
 // const aPoint = { x:10, y:10 }; 
 // const setOfHexes = sixHexesAround (aPoint);
