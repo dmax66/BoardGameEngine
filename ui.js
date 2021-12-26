@@ -146,18 +146,26 @@ class UI_ArmyPanel
     armyIcon.style.paddingRight = "5px";
     td0.appendChild (armyIcon);
 
-    // Second column: 
+    // 2nd column: 
     const td1 = tr.insertCell (1);
     td1.innerHTML = name + "&nbsp;&nbsp;";
 
-    // 3rd column: Admin points
-    this.AP = tr.insertCell (2);
+    // 3rd column: Admin points, Supply sources
+    const td2 = tr.insertCell (2); 
+    
+    this.AP = document.createElement ("P");
+  	this.AP.setAttribute ("style", "margin-top:0px; margin-bottom:0px;");
+    td2.appendChild (this.AP);
 
     // Status of COP
-    this.COPStatus = tr.insertCell (-1);
+    this.COPStatus = document.createElement ("P");
+  	this.COPStatus.setAttribute ("style", "margin-top: 0px; margin-bottom: 0px;");
+    td2.appendChild (this.COPStatus);
 
     // Supply Source
-    this.SSStatus = tr.insertCell (-1);
+    this.SSStatus = document.createElement ("P");
+  	this.SSStatus.setAttribute ("style", "margin-top: 0px; margin-bottom: 0px;");
+    td2.appendChild (this.SSStatus);
     
     // Depots
     this.depotCell = tr.insertCell (-1);

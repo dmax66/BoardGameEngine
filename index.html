@@ -83,12 +83,24 @@ const mapZOrder = 1;
 <script type="text/javascript">
 
 let new_game_id = '';
+let theGame = null;
+
+const hexWidth = 34;
+const hexHeight = 30;  
+
+const visibilityRadiusSquared = 25;
 
 
 // 
 // USER INTERFACE MANAGEMENT FUNCTIONS 
 //
-function createNewGameDialog () {
+function createNewGameDialog () 
+{
+  if (theGame != null && !confirm ("You are already playing a game!\nAre you sure you want to load another game?"))
+  {
+    return;
+  }
+  
   // Open a pop up menu to ask: game name, scenario
   document.getElementById("newgame_box").style.display = "block";   
   
@@ -113,8 +125,14 @@ function populate_scenario_list(xhttp_obj) {
 }
 
 
-function createLoadGameDialog () {
- // Open a pop up menu to select game to load
+function createLoadGameDialog () 
+{
+  if (theGame != null && !confirm ("You are already playing a game!\nAre you sure you want to load another game?"))       
+  {
+    return;
+  }
+  
+  // Open a pop up menu to select game to load
   document.getElementById("loadgame_box").style.display = "block";   
   
   // Load the list of scenarios
@@ -179,18 +197,9 @@ function processMouseMove (ev) {
 
 
 // let theStatusBar = null;
-let theGame = null;
 
-// MOVE TO DB!
-// const alliedNations = ['a', 'p', 'r', 's']
-// const frenchNations = ['f', 'pl'];
-
-const hexWidth = 34;
-const hexHeight = 30;  
-
-const visibilityRadiusSquared = 25;
-
-function loadGame (id) {
+function loadGame (id) 
+{
   document.getElementById("menu_items_id").style.display="none";
   theGame = GameFactory.LoadGame (id); 
   theGame.resume ();
@@ -404,14 +413,6 @@ const hoverBalloonWidget = document.getElementById ("counter-balloon");
 
 const dieRollDialogBox = new DieRollDialogBox ();
 const yesNoDialogBox = new YesNoDialogBox ();
-
-// const aPoint = { x:10, y:10 }; 
-// const setOfHexes = sixHexesAround (aPoint);
-// UIDrawSetOfHexes (setOfHexes);
-
-
-// const largeSetOfHexes = hexSetAround (aPoint, 3);
-// UIShadeSetOfHexes (largeSetOfHexes);
 
 
 </script>
