@@ -186,3 +186,82 @@ class ActivateSSDialogBox extends ModalDialogBox
 
 
 }
+
+
+/*
+
+class getAP_dialog
+{
+  constructor (parentWidget, widgetClass, title, id)
+  {
+    this.distance = undefined;
+    this.id = id;
+    this.dieRoll = -1;
+    
+    const dBox = document.createElement("DIV");
+    parentWidget.appendChild (dBox);
+    dBox.setAttribute("class", widgetClass + " modal");
+    dBox.innerHTML = title;
+    dBox.id = id;
+    
+    const iBox = document.createElement("DIV");
+    iBox.setAttribute("class", widgetClass + " modal-content");
+    iBox.style.zIndex = 100;
+    dBox.appendChild (iBox);        
+    
+    // Close icon
+    const closeIcon = document.createElement ("IMG");
+    closeIcon.setAttribute ("class", "close-icon");
+    closeIcon.src = "img/close.png";
+    closeIcon.onclick = function () { document.getElementById (id).remove(); }
+    iBox.appendChild (closeIcon);
+
+    this.distanceWidget = document.createElement ("INPUT");
+    this.distanceWidget.setAttribute ("class", "modal-box-input");
+    this.distanceWidget.type = "TEXT";
+    iBox.appendChild (this.distanceWidget);
+    
+    const l = document.createElement("LABEL");
+    l.setAttribute ("class", "modal-box-text");
+    l.innerHTML = "Distance Supply Source to CoP?";
+    l.htmlFor = this.distanceWidget;
+    iBox.appendChild (l);
+    
+    // Throw die button
+    const btn = document.createElement ("INPUT");
+    btn.type = "BTN";
+    btn.setAttribute ("class", "game-button");    
+    btn.innerHTML = "Roll die for AP!";
+    btn.value = "Roll die for AP!";
+    btn.onclick = this.rollDie; 
+    iBox.appendChild (btn);    
+
+    // Result
+    this.dieRollWidget = document.createElement ("INPUT");
+    this.dieRollWidget.setAttribute ("class", "modal-box-result");
+    this.dieRollWidget.id = "APMBDieRoll";
+    this.dieRollWidget.readOnly = true;
+    this.dieRollWidget.style.visibility = "hidden";
+    iBox.appendChild (this.dieRollWidget);
+  }
+
+  show ()
+  {
+    document.getElementById (this.id).style.display = "initial";  
+  }  
+
+  rollDie ()
+  {
+    const dieRollWidget = document.getElementById ("APMBDieRoll");
+    dieRollWidget.value = Game.rollDie();
+    dieRollWidget.style.visibility = "initial";
+  }
+  
+
+  close () 
+  {
+     document.getElementById (this.id).remove(); 
+  }
+}
+*/
+

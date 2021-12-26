@@ -1,9 +1,9 @@
 class COP
 {
-  constructor (playerId, armyId, json_data)
+  constructor (playerId, army, json_data)
   {
     this.playerId         = playerId;
-    this.armyId           = armyId;
+    this.army             = army;
     this.name             = "Center of Ops";
     this.x                = 1 * json_data.COP_x;
     this.y                = 1 * json_data.COP_y;
@@ -12,14 +12,14 @@ class COP
     this.turnToReactivate = 1 * json_data.COP_turnToReactivate;     // meaningless if isActive == true
     this.hasMoved         = false;   // must be taken from the DB
     
-    this.marker = new COPMarker (armyId);
+    this.marker = new COPMarker (army.armyId);
     this.marker.setPosition (this.x, this.y);
     this.marker.setZOrder (2);
     this.marker.setOrientation (this.orientation);
     this.marker.enable (this.isActive);
     this.updateBalloonInfo ();
     
-    unitMap.set ( "COP-" + armyId, this);
+    unitMap.set ( "COP-" + this.army.armyId, this);
   }
 
 
@@ -30,6 +30,7 @@ class COP
     { action: "Move forward-right",    segmentFilter: ["mCOP"], func: function(aCOP) { aCOP.moveFR(); }},
     { action: "Disband",               segmentFilter: ["dCOP"], func: function(aCOP) { aCOP.disband(); }}
   ];
+
 
   possibleActions ()
   {
@@ -46,12 +47,21 @@ class COP
     return result;
   }
 
+
   disband ()
   {
-    this.isActive = false;
-    this.turnToReactivate = theGame.currentTurn + 2;  
-    this.updateBalloonInfo ();  
-    this.marker.enable (false);
+    if (confirm ("Are you sure you want to disband the Center of Operations?"))
+    {
+      this.isActive = false;
+      this.turnToReactivate = theGame.currentTurn + 2;  
+      this.marker.enable (false);
+      this.updateBalloonInfo ();  
+      
+      // update the army's panel
+      this.army.draw ();
+  
+      alert ("Center of Operations disbanded");
+    }
   }
   
   
@@ -68,11 +78,11 @@ class COP
   {
     if (this.isActive) 
     {
-      this.marker.updateBalloonInfo ("COP - army " + this.armyId + "<br>Active");
+      this.marker.updateBalloonInfo ("COP - " + this.army.name + "<br>Active");
     }
     else 
     {
-      this.marker.updateBalloonInfo ("COP - army " + this.armyId + "<br>Inactive<br>Reactivated at turn" + this.turntoReactivate);
+      this.marker.updateBalloonInfo ("COP - " + this.army.name + "<br>Inactive<br>Reactivated at turn" + this.turntoReactivate);
     }
   }
   
@@ -167,16 +177,16 @@ class COP
 
 class SupplySource
 {
-  constructor (playerId, armyId, name, x, y)
+  constructor (playerId, army, name, x, y)
   {
     this.playerId = playerId;
-    this.armyId   = armyId;
+    this.army     = army;
     this.id       = name;
     this.name     = name;
     this.x        = 1 * x;
     this.y        = 1 * y;
     
-    this.marker = new SSMarker (armyId, name);
+    this.marker = new SSMarker (this.army.armyId, name);
     this.marker.setPosition (this.x, this.y);
     this.marker.setZOrder (1);
     
@@ -229,15 +239,13 @@ class SupplySource
 
   deactivate () 
   {
-    alert ("Are you sure?");
-    
-    for (let a of theGame.armies)
+    if (confirm ("Are you sure you want to switch to another Supply source?"))
     {
-      if (a.armyId == this.armyId)
-      {
-        a.deactivateSS (this.name);
-        this.marker.enable (false);
-      }    
+      this.army.deactivateSS (this.name);
+      this.army.draw ();
+      this.marker.enable (false);
+  
+      alert ("Supply Source deactivated");
     }
   }
 
@@ -256,14 +264,14 @@ class Army
     this.player      = null;
     this.armyPanel   = null;
     
-    this.COP = new COP (this.playerId, this.armyId, json_data);
+    this.COP = new COP (this.playerId, this, json_data);
     this.supplySources = new Map ();
     this.activeSSName = (json_data.activeSSId != "" ? json_data.activeSSId : null); 
   }
 
   addSS (json_data) 
   {
-    this.supplySources.set (json_data.name, new SupplySource (this.playerId, this.armyId, json_data.name, json_data.x, json_data.y));
+    this.supplySources.set (json_data.name, new SupplySource (this.playerId, this, json_data.name, json_data.x, json_data.y));
   }
 
 

@@ -149,37 +149,49 @@ class Marker
 
   showActionMenu ()
   {
-    // Check if the info widget already exists - if so, close the previous one
-    let actionMenu = document.getElementById ("actionMenu");
-    if (actionMenu != null) 
+    const owner     = unitMap.get (this.id);
+    let actionMenu  = document.getElementById ("actionMenu");
+    let menuContent = null;
+    let menuOwner   = null;
+
+    // Check if the Action menu already exists
+    if (actionMenu == null) 
     {
-      actionMenu.remove();
+      
+      // The menu does not exist - create it!
+      actionMenu = document.createElement ("DIV");
+      actionMenu.id = "actionMenu";
+      actionMenu.setAttribute ("class", "popup-menu");
+      actionMenu.style.zIndex = 20;
+      document.getElementById ("mapContainer").appendChild (actionMenu);
+    
+      // The close icon
+      const closeIcon = document.createElement ("IMG");
+      closeIcon.setAttribute ("class", "close-icon");
+      closeIcon.src = "img/close.png";
+      closeIcon.onclick = function() { actionMenu.remove(); }
+      actionMenu.appendChild (closeIcon);
+    
+      // The leader name
+      menuOwner = document.createElement ("P");
+      menuOwner.id = "action-owner"; 
+      actionMenu.appendChild (menuOwner);
+    
+      // The menu itself
+      menuContent = document.createElement ("P");
+      actionMenu.appendChild (menuContent);
     }
-    
-    const owner = unitMap.get (this.id);
-    
-    // Now the menu does not exist - create it!
-    actionMenu = document.createElement ("DIV");
-    actionMenu.id = "actionMenu";
-    actionMenu.setAttribute ("class", "popup-menu");
+    else 
+    {
+      menuOwner   = document.getElementById ("action-owner"); 
+      menuContent = document.getElementById ("action-owner");
+    }
+
+    document.getElementById ("action-owner").innerHTML = "<b>" + owner.name + "</b>";
+      
     actionMenu.style.left = xMapCoordFromUnitCoord (this.x, this.y) + 51 + "px";
     actionMenu.style.top  = yMapCoordFromUnitCoord (this.x, this.y) - 10 + "px";
-    actionMenu.style.zIndex = 20;
-    document.getElementById ("mapContainer").appendChild (actionMenu);
-  
-    let menuContent = undefined;
-    
-    // The close icon
-    const closeIcon = document.createElement ("IMG");
-    closeIcon.setAttribute ("class", "close-icon");
-    closeIcon.src = "img/close.png";
-    closeIcon.onclick = function() { actionMenu.remove(); }
-    actionMenu.appendChild (closeIcon);
-  
-    menuContent = document.createElement ("P");
-    menuContent.innerHTML = "<b>" + owner.name + "</b>";
-    actionMenu.appendChild (menuContent);
-  
+
     for (let a of owner.possibleActions()) 
     {
       menuContent = document.createElement ("INPUT");

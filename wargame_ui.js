@@ -3,7 +3,7 @@
 
 
 
- 
+/* 
 function getLeaderFromWidgetId (leaderWidgetId)
 {
   const tokens = leaderWidgetId.split(":");
@@ -11,12 +11,15 @@ function getLeaderFromWidgetId (leaderWidgetId)
   
   return theGame.getLeader (leaderId);
 }
+*/
+
 
 
 //
 // Returns an array of indices for friendly leaders who occupy hex (x,y) 
 //
 
+/*
 function getLeadersInHex (x, y) {
   let result = [];
   
@@ -33,7 +36,7 @@ function getLeadersInHex (x, y) {
   return result;
 }
 
-
+*/
 
 function showStackContent (x, y) {
   const stackInfoXOffset = 40;
@@ -217,17 +220,6 @@ function createMajGen (leaderId, unitId)
 //  newLeader.drawOnMap();
 }
 
-
-
-function endTurn()
-{
-  var r = confirm ("Are you sure?");
-  if (r == true)
-  {
-    currentTurn++;
-    processTimeTrackInfo();
-  }
-}
 
 
 
