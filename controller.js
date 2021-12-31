@@ -8,12 +8,18 @@ class Controller {
   static showWeatherDialog ()
   {
     document.getElementById("weather_box").style.display = "initial";
+    document.getElementById ("weather_text").value = "";
   }
+  
   
   static rollDieForWeather ()
   {
-    const i = Controller.rollOneDie();  
+    document.getElementById ("weather_text").value = "";
+    document.getElementById ("weather_ok_button").disabled = true;  
     
+    dieRollDialogBox.open ();
+    
+    const i = dieRollDialogBox.getDieRoll();  
     const season = theGame.calendar[theGame.currentTurn].season;
    
     for (let k of theGame.weatherTable)
@@ -25,7 +31,7 @@ class Controller {
       }
     }
 
-    document.getElementById ("weather_die_roll").value = i;    
+    document.getElementById ("weather_text").style.visibility = "visible";
     document.getElementById ("weather_text").value = theGame.weather;
     document.getElementById ("weather_ok_button").disabled = false;  
 
@@ -76,7 +82,27 @@ class Controller {
     {
       player.armies[i].APwidget.setValue (player.armies[i].adminPoints);
     }
+  }
+
+
+  static openAllocateAPDialog ()
+  {
+    allocateAPDialogBox.open (theGame.players[theGame.currentPlayer].armies);
+  }
+  
+  
+  static allocateAP ()
+  {
+    for (let a of theGame.players[theGame.currentPlayer].armies)
+    {
+      const ap = allocateAPDialogBox.getAllocatedAP (a.armyId);
+      a.allocateAP (ap);
+      a.draw ();
+    }
     
+    alert ("AP allocated");
+    
+    theGame.advanceGame ();
   }
 
 }

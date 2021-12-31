@@ -261,12 +261,14 @@ class Army
     this.name        = json_data.name;
     this.playerId    = json_data.playerId;
     this.adminPoints = json_data.adminPoints;  
+    this.allocatedAP = json_data.allocatedAP; 
     this.player      = null;
     this.armyPanel   = null;
     
     this.COP = new COP (this.playerId, this, json_data);
     this.supplySources = new Map ();
-    this.activeSSName = (json_data.activeSSId != "" ? json_data.activeSSId : null); 
+    this.activeSSName = json_data.SS_activeId != "" ? json_data.SS_activeId : null; 
+    this.reactivateSSTurn = json_data.SS_reactivateTurn != "" ? json_data.SS_reactivateTurn * 1 : -1;
   }
 
   addSS (json_data) 
@@ -290,6 +292,10 @@ class Army
   deactivateSS (ssName)
   {
     this.activeSSName = null;  
+    
+    /* to be parameterised */
+    /* French Supply Sources can be reactivated 1 turn later */
+    this.reactivateSSTurn = theGame.currentTurn + (this.armyId == "FA" ? 1 : 0);
   }
 
 
@@ -300,11 +306,30 @@ class Army
     const newSS = this.supplySources.get (ssName);
     newSS.activate ();
   }
+  
+  
+  isSSActive ()
+  {
+    return (this.activeSSName != null);
+  }
+
+
+  allocateAP (ap)
+  {
+    this.allocatedAP = ap;  
+  }
+
+  receiveAP (ap)
+  {
+    this.receivedAP = ap;
+    this.totalAP += ap;
+  }
 
 
   draw () 
   {
     this.armyPanel.setAP        (this.adminPoints);
+    this.armyPanel.setAAP       (this.allocatedAP);
     this.armyPanel.setCOPStatus (this.COP.isActive);
     this.armyPanel.setSSStatus  (this.activeSSName, this.activeSSName != null);
   }

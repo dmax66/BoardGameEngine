@@ -1,7 +1,9 @@
 
 
-class Player {
-  constructor (json_data) {
+class Player 
+{
+  constructor (json_data) 
+  {
     this.playerId  = json_data.playerId;
     this.name    = json_data.name;
     this.morale  = json_data.morale;
@@ -15,7 +17,8 @@ class Player {
     this.moraleWidget = null;
   }
 
-  create_UI_widgets (parentWidget) {
+  create_UI_widgets (parentWidget)
+  {
     // Creates the UI elements
     this.parentWidget = parentWidget;
     
@@ -23,35 +26,42 @@ class Player {
     this.moraleWidget = new UI_MoraleWidget (this.playerId, this.name, this.playerWidget.moraleWidgetContainer);  
   }
   
-  show () {
+  show () 
+  {
     this.playerWidget.show();
   }
   
-  hide () {
+  hide () 
+  {
     this.playerWidget.hide();
   }
   
-  addNation (nation) {
+  addNation (nation) 
+  {
     this.nations.push (nation);
     nation.setPlayer (this);
   }
 
-  addArmy (army) {
+  addArmy (army) 
+  {
     this.armies.push (army);
     army.setPlayer (this);
   }
 
-  addLeader (leader) {
+  addLeader (leader) 
+  {
     leader.setPlayer (this);
     this.leaders.set (leader.leaderId, leader);
   }
 
-  addUnit (unit) {
+  addUnit (unit) 
+  {
     unit.setPlayer (this);
     this.units.set (unit.unitId, unit);
   }
 
-  draw () {
+  draw () 
+  {
     this.moraleWidget.setValue (this.morale);
     
     for (let n of this.nations) 
@@ -63,8 +73,6 @@ class Player {
     {
       a.draw(); 
     }
-
-
   }    
 
 } // End of class 

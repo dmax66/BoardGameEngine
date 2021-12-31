@@ -7,11 +7,11 @@ let json_data = [];
 class Game {
   static sequenceOfPlay = [   
     { id: "WD",   phase:"Command Phase",  segment:"Weather Determination",             action: Game.determineWeather },
+    { id: "aAP",  phase:"Command Phase",  segment:"Allocate AP",                       action: Game.allocateAP       },
     { id: "mSS",  phase:"Command Phase",  segment:"Move Supply Source",                action: Game.moveSS           },
     { id: "dCOP", phase:"Command Phase",  segment:"Disband COP",                       action: Game.doNothing        },
     { id: "aSS",  phase:"Command Phase",  segment:"Activate Supply Source",            action: Game.activateSS       },
     { id: "gAP",  phase:"Command Phase",  segment:"Get AP",                            action: Game.getAP            },
-    { id: "aAP",  phase:"Command Phase",  segment:"Allocate AP",                       action: Game.allocateAP       },
     { id: "OS",   phase:"Command Phase",  segment:"Organization Segment",              action: Game.doNothing        },
     { id: "MC",   phase:"Movement Phase", segment:"Movement Commands",                 action: Game.doNothing        },
     { id: "mCOP", phase:"Movement Phase", segment:"Move COP",                          action: Game.moveCOP          },
@@ -258,6 +258,12 @@ class Game {
   }
 
 
+  static allocateAP ()
+  {
+    Controller.openAllocateAPDialog ();
+  }
+
+
   static moveSS ()
   {
     alert ("You can move your supply source now. Rules apply");
@@ -274,11 +280,10 @@ class Game {
     
     for (let a of theGame.players[theGame.currentPlayer].armies)
     {
-      if (a.activeSSName == null)
+      if (a.activeSSName == null && a.reactivateSSTurn >= theGame.currentTurn)
       {
         const dlgBox = new ActivateSSDialogBox ("activate_SS", theGame.currentPlayer);
         dlgBox.open ();
-        return;      
       }    
     }
     
@@ -289,12 +294,27 @@ class Game {
   
   static getAP ()
   {
-    alert ("You roll a die to get Admin Points. Rules apply");
-  }
-  
-  static allocateAP () 
-  {
-    alert ("You now have to decide how manu Admin Points to allocate to each army. Rules apply");
+    alert ("You roll a die for each army to get Admin Points. Rules apply");
+    
+    for (let a of theGame.players[theGame.currentPlayer].armies)
+    {
+      if (! a.COP.isActive)
+      {
+        alert ("Army " + a.name + ": COP not active - cannot receive AP");
+        continue;
+      }
+      
+      if (! a.isSSActive())
+      {
+        alert ("Army " + a.name + ": Supply Source not active - cannot receive AP");
+        continue;
+      }
+      
+      // Assert: both COP and SS active
+      apDialogBox.open ();
+      a.receiveAP (apDialogBox.AP())      
+      
+    }
   }
   
   static doNothing ()

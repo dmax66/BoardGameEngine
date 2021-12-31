@@ -188,80 +188,142 @@ class ActivateSSDialogBox extends ModalDialogBox
 }
 
 
-/*
-
-class getAP_dialog
+class AllocateAPDialogBox extends ModalDialogBox 
 {
-  constructor (parentWidget, widgetClass, title, id)
+  constructor ()
   {
-    this.distance = undefined;
-    this.id = id;
-    this.dieRoll = -1;
-    
-    const dBox = document.createElement("DIV");
-    parentWidget.appendChild (dBox);
-    dBox.setAttribute("class", widgetClass + " modal");
-    dBox.innerHTML = title;
-    dBox.id = id;
-    
-    const iBox = document.createElement("DIV");
-    iBox.setAttribute("class", widgetClass + " modal-content");
-    iBox.style.zIndex = 100;
-    dBox.appendChild (iBox);        
-    
-    // Close icon
-    const closeIcon = document.createElement ("IMG");
-    closeIcon.setAttribute ("class", "close-icon");
-    closeIcon.src = "img/close.png";
-    closeIcon.onclick = function () { document.getElementById (id).remove(); }
-    iBox.appendChild (closeIcon);
+    super ("allocateAP-dialog");
 
-    this.distanceWidget = document.createElement ("INPUT");
-    this.distanceWidget.setAttribute ("class", "modal-box-input");
-    this.distanceWidget.type = "TEXT";
-    iBox.appendChild (this.distanceWidget);
-    
-    const l = document.createElement("LABEL");
-    l.setAttribute ("class", "modal-box-text");
-    l.innerHTML = "Distance Supply Source to CoP?";
-    l.htmlFor = this.distanceWidget;
-    iBox.appendChild (l);
-    
-    // Throw die button
-    const btn = document.createElement ("INPUT");
-    btn.type = "BTN";
-    btn.setAttribute ("class", "game-button");    
-    btn.innerHTML = "Roll die for AP!";
-    btn.value = "Roll die for AP!";
-    btn.onclick = this.rollDie; 
-    iBox.appendChild (btn);    
+    this.allocatedAPwidgets = new Map ();
+    this.okButton = document.getElementById ("allocate_ap_ok");
+    this.isInitialised = false;
+  }  
+   
 
-    // Result
-    this.dieRollWidget = document.createElement ("INPUT");
-    this.dieRollWidget.setAttribute ("class", "modal-box-result");
-    this.dieRollWidget.id = "APMBDieRoll";
-    this.dieRollWidget.readOnly = true;
-    this.dieRollWidget.style.visibility = "hidden";
-    iBox.appendChild (this.dieRollWidget);
+  initialise ()
+  {
+    const t = document.getElementById ("allocateAPtable");
+    
+    for (let a of theGame.armies)
+    {
+      const r = t.insertRow (-1);
+      r.style.display = "none";
+      
+      const c1 = r.insertCell (-1);
+      c1.style.width = "34%";
+      c1.innerHTML = a.name;
+      
+      const c2 = r.insertCell (-1);
+      c2.style.width = "33%";
+      
+      const c3 = r.insertCell (-1);
+      c3.style.width = "33%";
+      
+      const allocatedAPWidget = document.createElement ("INPUT");
+      allocatedAPWidget.type = "NUMBER";
+      allocatedAPWidget.setAttribute ("class", "ap-input");
+      allocatedAPWidget.min = 0;
+      allocatedAPWidget.max = 6; // @TODO: this depends on the current level of APs, the army and the season     
+      c3.appendChild (allocatedAPWidget);
+      
+      this.allocatedAPwidgets.set (a.armyId, { rowWidget: r,  availabeAP: c2, inputWidget: allocatedAPWidget} );
+    }
+    
+    this.isInitialised = true;
+  }
+    
+    
+  static checkInputValues ()
+  {
+    for (let a of theGame.players[theGame.currentPlayer].armies)
+    {
+      const d = allocateAPDialogBox.allocatedAPwidgets.get (a.armyId);  
+      if (d.inputWidget.value == "")
+      {
+        // Not all input fields filled
+        return;      
+      }      
+    }
+
+    allocateAPDialogBox.okButton.disabled = false;
   }
 
-  show ()
+
+  open (armies)
   {
-    document.getElementById (this.id).style.display = "initial";  
-  }  
+    if (!this.initialised)
+    {
+      this.initialise ();    
+    }
+
+    for (let a of armies)
+    {
+      const d = this.allocatedAPwidgets.get (a.armyId);  
+
+      d.rowWidget.style.display = "block";
+      d.availabeAP.innerHTML = a.adminPoints;
+      d.inputWidget.value = "";
+      d.inputWidget.onblur = AllocateAPDialogBox.checkInputValues;
+    }
+
+    this.okButton.disabled = true;      
+    ModalDialogBox.prototype.open.call (this);  
+  }
+
+  
+  close ()
+  {
+    for (let a of theGame.players[theGame.currentPlayer].armies)
+    {
+      const d = this.allocatedAPwidgets.get (a.armyId);
+      d.rowWidget.style.display = "none";
+      d.inputWidget.onblur = function () {};
+    }
+    
+    ModalDialogBox.prototype.close.call (this);
+    
+    Controller.allocateAP ();
+  }
+
+
+  getAllocatedAP (armyId)
+  {
+    const d = this.allocatedAPwidgets.get (armyId);
+    
+    return (1 * d.inputWidget.value);
+  }
+}
+
+
+class GetAPDialogBox extends ModalDialogBox
+{
+  constructor ( title, id)
+  {
+    super ("ap-dialog");
+    this.receivedAP = document.getElementById ("ap");
+    this.doneButton = document.getElementById ("get_ap_ok");
+    this.dieRoll = 0;
+  }
 
   rollDie ()
   {
-    const dieRollWidget = document.getElementById ("APMBDieRoll");
-    dieRollWidget.value = Game.rollDie();
-    dieRollWidget.style.visibility = "initial";
+    dieRollDialogBox.open ();
+    
+    this.dieRoll = dieRollDialogBox.getDieRoll ();
+//    this.receivedAp.innerHTML = ..
+    
+    this.doneButton.style.display = "block";
   }
   
-
-  close () 
+  open ()
   {
-     document.getElementById (this.id).remove(); 
+    this.receivedAp.innerHTML = "";
+    this.doneButton.style.display = "none";
+  }
+  
+  AP ()
+  {
+    return (1 * this.receivedAp.innerHTML);
   }
 }
-*/
 

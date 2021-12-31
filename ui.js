@@ -153,9 +153,15 @@ class UI_ArmyPanel
     // 3rd column: Admin points, Supply sources
     const td2 = tr.insertCell (2); 
     
+    // Total Admin Points 
     this.AP = document.createElement ("P");
   	this.AP.setAttribute ("style", "margin-top:0px; margin-bottom:0px;");
     td2.appendChild (this.AP);
+
+    // Allocated Admin Points
+    this.aAP = document.createElement ("P");
+  	this.aAP.setAttribute ("style", "margin-top:0px; margin-bottom:0px;");
+    td2.appendChild (this.aAP);
 
     // Status of COP
     this.COPStatus = document.createElement ("P");
@@ -176,6 +182,12 @@ class UI_ArmyPanel
   {
     this.AP.innerHTML = "AP: " + value;
   } 
+  
+  setAAP (value)
+  {
+    this.aAP.innerHTML = "Allocated: " + value;
+  } 
+  
 
   
   setCOPStatus (isActive) 
@@ -184,9 +196,14 @@ class UI_ArmyPanel
   }
   
   
-  setSSStatus (name, isActive)
+  setSSStatus (name, isActive, turnToReactivate)
   {
     this.SSStatus.innerHTML = "Supply Source" + (isActive ? ": active (" + name + ")" : ": inactive");
+    
+    if (!isActive)
+    {
+      this.SSStatus.innerHTML += "<br>Reactivation from turn " + turnToReactivate;
+    }
   }
   
 }

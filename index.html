@@ -343,6 +343,48 @@ function loadGame (id)
 </div>
   
 
+<!-- Admin Points Allocation dialog box -->
+<div id="allocateAP-dialog" class="modal" style="z-index: 40">
+  <div class="modal-content">
+    <p style="text-align: center;"><strong>Allocate Administrative Points</strong></p>
+
+    <table id="allocateAPtable" style="width:100%">
+      <tr>
+        <td style="width:34%">Army</td>
+        <td style="width:33%">Available AP</td>
+        <td style="width:33%">Allocated AP</td>      
+      </tr>
+    </table>
+ 
+    <p style="text-align: center">               
+      <input id="allocate_ap_ok" type="button" onclick="allocateAPDialogBox.close()" disabled value="Done">
+    </p>
+  </div>
+</div>
+
+
+
+<!-- Admin Points (AP) dialog box -->
+<div id="ap-dialog" class="modal" style="z-index: 40">
+  <div class="modal-content">
+    <p style="text-align: center;"><span id="army-name"></span> <strong>Receive Administrative Points</strong></p>
+      <label for="distance" >Distance SS-COP</label>
+      <input type="number" id="distance" width="2">
+    </p>
+                
+    // Throw die button
+    <p>
+      <input type="button" value="Roll a die" onclick="apDialogBox.rollDie ()">      
+    </p>          
+    <p>
+      Received AP's: " <span id="ap"></span>
+    </p>
+    <p>
+      <input id="get_ap_ok" type="button" onclick="this.parentNode.parentNode.parentNode.style='display: none'" disabled value="Done">
+  </div>
+</div>
+
+
 <!-- Advance game modal box -->
 <!-- 
 <div id="advgame_dialog" class="modal">
@@ -386,12 +428,15 @@ function loadGame (id)
     <input type="BUTTON" id="quit_game_entry" class="menu_item" value="Quit Game">
   </div>
 </div>
-  
-
 
   <div class="pos_tracker" id="position-tracker"></div>
 </div>
 
+
+
+//
+// GAME MAP
+//
 <div id="mapContainer" class="map_container">
   <img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove(event)">
   <div id="counter-balloon" class="stack_info" style="display:none; z-index: 50"></div>
@@ -413,6 +458,8 @@ const hoverBalloonWidget = document.getElementById ("counter-balloon");
 
 const dieRollDialogBox = new DieRollDialogBox ();
 const yesNoDialogBox = new YesNoDialogBox ();
+const apDialogBox = new GetAPDialogBox ();
+const allocateAPDialogBox = new AllocateAPDialogBox ();
 
 
 </script>
