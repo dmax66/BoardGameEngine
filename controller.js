@@ -93,10 +93,12 @@ class Controller {
   
   static onCloseReceiveAPDialog ()
   {
+    getAPDialogBox.close();
+    
     for (let a of theGame.players[theGame.currentPlayer].armies)
     {
-      const ap = allocateAPDialogBox.getAllocatedAP (a.armyId);
-      a.allocateAP (ap);
+      const ap = getAPDialogBox.getAP (a.armyId);
+      a.receiveAP (ap);
       a.draw ();
     }
     

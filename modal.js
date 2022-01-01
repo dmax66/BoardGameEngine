@@ -338,7 +338,7 @@ class GetAPDialogBox extends ModalDialogBox
       
       // Distance SS-COP
       const distance = document.createElement ("SELECT");
-//    distance.required = true;
+      distance.required = true;
       distance.setAttribute ("class", "get-ap-distance");
       f.appendChild (distance);
       
@@ -485,14 +485,16 @@ class GetAPDialogBox extends ModalDialogBox
   
   close ()
   {
-    this.doneButton.disabled = false;
+    this.okButton.disabled = false;
     ModalDialogBox.prototype.close.call (this);
   }
 
 
-  AP ()
+  getAP (armyId)
   {
-    return (1 * this.receivedAp.innerHTML);
+    const result = this.receivedAP.get (armyId);
+    
+    return result;
   }
 }
 

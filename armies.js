@@ -260,8 +260,8 @@ class Army
     this.armyId      = json_data.armyId;
     this.name        = json_data.name;
     this.playerId    = json_data.playerId;
-    this.adminPoints = json_data.adminPoints;  
-    this.allocatedAP = json_data.allocatedAP; 
+    this.adminPoints = 1 * json_data.adminPoints;  
+    this.allocatedAP = 1 * json_data.allocatedAP; 
     this.player      = null;
     this.armyPanel   = null;
     
@@ -322,7 +322,7 @@ class Army
 
   receiveAP (ap)
   {
-    this.adminPoints += ap;
+    this.adminPoints += (ap >= this.allocatedAP ? ap - this.allocatedAP : 0);
   }
 
 
