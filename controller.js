@@ -85,6 +85,28 @@ class Controller {
   }
 
 
+  static openReceiveAPDialog (armies)
+  {
+    getAPDialogBox.open (armies, theGame.calendar[theGame.currentTurn].season);
+  }
+  
+  
+  static onCloseReceiveAPDialog ()
+  {
+    for (let a of theGame.players[theGame.currentPlayer].armies)
+    {
+      const ap = allocateAPDialogBox.getAllocatedAP (a.armyId);
+      a.allocateAP (ap);
+      a.draw ();
+    }
+    
+    alert ("AP received");
+    
+    theGame.advanceGame ();
+  }
+
+
+
   static openAllocateAPDialog ()
   {
     allocateAPDialogBox.open (theGame.players[theGame.currentPlayer].armies);

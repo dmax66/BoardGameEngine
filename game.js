@@ -39,6 +39,7 @@ class Game {
     
     this.calendar = [];
     this.weatherTable = [];
+    this.aPPTable = new APPTable (); 
 
     this.gameWidget = null;
   }
@@ -108,6 +109,20 @@ class Game {
   }
   
 
+  getArmy (armyId)
+  {
+    for (let a of this.armies)
+    {
+      if (a.armyId == armyId)
+      {
+        return a;
+      }    
+    }  
+    
+    return null;
+  }
+  
+  
 /*
   numOfLeadersInHex (x, y)
   {
@@ -147,7 +162,8 @@ class Game {
   {
     this.create_UI_elements ();
     this.loadCalendar ();
-    this.loadWeatherTable ();    
+    this.loadWeatherTable (); 
+    this.loadAPPTable ();   
     
     // Update weather, turn, phase, segment widgets
     this.gameWidget.updateTurn ("Turn " + this.currentTurn);
@@ -206,6 +222,7 @@ class Game {
     }    
   }
 
+
   advanceGame () {
     this.currentSegment++;
 
@@ -242,6 +259,12 @@ class Game {
   {
     GameFactory.LoadTable ("Calendar");
     this.calendar = json_data;     
+  }
+  
+  loadAPPTable ()
+  {
+    GameFactory.LoadTable ("APPTable");
+    this.aPPTable.init (json_data);     
   }
   
  
@@ -294,8 +317,8 @@ class Game {
   
   static getAP ()
   {
-    alert ("You roll a die for each army to get Admin Points. Rules apply");
-    
+
+
     for (let a of theGame.players[theGame.currentPlayer].armies)
     {
       if (! a.COP.isActive)
@@ -311,9 +334,7 @@ class Game {
       }
       
       // Assert: both COP and SS active
-      apDialogBox.open ();
-      a.receiveAP (apDialogBox.AP())      
-      
+      Controller.openReceiveAPDialog (theGame.players[theGame.currentPlayer].armies, theGame.calendar[theGame.currentSegment].season); 
     }
   }
   

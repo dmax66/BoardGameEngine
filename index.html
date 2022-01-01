@@ -77,6 +77,7 @@ const mapZOrder = 1;
 <script src="unit_ui.js"></script>
 <script src="game.js"></script>
 <script src="game_factory.js"></script>
+<script src="game_tables.js"></script>
 <script src="wargame_ui.js"></script>
 <script src="modal.js"></script>
 
@@ -321,7 +322,7 @@ function loadGame (id)
     <p style="text-align: center;">
       <label for="die_roll_result">Die roll: </label> <input id="die_roll_result" type="text" style="visibility:hidden" size=1 readonly>
       <br>
-      <input id="die_roll_ok" type="button" onclick="this.parentNode.parentNode.parentNode.style='display: none'" disabled value="Done">
+      <input id="die_roll_ok" type="button" onclick="dieRollDialogBox.close ()" disabled value="Done">
     </p>
   </div>
 </div>
@@ -367,20 +368,20 @@ function loadGame (id)
 <!-- Admin Points (AP) dialog box -->
 <div id="ap-dialog" class="modal" style="z-index: 40">
   <div class="modal-content">
-    <p style="text-align: center;"><span id="army-name"></span> <strong>Receive Administrative Points</strong></p>
-      <label for="distance" >Distance SS-COP</label>
-      <input type="number" id="distance" width="2">
-    </p>
-                
-    // Throw die button
-    <p>
-      <input type="button" value="Roll a die" onclick="apDialogBox.rollDie ()">      
-    </p>          
-    <p>
-      Received AP's: " <span id="ap"></span>
-    </p>
-    <p>
-      <input id="get_ap_ok" type="button" onclick="this.parentNode.parentNode.parentNode.style='display: none'" disabled value="Done">
+    <p style="text-align: center;"><strong>Receive Administrative Points</strong></p>
+    <p style="text-align: center;"><strong><span id="ap-dialog-season"></span> </strong></p>
+
+    <table id="getAPtable" style="width:100%">
+      <tr>
+        <td style="width:25%">Army</td>
+        <td style="width:25%">Distance SS-COP</td>
+        <td style="width:25%"></td>   <!-- roll die button -->      
+        <td style="width:25%">Received AP</td>      
+      </tr>
+    </table>
+ 
+    <p style="text-align: center;">
+      <input id="ap-dialog_ok" type="button" onclick="this.parentNode.parentNode.parentNode.style='display: none'" disabled value="Done">
   </div>
 </div>
 
@@ -458,8 +459,8 @@ const hoverBalloonWidget = document.getElementById ("counter-balloon");
 
 const dieRollDialogBox = new DieRollDialogBox ();
 const yesNoDialogBox = new YesNoDialogBox ();
-const apDialogBox = new GetAPDialogBox ();
 const allocateAPDialogBox = new AllocateAPDialogBox ();
+const getAPDialogBox = new GetAPDialogBox ();
 
 
 </script>

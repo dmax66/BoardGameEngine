@@ -61,9 +61,9 @@ class DieRollDialogBox extends ModalDialogBox
 
   open ()
   {
-    document.getElementById ("rolling-die").style.visibility = "visible";
-    document.getElementById ("die_roll_result").style.visibility = "hidden";
-    document.getElementById ("die_roll_ok").disabled = true;
+    this.gif.style.visibility = "visible";
+    this.retVal.style.visibility = "hidden";
+    this.okButton.disabled = true;
 
     this.retVal.value = Controller.rollOneDie ();
     
@@ -83,7 +83,7 @@ class DieRollDialogBox extends ModalDialogBox
       , 2000);
     
   }
-  
+
   
   getDieRoll ()
   {
@@ -224,6 +224,7 @@ class AllocateAPDialogBox extends ModalDialogBox
       allocatedAPWidget.setAttribute ("class", "ap-input");
       allocatedAPWidget.min = 0;
       allocatedAPWidget.max = 6; // @TODO: this depends on the current level of APs, the army and the season     
+      allocatedAPWidget.required = true;
       c3.appendChild (allocatedAPWidget);
       
       this.allocatedAPwidgets.set (a.armyId, { rowWidget: r,  availabeAP: c2, inputWidget: allocatedAPWidget} );
@@ -297,30 +298,198 @@ class AllocateAPDialogBox extends ModalDialogBox
 
 class GetAPDialogBox extends ModalDialogBox
 {
-  constructor ( title, id)
+  constructor ()
   {
     super ("ap-dialog");
-    this.receivedAP = document.getElementById ("ap");
-    this.doneButton = document.getElementById ("get_ap_ok");
-    this.dieRoll = 0;
+    this.season   = document.getElementById ("ap-dialog-season");
+    this.okButton = document.getElementById ("ap-dialog_ok");
+    this.isInitialised = false;
+    this.getAPwidgets = new Map ();
+    this.receivedAP   = new Map ();
+    this.numberOfArmies = 0;
   }
 
-  rollDie ()
+
+  initialise ()
   {
-    dieRollDialogBox.open ();
+    const t = document.getElementById ("getAPtable");
     
-    this.dieRoll = dieRollDialogBox.getDieRoll ();
-//    this.receivedAp.innerHTML = ..
+    for (let a of theGame.armies)     // Horrible!
+    {
+      const r = t.insertRow (-1);
+      r.style.display = "none";
+      
+      const c = r.insertCell (-1);
+      
+      // The form
+      const formName = "A:" + a.armyId;
+      const f = document.createElement ("FORM");
+      f.name = formName;
+      f.setAttribute ("data-owner", a.armyId);
+      f.onsubmit = function (ev) {
+        GetAPDialogBox.rollDie (ev);
+      }
+      c.appendChild (f);
+
+      // Army name
+      const c1 = document.createElement ("SPAN")
+      c1.innerHTML = a.name;
+      f.appendChild (c1);
+      
+      // Distance SS-COP
+      const distance = document.createElement ("SELECT");
+//    distance.required = true;
+      distance.setAttribute ("class", "get-ap-distance");
+      f.appendChild (distance);
+      
+      // TODO: get the possible values from the table - remove hardcoding
+      const o1 = document.createElement ("OPTION");
+      o1.innerHTML = "0-20";
+      o1.value = o1.innerHTML;
+      distance.appendChild (o1);
+      
+      const o2 = document.createElement ("OPTION");
+      o2.innerHTML = "21-40";
+      o2.value = o2.innerHTML;
+      distance.appendChild (o2);
+      
+      const o3 = document.createElement ("OPTION");
+      o3.innerHTML = "41-60";
+      o3.value = o3.innerHTML;
+      distance.appendChild (o3);
+      
+      const o4 = document.createElement ("OPTION");
+      o4.innerHTML = "61-80";
+      o4.value = o4.innerHTML;
+      distance.appendChild (o4);
+      
+      const o5 = document.createElement ("OPTION");
+      o5.innerHTML = "80+";
+      o5.value = o5.innerHTML;
+      distance.appendChild (o5);
+      
+
+      // Roll die button
+      const button = document.createElement ("INPUT");
+      button.type = "SUBMIT";
+      button.value = "Roll die";
+      button.setAttribute ("class", "get-ap-button");
+      button.setAttribute ("data-owner", a.armyId);
+      f.appendChild (button);
+      
+      // Die roll result
+      const c4 = document.createElement ("SPAN")
+      f.appendChild (c4);
+      
+      // Received AP
+      const c5 = document.createElement ("SPAN")
+      f.appendChild (c5);
+      
+      this.getAPwidgets.set (a.armyId, { rowWidget: r,  distanceSS_COP: distance, rollDieButton:button, dieRollResult: c4, receivedAP: c5 } );
+    }
     
-    this.doneButton.style.display = "block";
+    this.isInitialised = true;
   }
-  
-  open ()
+    
+    
+  static rollDie (e)
   {
-    this.receivedAp.innerHTML = "";
-    this.doneButton.style.display = "none";
-  }
+    // Retrieve the object
+    e.preventDefault ();
+    getAPDialogBox.rollDie_ (e.target) ;
+  }   
+    
   
+  rollDie_ (f) 
+  {
+    const armyId = f.getAttribute ("data-owner");
+    
+    // 
+    const armyRow = this.getAPwidgets.get (armyId);
+
+    // Check that the distance field is set
+    if (armyRow.distanceSS_COP.value == "")
+    {
+      // Show a message
+      alert ("Distance SS-COP not set");
+      return;
+    }
+
+    const dieRoll  = Controller.rollOneDie ();
+    const seasonId = this.season.innerHTML;
+    const distance = armyRow.distanceSS_COP.value;
+    const ap       = theGame.aPPTable.getAP (armyId, seasonId, distance, dieRoll); 
+
+    // Disable a further die roll
+    armyRow.rollDieButton.disabled = true;
+    
+    // Fill the output data
+    armyRow.dieRollResult.innerHTML = dieRoll;
+    armyRow.receivedAP.innerHTML = ap;
+    
+    // And record the result
+    this.receivedAP.set (armyId, ap);
+    
+    // Check whether to activate the OK button
+    if (this.allDone ())
+    {
+      this.okButton.disabled = false;      
+    }
+  }
+    
+ 
+  open (armies, season)
+  {
+    if (!this.initialised)
+    {
+      this.initialise (armies);    
+    }
+
+    this.season.innerHTML = season;
+    
+    ModalDialogBox.prototype.open.call (this);
+
+    this.numberOfArmies = armies.length;
+          
+    for (let a of armies)
+    {
+      const d = this.getAPwidgets.get (a.armyId);  
+
+      // Display the row 
+      d.rowWidget.style.display = "block";
+      
+      // Enable the die roll button
+      d.rollDieButton.disabled = false;
+
+      // Clear the die roll result
+      d.dieRollResult.innerHTML = "";
+      
+      // And the number of APs received
+      d.receivedAP.innerHTML = "";
+
+      // Clear the result map
+      this.receivedAP.delete (a.armyId);
+    }
+
+    this.okButton.disabled = true;      
+  }
+
+
+  allDone ()
+  {
+    const result = (this.receivedAP.size == this.numberOfArmies);
+    
+    return result;
+  }
+
+  
+  close ()
+  {
+    this.doneButton.disabled = false;
+    ModalDialogBox.prototype.close.call (this);
+  }
+
+
   AP ()
   {
     return (1 * this.receivedAp.innerHTML);

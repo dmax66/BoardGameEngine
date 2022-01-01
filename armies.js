@@ -319,10 +319,10 @@ class Army
     this.allocatedAP = ap;  
   }
 
+
   receiveAP (ap)
   {
-    this.receivedAP = ap;
-    this.totalAP += ap;
+    this.adminPoints += ap;
   }
 
 
