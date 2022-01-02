@@ -1,11 +1,11 @@
 CREATE VIEW Leaders AS 
 SELECT
   DD.gameId,
-  SD.playerId,
   DD.leaderId,
+  SD.playerId,
   SD.nationId,
+  SD.armyId,
   SD.name,
-  SD.armyName,
   SD.unitName,
   SD.type,
   SD.initiative,
