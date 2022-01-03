@@ -48,46 +48,127 @@ class YesNoDialogBox extends ModalDialogBox
 }
 
 
+class WeatherDialogBox extends ModalDialogBox
+{
+  constructor ()
+  {
+    super ("weather_box");  
+    this.rollDieButton = document.getElementById ("weather_roll_die");
+    this.rollDieResult = document.getElementById ("weather_result");
+    this.weather       = document.getElementById ("weather_text");
+    this.okButton      = document.getElementById ("weather_ok");
+
+    this.rollDieButton.onclick = function () 
+    {
+      dieRollDialogBox.open (weatherDialogBox);  
+    }
+    
+    this.okButton.onclick = function ()
+    {
+      Controller.onCloseWeatherDialog ();    
+    }      
+  }
+
+
+  open ()
+  {
+    this.rollDieButton.disabled = false;
+    this.rollDieResult.innerHTML = "";
+    this.weather.innerHTML = "";
+    this.okButton.disabled = true;
+    
+    ModalDialogBox.prototype.open.call (this);
+  }
+
+
+  onRollDie ()
+  {
+    this.okButton.disabled = true;
+    
+    dieRollDialogBox.open();
+  }
+
+
+  onDieRolled ()
+  {
+    const i = dieRollDialogBox.getDieRoll();  
+    const season = theGame.calendar[theGame.currentTurn].season;
+   
+    this.rollDieResult.innerHTML = i;
+
+    for (let k of theGame.weatherTable)
+    {
+      if (k.Season == season && k.DieRoll == i)
+      {
+        this.weather.innerHTML = k.Weather;
+        break; 
+      }
+    }
+
+    this.rollDieButton.disabled = true;
+    this.okButton.disabled = false;  
+  }
+
+  
+  getWeather ()
+  {
+    return this.weather.innerHTML;  
+  }
+}
+
 
 class DieRollDialogBox extends ModalDialogBox
 {
   constructor ()
   {
-    super ("die-roll-dialog", false);
-    this.gif = document.getElementById ("rolling-die");
-    this.retVal = document.getElementById ("die_roll_result");
-    this.okButton = document.getElementById ("die_roll_ok")
+    super ("die-roll-dialog");
+    this.gif      = document.getElementById ("rolling-die");
+    this.retVal   = document.getElementById ("die_roll_result");
+    this.okButton = document.getElementById ("die_roll_ok");
+    
+    this.okButton.onclick = DieRollDialogBox.close_;
+    this.callingObj = null; 
   }
 
-  open ()
+  open (callingObj)
   {
+    ModalDialogBox.prototype.open.call (this);
+
+    // Store where to resume when the dialog is closed
+    this.callingObj = callingObj; 
+    
     this.gif.style.visibility = "visible";
-    this.retVal.style.visibility = "hidden";
+//    this.retVal.style.visibility = "hidden";
     this.okButton.disabled = true;
 
-    this.retVal.value = Controller.rollOneDie ();
     
-    ModalDialogBox.prototype.open.call (this);
 
     // Show the gif
     this.gif.style.display = "block";
     
-    // Wait 2 secs and hide the gif
+    // Wait x secs and hide the gif
     window.setTimeout ( 
       function () 
       {
-        document.getElementById ("rolling-die").style.visibility = "hidden";
-        document.getElementById ("die_roll_result").style.visibility = "visible";
-        document.getElementById ("die_roll_ok").disabled = false;
+        dieRollDialogBox.retVal.innerHTML = Controller.rollOneDie ();
+        dieRollDialogBox.gif.style.visibility = "hidden";         // Hide the rolling die
+        dieRollDialogBox.retVal.style.visibility = "visible";     // Show the result
+        dieRollDialogBox.okButton.disabled = false;               // Enable the OK button
       }        
-      , 2000);
-    
+      , 1000);
   }
 
   
+  static close_ ()
+  {
+    dieRollDialogBox.close ();
+    dieRollDialogBox.callingObj.onDieRolled ();
+  }
+
+
   getDieRoll ()
   {
-    return this.retVal.value;   
+    return 1 * this.retVal.innerHTML;   
   }
 
 }
@@ -95,15 +176,17 @@ class DieRollDialogBox extends ModalDialogBox
 
 class ActivateSSDialogBox extends ModalDialogBox
 {
-  constructor (baseWidget, playerIdx) 
+  constructor (baseWidget, player) 
   {
     super (baseWidget);
     
     this.armyTable = document.getElementById ("army_SS");
 
-    for (let a of theGame.players[playerIdx].armies)
+    for (let entry of player.armies.entries())
     {
-      if (a.activeSSName == null)
+      const army = entry[1];
+      
+      if (army.activeSSName == null)
       {
         const newRow = this.armyTable.insertRow (-1);
         
@@ -111,44 +194,54 @@ class ActivateSSDialogBox extends ModalDialogBox
         const possibleSupplySourcesCell = newRow.insertCell (1);
         const confirmButtonCell         = newRow.insertCell (2);
 
+        // The OK button
+        const okButton = document.getElementById ("activate_SS_ok");
+        okButton.disabled = true;
+
         const f = document.createElement ("FORM");
-        f.name = a.armyId;
-        f.onsubmit = function (ev) {
-          reactivateButton.disabled = true;
+        f.name = army.armyId;
+        f.onsubmit = function (ev) 
+        {
+          f.disabled = true;
           ActivateSSDialogBox.tryToReactivate (ev);
+          reactivateButton.disabled = true;
+          okButton.disabled = false;
         }
         possibleSupplySourcesCell.appendChild (f);
                 
-        
-        armyNameCell.innerHTML = a.name;
+        // Army name
+        armyNameCell.innerHTML = army.name;
 
         // Add the possible options 
-        for (let ss of a.supplySources.entries())
+        for (let e2 of army.supplySources.entries())
         {
-          let option = document.createElement("INPUT");
+          const supplySource = e2[1];
+          
+          let option = document.createElement ("INPUT");
 //          option.setAttribute ("class", ...);
           option.type  = "RADIO";
-          option.value = ss[1].name;
-          option.name  = a.armyId;
-          option.onclick = function () { reactivateButton.disabled = false; };
+          option.value = supplySource.name;
+          option.name  = army.armyId;
+          option.onchange = function () { reactivateButton.disabled = false; };
  
           let label = document.createElement ("LABEL");
 //          label.setAttribute ("class", ...);          
-          label.htmlFor = ss[1].name;   
-          label.innerHTML = ss[1].name + "<br>";
+          label.htmlFor = supplySource.name;   
+          label.innerHTML = supplySource.name + "<br>";
           
                
           f.appendChild (option);
           f.appendChild (label);
         }
 
-        // The Submit button - will 
+        // The Submit button  
         const reactivateButton = document.createElement ("INPUT");
 //        reactivateButton.setAttribute ("class", ...);
         reactivateButton.type = "SUBMIT";
         reactivateButton.disabled = true;
         reactivateButton.value = "Roll die to reactivate";
         f.appendChild (reactivateButton);
+        
       }
     }        
   }
@@ -164,28 +257,37 @@ class ActivateSSDialogBox extends ModalDialogBox
     const selectedSS = document.querySelector ("input[name='" + armyId + "']:checked");
     const ssName = selectedSS.value;
 
-    for (let a of theGame.players[theGame.currentPlayer].armies)
+    // Disable all elements of the form
+    const allFormElements = selectedSS.parentNode.childNodes;
+    
+    for (let i = 0; i < allFormElements.length; i++)
     {
-      if (a.armyId == armyId)
+      if (allFormElements[i].nodeName == "INPUT")
       {
-        // TODO: roll die        
-        dieRollDialogBox.open ();
-        
-        if (dieRollDialogBox.getDieRoll() <= 2 )  
-        {
-          a.activateSS (ssName);        
-          alert ("Supply Source activated:" + ssName);
-        }
-        else 
-        {
-          alert ("Supply Source reactivation failed"); 
-        }
-      }  
-    }    
+        allFormElements[i].disabled = true;
+      }
+    }
+
+    // TODO: roll die   
+//    selectedSS.parentNode.style =     
+    dieRollDialogBox.open ();
+
+    
+    if (dieRollDialogBox.getDieRoll() <= 2 )  
+    {
+      const army = theGame.currentPlayerObj.armies.get (armyId);
+      army.activateSS (ssName);        
+      alert ("Supply Source activated:" + ssName);
+    }
+    else 
+    {
+      alert ("Supply Source reactivation failed"); 
+    }
   }
 
 
-}
+} // Class
+
 
 
 class AllocateAPDialogBox extends ModalDialogBox 
@@ -204,14 +306,14 @@ class AllocateAPDialogBox extends ModalDialogBox
   {
     const t = document.getElementById ("allocateAPtable");
     
-    for (let a of theGame.armies)
+    for (let a of theGame.armies.entries())
     {
       const r = t.insertRow (-1);
       r.style.display = "none";
       
       const c1 = r.insertCell (-1);
       c1.style.width = "34%";
-      c1.innerHTML = a.name;
+      c1.innerHTML = a[1].name;
       
       const c2 = r.insertCell (-1);
       c2.style.width = "33%";
@@ -227,7 +329,7 @@ class AllocateAPDialogBox extends ModalDialogBox
       allocatedAPWidget.required = true;
       c3.appendChild (allocatedAPWidget);
       
-      this.allocatedAPwidgets.set (a.armyId, { rowWidget: r,  availabeAP: c2, inputWidget: allocatedAPWidget} );
+      this.allocatedAPwidgets.set (a[1].armyId, { rowWidget: r,  availabeAP: c2, inputWidget: allocatedAPWidget} );
     }
     
     this.isInitialised = true;
@@ -236,9 +338,9 @@ class AllocateAPDialogBox extends ModalDialogBox
     
   static checkInputValues ()
   {
-    for (let a of theGame.players[theGame.currentPlayer].armies)
+    for (let a of theGame.players[theGame.currentPlayer].armies.entries())
     {
-      const d = allocateAPDialogBox.allocatedAPwidgets.get (a.armyId);  
+      const d = allocateAPDialogBox.allocatedAPwidgets.get (a[1].armyId);  
       if (d.inputWidget.value == "")
       {
         // Not all input fields filled
@@ -259,10 +361,10 @@ class AllocateAPDialogBox extends ModalDialogBox
 
     for (let a of armies)
     {
-      const d = this.allocatedAPwidgets.get (a.armyId);  
+      const d = this.allocatedAPwidgets.get (a[1].armyId);  
 
       d.rowWidget.style.display = "block";
-      d.availabeAP.innerHTML = a.adminPoints;
+      d.availabeAP.innerHTML = a[1].adminPoints;
       d.inputWidget.value = "";
       d.inputWidget.onblur = AllocateAPDialogBox.checkInputValues;
     }
@@ -274,9 +376,9 @@ class AllocateAPDialogBox extends ModalDialogBox
   
   close ()
   {
-    for (let a of theGame.players[theGame.currentPlayer].armies)
+    for (let a of theGame.players[theGame.currentPlayer].armies.entries())
     {
-      const d = this.allocatedAPwidgets.get (a.armyId);
+      const d = this.allocatedAPwidgets.get (a[1].armyId);
       d.rowWidget.style.display = "none";
       d.inputWidget.onblur = function () {};
     }
@@ -314,7 +416,7 @@ class GetAPDialogBox extends ModalDialogBox
   {
     const t = document.getElementById ("getAPtable");
     
-    for (let a of theGame.armies)     // Horrible!
+    for (let a of theGame.armies.entries())     // Horrible!
     {
       const r = t.insertRow (-1);
       r.style.display = "none";
@@ -322,10 +424,10 @@ class GetAPDialogBox extends ModalDialogBox
       const c = r.insertCell (-1);
       
       // The form
-      const formName = "A:" + a.armyId;
+      const formName = "A:" + a[1].armyId;
       const f = document.createElement ("FORM");
       f.name = formName;
-      f.setAttribute ("data-owner", a.armyId);
+      f.setAttribute ("data-owner", a[1].armyId);
       f.onsubmit = function (ev) {
         GetAPDialogBox.rollDie (ev);
       }
@@ -333,7 +435,7 @@ class GetAPDialogBox extends ModalDialogBox
 
       // Army name
       const c1 = document.createElement ("SPAN")
-      c1.innerHTML = a.name;
+      c1.innerHTML = a[1].name;
       f.appendChild (c1);
       
       // Distance SS-COP
@@ -374,7 +476,7 @@ class GetAPDialogBox extends ModalDialogBox
       button.type = "SUBMIT";
       button.value = "Roll die";
       button.setAttribute ("class", "get-ap-button");
-      button.setAttribute ("data-owner", a.armyId);
+//      button.setAttribute ("data-owner", a[1].armyId);
       f.appendChild (button);
       
       // Die roll result
@@ -385,7 +487,7 @@ class GetAPDialogBox extends ModalDialogBox
       const c5 = document.createElement ("SPAN")
       f.appendChild (c5);
       
-      this.getAPwidgets.set (a.armyId, { rowWidget: r,  distanceSS_COP: distance, rollDieButton:button, dieRollResult: c4, receivedAP: c5 } );
+      this.getAPwidgets.set (a[1].armyId, { rowWidget: r,  distanceSS_COP: distance, rollDieButton:button, dieRollResult: c4, receivedAP: c5 } );
     }
     
     this.isInitialised = true;
@@ -449,11 +551,11 @@ class GetAPDialogBox extends ModalDialogBox
     
     ModalDialogBox.prototype.open.call (this);
 
-    this.numberOfArmies = armies.length;
+    this.numberOfArmies = armies.size;
           
-    for (let a of armies)
+    for (let a of armies.entries())
     {
-      const d = this.getAPwidgets.get (a.armyId);  
+      const d = this.getAPwidgets.get (a[1].armyId);  
 
       // Display the row 
       d.rowWidget.style.display = "block";
@@ -468,7 +570,7 @@ class GetAPDialogBox extends ModalDialogBox
       d.receivedAP.innerHTML = "";
 
       // Clear the result map
-      this.receivedAP.delete (a.armyId);
+      this.receivedAP.delete (a[1].armyId);
     }
 
     this.okButton.disabled = true;      

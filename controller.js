@@ -7,35 +7,15 @@ class Controller {
 
   static showWeatherDialog ()
   {
-    document.getElementById("weather_box").style.display = "initial";
-    document.getElementById ("weather_text").value = "";
+    weatherDialogBox.open ();
   }
   
   
-  static rollDieForWeather ()
+  static onCloseWeatherDialog ()
   {
-    document.getElementById ("weather_text").value = "";
-    document.getElementById ("weather_ok_button").disabled = true;  
-    
-    dieRollDialogBox.open ();
-    
-    const i = dieRollDialogBox.getDieRoll();  
-    const season = theGame.calendar[theGame.currentTurn].season;
-   
-    for (let k of theGame.weatherTable)
-    {
-      if (k.Season == season && k.DieRoll == i)
-      {
-        theGame.weather = k.Weather;
-        break; 
-      }
-    }
-
-    document.getElementById ("weather_text").style.visibility = "visible";
-    document.getElementById ("weather_text").value = theGame.weather;
-    document.getElementById ("weather_ok_button").disabled = false;  
-
-    theGame.gameWidget.updateWeather (theGame.weather);
+    weatherDialogBox.close ();
+    theGame.weather = weatherDialogBox.getWeather ();
+    theGame.gameWidget.updateWeather (theGame.weather);  
   }
 
 
@@ -68,19 +48,24 @@ class Controller {
   } 
   
   
-  static updatePlayerWidget (player) {
+  static updatePlayerWidget (player) 
+  {
     player.moraleWidget.setValue (player.morale);
   
-    for (let i = 0; i < player.nations.length; i++)
+    for (let entry of player.nations.entries())
     {
-      player.nations[i].infReplPointWidget.setValue (player.nations[i].infReplacementPoints);
-      player.nations[i].cavReplPointWidget.setValue (player.nations[i].cavReplacementPoints);
-      player.nations[i].artReplPointWidget.setValue (player.nations[i].artReplacementPoints);
+      const n = entry[1];
+      
+      n.infReplPointWidget.setValue (n.infReplacementPoints);
+      n.cavReplPointWidget.setValue (n.cavReplacementPoints);
+      n.artReplPointWidget.setValue (n.artReplacementPoints);
     }
     
-    for (let i = 0; i < player.armies.length; i++)
+    for (let entry of player.armies.entries())
     {
-      player.armies[i].APwidget.setValue (player.armies[i].adminPoints);
+      const a = entry[1];
+      
+      a.APwidget.setValue (a.adminPoints);
     }
   }
 
@@ -95,8 +80,10 @@ class Controller {
   {
     getAPDialogBox.close();
     
-    for (let a of theGame.players[theGame.currentPlayer].armies)
+    for (let entry of theGame.players[theGame.currentPlayer].armies.entries())
     {
+      const a = entry[1];
+            
       const ap = getAPDialogBox.getAP (a.armyId);
       a.receiveAP (ap);
       a.draw ();
@@ -117,8 +104,9 @@ class Controller {
   
   static allocateAP ()
   {
-    for (let a of theGame.players[theGame.currentPlayer].armies)
+    for (let entry of theGame.players[theGame.currentPlayer].armies.entries())
     {
+      const a = entry[1];
       const ap = allocateAPDialogBox.getAllocatedAP (a.armyId);
       a.allocateAP (ap);
       a.draw ();

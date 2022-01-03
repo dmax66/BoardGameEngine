@@ -13,7 +13,7 @@ class Game {
     { id: "aSS",  phase:"Command Phase",  segment:"Activate Supply Source",            action: Game.activateSS       },
     { id: "gAP",  phase:"Command Phase",  segment:"Get AP",                            action: Game.getAP            },
     { id: "OS",   phase:"Command Phase",  segment:"Organization Segment",              action: Game.doNothing        },
-    { id: "MC",   phase:"Movement Phase", segment:"Movement Commands",                 action: Game.doNothing        },
+    { id: "MC",   phase:"Movement Phase", segment:"Issue Movement Commands",           action: Game.doNothing        },
     { id: "mCOP", phase:"Movement Phase", segment:"Move COP",                          action: Game.moveCOP          },
     { id: "IIS",  phase:"Movement Phase", segment:"Individual Initiative Segment",     action: Game.doNothing        },
     { id: "BS",   phase:"Movement Phase", segment:"Bridge Segment",                    action: Game.doNothing        },
@@ -31,16 +31,21 @@ class Game {
     this.endTurn          = 1 * endTurn;
     this.currentSegment   = 1 * currentSegment;
     this.weather          = weather; 
+
+    // Hierarchy
+    this.currentPlayerObj = null;
     this.players          = [];
-    this.nations          = [];
-    this.armies           = [];
+    this.nations          = new Map;
+    this.armies           = new Map;
     this.leaders          = new Map ();
     this.units            = new Map ();
     
+    // Tables
     this.calendar = [];
     this.weatherTable = [];
     this.aPPTable = new APPTable (); 
 
+    // GUI objects
     this.gameWidget = null;
   }
 
@@ -50,6 +55,31 @@ class Game {
     responseFromDB = xhttp_obj.responseText;
   }
   
+  addPlayer (p)
+  {
+    this.players.push (p);  
+  }
+
+  addLeader (l)
+  {
+    this.leaders.set (l.leaderId, l);
+  }
+
+  addNation (n)
+  {
+    this.nations.set (n.nationId, n);
+  }
+  
+  addArmy (a)
+  {
+    this.armies.set (a.armyId, a);
+  }
+  
+  addUnit (u)
+  {
+    this.units.set (u.unitId, u);
+  }
+
 
   initFromScenario (scenario_id) {
     // Get scenario data from DB and populate internal structures
@@ -105,21 +135,13 @@ class Game {
   // Returns an instance of class Leader whose id == unitId
   getLeader (leaderId) 
   {
-    return leaders.get (leaderId);
+    return this.leaders.get (leaderId);
   }
   
 
   getArmy (armyId)
   {
-    for (let a of this.armies)
-    {
-      if (a.armyId == armyId)
-      {
-        return a;
-      }    
-    }  
-    
-    return null;
+    return this.armies.get (armyId);
   }
   
   
@@ -140,19 +162,29 @@ class Game {
   
   // Move to the controller?
 
-  create_UI_elements () {
+  create_UI_elements () 
+  {
     const statusBar = document.getElementById ("StatusBar");
     this.gameWidget = new UI_Game_Widget (statusBar);
     
-    for (let i = 0; i < this.players.length; i++) {
-      this.players[i].create_UI_widgets (statusBar);
+    for (let i = 0; i < this.players.length; i++) 
+    {
+      const p = this.players[i];
+      
+      p.create_UI_widgets (statusBar);
 
-      for (let j = 0; j < this.players[i].armies.length; j++) {
-        this.players[i].armies[j].create_UI_widgets (this.players[i].playerWidget.armyTable);
+      for (let entry of p.armies.entries()) 
+      {
+        const a = entry[1];
+                
+        a.create_UI_widgets (p.playerWidget.armyTable);
       }
 
-      for (let j = 0; j < this.players[i].nations.length; j++) {
-        this.players[i].nations[j].create_UI_widgets (this.players[i].playerWidget.nationTable);
+      for (let entry of p.nations.entries()) 
+      {
+        const n = entry[1];
+        
+        n.create_UI_widgets (p.playerWidget.nationTable);
       }
     }
   }
@@ -169,6 +201,8 @@ class Game {
     this.gameWidget.updateTurn ("Turn " + this.currentTurn);
     this.gameWidget.updateDate (this.calendar[this.currentTurn].days);      
     
+    this.currentPlayerObj = this.players[this.currentPlayer];    
+    
     if (this.currentSegment == -1)
     {
       // Begin of a scenario
@@ -181,34 +215,42 @@ class Game {
     this.players[this.currentPlayer].draw ();
     
     // Draw own the units
-    for (let l of this.players[this.currentPlayer].leaders.entries()) 
+    for (let entry of this.currentPlayerObj.leaders.entries()) 
     { 
-      if (l[1].parentId == null) 
+      const l = entry[1];
+      
+      if (l.parentId == null) 
       {
-        l[1].draw();
+        l.draw();
       }
     }
 
     // Draw enemy leaders within visibility range
-    for (let p = 0; p < this.players.length; p++)
+    for (let i = 0; i < this.players.length; i++)
     { 
-      if (p == this.currentPlayer)
+      if (i == this.currentPlayer)
       {
         continue;
       }
 
-      for (let l of this.players[p].leaders.entries ())
+      const p = this.players[i];
+      
+      for (let entry of p.leaders.entries())
       {
-        if (l[1].parentId == null && l[1].nearEnemy ()) 
+        const l = entry[1];
+        
+        if (l.parentId == null && l.nearEnemy ()) 
         {
-            l[1].draw();
+            l.draw();
         }
       }
     }
     
     // Draw the COP (if active) and SS fpr each army
-    for (let a of this.players[this.currentPlayer].armies)
+    for (let entry of this.currentPlayerObj.armies.entries())
     {
+      const a = entry[1]; 
+      
       if (a.COP.isActive)
       {
         a.COP.draw ();      
@@ -299,28 +341,34 @@ class Game {
   
   static activateSS ()
   {
-    let isReactivationNeeded = false;
+    let allSSActive = true;
     
-    for (let a of theGame.players[theGame.currentPlayer].armies)
+    for (let entry of theGame.currentPlayerObj.armies.entries())
     {
+      const a = entry[1];
+      
       if (a.activeSSName == null && a.reactivateSSTurn >= theGame.currentTurn)
       {
-        const dlgBox = new ActivateSSDialogBox ("activate_SS", theGame.currentPlayer);
+        const dlgBox = new ActivateSSDialogBox ("activate_SS", theGame.currentPlayerObj);
         dlgBox.open ();
+        allSSActive = false;
       }    
     }
     
-    // No armies need to reactivatre their supply source
-    alert ("All your armies have active Supply Sources");
-    
+    if (allSSActive)
+    {
+      // No armies need to reactivatre their supply source
+      alert ("All your armies have active Supply Sources");
+    }
   }
+  
   
   static getAP ()
   {
-
-
-    for (let a of theGame.players[theGame.currentPlayer].armies)
+    for (let entry of theGame.currentPlayerObj.armies.entries())
     {
+      const a = entry[1];
+      
       if (! a.COP.isActive)
       {
         alert ("Army " + a.name + ": COP not active - cannot receive AP");
@@ -338,6 +386,7 @@ class Game {
     }
   }
   
+  
   static doNothing ()
   {
   }
@@ -347,9 +396,11 @@ class Game {
     let result = 0;
     
     // Leaders
-    for (let l of this.leaders)
+    for (let entry of this.leaders.entries())
     {
-      if (l.x == x && l.y == y)
+      const l = entry[1];
+      
+      if (l.x == x && l.y == y && l.parent == null)
       {
         result++;      
       }
@@ -358,15 +409,19 @@ class Game {
     // Supply sources
     
     // CoPs
-    for (let a of this.armies)
+    for (let entry of this.armies.entries())
     {
-      if(a.COP.x == x && a.COP.y == y)
+      const a = entry[1];
+      
+      if (a.COP.x == x && a.COP.y == y)
       {
         result++;      
       }    
       
-      for (let ss of a.supplySources)
+      for (let entry of a.supplySources.entries())
       {
+        const ss = entry[1];
+        
         if (ss.x == x && ss.y == y)
         {
           result++;  

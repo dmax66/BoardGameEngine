@@ -62,6 +62,8 @@ class COP
   
       alert ("Center of Operations disbanded");
     }
+    
+    return true;
   }
   
   
@@ -247,6 +249,8 @@ class SupplySource
   
       alert ("Supply Source deactivated");
     }
+    
+    return true;
   }
 
 } // Class
@@ -262,18 +266,17 @@ class Army
     this.playerId    = json_data.playerId;
     this.adminPoints = 1 * json_data.adminPoints;  
     this.allocatedAP = 1 * json_data.allocatedAP; 
-    this.player      = null;
+
+    // Hierarchy
+    this.player        = null;
+    this.leaders       = new Map ();
+    this.supplySources = new Map ();
+    this.COP           = new COP (this.playerId, this, json_data);
+
     this.armyPanel   = null;
     
-    this.COP = new COP (this.playerId, this, json_data);
-    this.supplySources = new Map ();
     this.activeSSName = json_data.SS_activeId != "" ? json_data.SS_activeId : null; 
     this.reactivateSSTurn = json_data.SS_reactivateTurn != "" ? json_data.SS_reactivateTurn * 1 : -1;
-  }
-
-  addSS (json_data) 
-  {
-    this.supplySources.set (json_data.name, new SupplySource (this.playerId, this, json_data.name, json_data.x, json_data.y));
   }
 
 
@@ -281,6 +284,20 @@ class Army
   {
     this.player = player;
   }
+
+
+  addLeader (l)
+  {
+    this.leaders.set (l.id, l);  
+    l.setArmy (this);
+  }
+
+
+  addSS (json_data) 
+  {
+    this.supplySources.set (json_data.name, new SupplySource (this.playerId, this, json_data.name, json_data.x, json_data.y));
+  }
+
 
   create_UI_widgets (parentWidget) 
   {
@@ -323,6 +340,32 @@ class Army
   receiveAP (ap)
   {
     this.adminPoints += (ap >= this.allocatedAP ? ap - this.allocatedAP : 0);
+  }
+
+  
+  issueMovementCommand ()
+  {
+    if (!this.COP.isActive)
+    {
+      alert ("Army " + this.name + " COP is not active\nCannot issue Movement Commands");
+      return 0;    
+    }      
+    
+    if (this.activeSSName == null)
+    {
+      alert ("Army " + this.name + " has no active Supply Source\nCannot issue Movement Commands");
+      return 0;    
+    }      
+    
+    if (this.adminPoints <= 0)
+    {
+      alert ("Army " + this.name + " has no Administration Points\nCannot issue Movement Commands");
+      return 0;    
+    }      
+    
+    // All checks OK
+    this.adminPoints--;
+    return 1;    
   }
 
 

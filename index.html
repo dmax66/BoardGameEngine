@@ -243,17 +243,22 @@ function loadGame (id)
 
 
 <!-- Weather determination box -->
-<div id="weather_box" class="modal">
-  <div class="modal-content">
-    <p style="text-align: center;">
-      <strong>Roll a die for weather</strong><br>
-
-      <input type="button" value="Roll a die" onclick="this.disabled=true; document.getElementById('weather_ok_button').disabled=false; Controller.rollDieForWeather()">
+<div id="weather_box" class="modal" >
+  <div class="modal-content" style="width:15%">
+    <p style="text-align: center; font-size: x-large;">
+      <strong>Roll a die for weather</strong>
+    </p>
+    <p style="text-align:center">    
       <br>
-      <label for="weather_text">Weather: </label><input type="text" id="weather_text" readonly="true" style="visibility:hidden">
+      <input type="button" id="weather_roll_die" value="Roll a die">
       <br>
-      
-      <input type="button" id="weather_ok_button" value="Done" disabled onclick="this.parentNode.parentNode.parentNode.style.display='none'; theGame.advanceGame ();" >
+      Result: <span id="weather_result" ></span>
+      <br>
+      Weather:
+      <span id="weather_text" readonly="true"></span>
+      <br>
+      <input type="button" id="weather_ok" value="Done" disabled>
+    </p>
   </div>
 </div>
 
@@ -307,22 +312,24 @@ function loadGame (id)
     </table>
     
     <p style="text-align: center;">
-      <input type="button" onclick="this.parentNode.parentNode.parentNode.style='display: none'" value="Done">
+      <input type="button" id="activate_SS_ok" onclick="this.parentNode.parentNode.parentNode.style='display: none'" value="Done" disabled>
     </p>
     
   </div>
 </div>
 
+
 <!-- Die roll box -->
 <div id="die-roll-dialog" class="modal" style="z-index: 50">
-  <div class="modal-content">
+  <div class="modal-content" style="width:10%">
     <p style="text-align: center;">
       <img id="rolling-die" src="./img/animated-die.gif" style="visibility:hidden; margin: 0 auto;">
     </p>
     <p style="text-align: center;">
-      <label for="die_roll_result">Die roll: </label> <input id="die_roll_result" type="text" style="visibility:hidden" size=1 readonly>
+      Die roll: 
+      <span id="die_roll_result"></span>
       <br>
-      <input id="die_roll_ok" type="button" onclick="dieRollDialogBox.close ()" disabled value="Done">
+      <input id="die_roll_ok" type="button" disabled value="Done">
     </p>
   </div>
 </div>
@@ -457,6 +464,7 @@ close_button.onclick = function() {
 const newgame_box = document.getElementById ("newgame_box");
 const hoverBalloonWidget = document.getElementById ("counter-balloon");
 
+const weatherDialogBox = new WeatherDialogBox ();
 const dieRollDialogBox = new DieRollDialogBox ();
 const yesNoDialogBox = new YesNoDialogBox ();
 const allocateAPDialogBox = new AllocateAPDialogBox ();
