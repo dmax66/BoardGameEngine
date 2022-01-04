@@ -137,11 +137,10 @@ class DieRollDialogBox extends ModalDialogBox
     // Store where to resume when the dialog is closed
     this.callingObj = callingObj; 
     
+    this.gif.src = "./img/animated-die.gif" 
+    this.gif.style.width = "140px";
     this.gif.style.visibility = "visible";
-//    this.retVal.style.visibility = "hidden";
     this.okButton.disabled = true;
-
-    
 
     // Show the gif
     this.gif.style.display = "block";
@@ -151,8 +150,7 @@ class DieRollDialogBox extends ModalDialogBox
       function () 
       {
         dieRollDialogBox.retVal.innerHTML = Controller.rollOneDie ();
-        dieRollDialogBox.gif.style.visibility = "hidden";         // Hide the rolling die
-        dieRollDialogBox.retVal.style.visibility = "visible";     // Show the result
+        dieRollDialogBox.gif.src = "./img/" + dieRollDialogBox.retVal.innerHTML + ".png" 
         dieRollDialogBox.okButton.disabled = false;               // Enable the OK button
       }        
       , 1000);
@@ -309,17 +307,15 @@ class AllocateAPDialogBox extends ModalDialogBox
     for (let a of theGame.armies.entries())
     {
       const r = t.insertRow (-1);
+      r.style.width = "100%";
       r.style.display = "none";
       
       const c1 = r.insertCell (-1);
-      c1.style.width = "34%";
       c1.innerHTML = a[1].name;
       
       const c2 = r.insertCell (-1);
-      c2.style.width = "33%";
       
       const c3 = r.insertCell (-1);
-      c3.style.width = "33%";
       
       const allocatedAPWidget = document.createElement ("INPUT");
       allocatedAPWidget.type = "NUMBER";
@@ -363,10 +359,10 @@ class AllocateAPDialogBox extends ModalDialogBox
     {
       const d = this.allocatedAPwidgets.get (a[1].armyId);  
 
-      d.rowWidget.style.display = "block";
+      d.rowWidget.style.display = "contents";
       d.availabeAP.innerHTML = a[1].adminPoints;
       d.inputWidget.value = "";
-      d.inputWidget.onblur = AllocateAPDialogBox.checkInputValues;
+      d.inputWidget.onchange = AllocateAPDialogBox.checkInputValues;
     }
 
     this.okButton.disabled = true;      
@@ -376,11 +372,11 @@ class AllocateAPDialogBox extends ModalDialogBox
   
   close ()
   {
-    for (let a of theGame.players[theGame.currentPlayer].armies.entries())
+    for (let a of theGame.currentPlayerObj.armies.entries())
     {
       const d = this.allocatedAPwidgets.get (a[1].armyId);
       d.rowWidget.style.display = "none";
-      d.inputWidget.onblur = function () {};
+      d.inputWidget.onchange = null;
     }
     
     ModalDialogBox.prototype.close.call (this);
@@ -422,6 +418,8 @@ class GetAPDialogBox extends ModalDialogBox
       r.style.display = "none";
       
       const c = r.insertCell (-1);
+      c.colSpan = 5;
+      
       
       // The form
       const formName = "A:" + a[1].armyId;
@@ -436,10 +434,13 @@ class GetAPDialogBox extends ModalDialogBox
       // Army name
       const c1 = document.createElement ("SPAN")
       c1.innerHTML = a[1].name;
+      c1.style.margin = "10px";
       f.appendChild (c1);
       
       // Distance SS-COP
       const distance = document.createElement ("SELECT");
+      distance.style.width = "120x"
+      distance.style.margin = "10px";
       distance.required = true;
       distance.setAttribute ("class", "get-ap-distance");
       f.appendChild (distance);
@@ -474,6 +475,8 @@ class GetAPDialogBox extends ModalDialogBox
       // Roll die button
       const button = document.createElement ("INPUT");
       button.type = "SUBMIT";
+      button.style.width = "90px";
+      button.style.margin = "10px";
       button.value = "Roll die";
       button.setAttribute ("class", "get-ap-button");
 //      button.setAttribute ("data-owner", a[1].armyId);
@@ -481,10 +484,14 @@ class GetAPDialogBox extends ModalDialogBox
       
       // Die roll result
       const c4 = document.createElement ("SPAN")
+      c4.style.width = "20px";
+      c4.style.margin = "10px";
       f.appendChild (c4);
       
       // Received AP
       const c5 = document.createElement ("SPAN")
+      c5.style.width = "20px";
+      c5.style.margin = "10px";
       f.appendChild (c5);
       
       this.getAPwidgets.set (a[1].armyId, { rowWidget: r,  distanceSS_COP: distance, rollDieButton:button, dieRollResult: c4, receivedAP: c5 } );
@@ -558,7 +565,7 @@ class GetAPDialogBox extends ModalDialogBox
       const d = this.getAPwidgets.get (a[1].armyId);  
 
       // Display the row 
-      d.rowWidget.style.display = "block";
+      d.rowWidget.style.display = "contents";
       
       // Enable the die roll button
       d.rollDieButton.disabled = false;

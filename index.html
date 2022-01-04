@@ -172,7 +172,7 @@ function do_nothing()
 
 
 function show_menu (flag) {
-  var menu_obj = document.getElementById("menu_items_id");
+  const menu_obj = document.getElementById("menu_items_id");
   
   menu_obj.style.display = (flag == true) ? "block" : "none";
 }
@@ -323,12 +323,10 @@ function loadGame (id)
 <div id="die-roll-dialog" class="modal" style="z-index: 50">
   <div class="modal-content" style="width:10%">
     <p style="text-align: center;">
-      <img id="rolling-die" src="./img/animated-die.gif" style="visibility:hidden; margin: 0 auto;">
+      <img id="rolling-die" style="visibility:hidden; margin: 0 auto;">
     </p>
     <p style="text-align: center;">
-      Die roll: 
-      <span id="die_roll_result"></span>
-      <br>
+      <span id="die_roll_result" style="display:none;"></span>
       <input id="die_roll_ok" type="button" disabled value="Done">
     </p>
   </div>
@@ -356,14 +354,14 @@ function loadGame (id)
   <div class="modal-content">
     <p style="text-align: center;"><strong>Allocate Administrative Points</strong></p>
 
-    <table id="allocateAPtable" style="width:100%">
+    <table id="allocateAPtable" style="width:100%; text-align: center;">
       <tr>
-        <td style="width:34%">Army</td>
-        <td style="width:33%">Available AP</td>
-        <td style="width:33%">Allocated AP</td>      
+        <th style="width:34%">Army</td>
+        <th style="width:33%">Available AP</td>
+        <th style="width:33%">Allocated AP</td>      
       </tr>
     </table>
- 
+
     <p style="text-align: center">               
       <input id="allocate_ap_ok" type="button" onclick="allocateAPDialogBox.close()" disabled value="Done">
     </p>
@@ -372,18 +370,19 @@ function loadGame (id)
 
 
 
-<!-- Admin Points (AP) dialog box -->
+<!-- Get Admin Points (AP) dialog box -->
 <div id="ap-dialog" class="modal" style="z-index: 40">
   <div class="modal-content">
     <p style="text-align: center;"><strong>Receive Administrative Points</strong></p>
     <p style="text-align: center;"><strong><span id="ap-dialog-season"></span> </strong></p>
 
-    <table id="getAPtable" style="width:100%">
+    <table id="getAPtable" style="width:100%;">
       <tr>
-        <td style="width:25%">Army</td>
-        <td style="width:25%">Distance SS-COP</td>
-        <td style="width:25%"></td>   <!-- roll die button -->      
-        <td style="width:25%">Received AP</td>      
+        <td style="width:120px">Army</td>
+        <td style="width:120px">Distance SS-COP</td>
+        <td style="width:70px"></td>   <!-- roll die button -->      
+        <td style="width:20px">Die Roll</td>
+        <td style="width:20px">Received AP</td>      
       </tr>
     </table>
  
@@ -391,35 +390,6 @@ function loadGame (id)
       <input id="ap-dialog_ok" type="button" onclick="Controller.onCloseReceiveAPDialog()" disabled value="Done">
   </div>
 </div>
-
-
-<!-- Advance game modal box -->
-<!-- 
-<div id="advgame_dialog" class="modal">
-  <div class="modal-content">
-    <span class="close">&times;</span>
-
-    Do you want to move to the next segment?<br>
-    <input type="BUTTON" id="advgame_cancel" onclick="this.parentNode.parentNode.style.display='none'" value="Cancel">
-    
-    <input type="BUTTON" id="advgame_ok" onclick="
-      document.getElementById('advgame_text').style.display='inline';
-      document.getElementById('advgame_no').style.display  ='inline';
-      document.getElementById('advgame_yes').style.display ='inline'" value="Next segment">
-
-    <p id="advgame_text" style="display: none;"><br>Are you really sure?<br>This action cannot be undone!<br></p>
-    <input type="BUTTON" id="advgame_no"  value="No!" style="display: none;" onclick="
-      document.getElementById('advgame_text').style.display='none';
-      document.getElementById('advgame_no').style.display  ='none';
-      document.getElementById('advgame_yes').style.display ='none'" value="Next segment">
-
-    <input type="BUTTON" id="advgame_yes" value="Yes" style="display: none;" onclick="
-      this.parentNode.parentNode.style.display='none';
-      theGame.advanceGame ();">
-
-  </div>
-</div>
--->
 
 
 <!-- Status bar -->
@@ -464,11 +434,11 @@ close_button.onclick = function() {
 const newgame_box = document.getElementById ("newgame_box");
 const hoverBalloonWidget = document.getElementById ("counter-balloon");
 
-const weatherDialogBox = new WeatherDialogBox ();
-const dieRollDialogBox = new DieRollDialogBox ();
-const yesNoDialogBox = new YesNoDialogBox ();
+const weatherDialogBox    = new WeatherDialogBox ();
+const dieRollDialogBox    = new DieRollDialogBox ();
+const yesNoDialogBox      = new YesNoDialogBox ();
 const allocateAPDialogBox = new AllocateAPDialogBox ();
-const getAPDialogBox = new GetAPDialogBox ();
+const getAPDialogBox      = new GetAPDialogBox ();
 
 
 </script>
