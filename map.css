@@ -95,3 +95,14 @@
   background-image: url ("img/Artillery-Division.png");
 }
 
+.has-moved {
+  box-shadow: 0 0 7px 5px black;
+}
+
+.cannot_move {
+  box-shadow: 0 0 7px 5px red;
+}
+
+.can-move {
+  box-shadow: 0 0 7px 5px darkgreen;
+}
