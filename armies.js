@@ -2,24 +2,23 @@ class COP
 {
   constructor (playerId, army, json_data)
   {
+    this.id               = "COP" + army.armyId;
     this.playerId         = playerId;
     this.army             = army;
     this.name             = "Center of Ops";
     this.x                = 1 * json_data.COP_x;
     this.y                = 1 * json_data.COP_y;
+    this.zOrder           = 2;
     this.orientation      = 0;
     this.isActive         = (1 * json_data.COP_isActive) == 1;
     this.turnToReactivate = 1 * json_data.COP_turnToReactivate;     // meaningless if isActive == true
     this.hasMoved         = false;   // must be taken from the DB
     
-    this.marker = new COPMarker (army.armyId);
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setZOrder (2);
-    this.marker.setOrientation (this.orientation);
+    this.marker = new COPMarker (this);
     this.marker.enable (this.isActive);
     this.updateBalloonInfo ();
     
-    unitMap.set ( "COP-" + this.army.armyId, this);
+    unitMap.set (this.id, this);
   }
 
 
@@ -99,7 +98,6 @@ class COP
   {
     this.x = x;
     this.y = y;  
-    this.marker.setPosition (x, y);
   }
   
   
@@ -115,10 +113,6 @@ class COP
     this.y += yOffset (newOrientation, isOddRow);
     this.hasMoved = true;
      
-
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setOrientation (this.orientation);
-    
     this.draw();
   }
   
@@ -135,10 +129,6 @@ class COP
     this.y += yOffset (newOrientation, isOddRow);
     this.hasMoved = true;
      
-
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setOrientation (this.orientation);
-    
     this.draw();
   }
 
@@ -151,9 +141,6 @@ class COP
     this.orientation = orientationNext (curOrientation);
     this.hasMoved = true;
         
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setOrientation (this.orientation);
-    
     this.draw();
   }
   
@@ -168,9 +155,6 @@ class COP
     this.y += yOffset (this.orientation, isOddRow);
     this.moveFL();
 
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setOrientation (this.orientation);
-    
     this.draw();
   }  
   
@@ -181,20 +165,20 @@ class SupplySource
 {
   constructor (playerId, army, name, x, y)
   {
+    this.id       = "SS-" + name;
     this.playerId = playerId;
     this.army     = army;
     this.id       = name;
     this.name     = name;
     this.x        = 1 * x;
     this.y        = 1 * y;
+    this.zOrder   = 1;
     
-    this.marker = new SSMarker (this.army.armyId, name);
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setZOrder (1);
+    this.marker = new SSMarker (this);
     
     this.updateBalloonInfo ();    
     
-    unitMap.set ("SS-" + name, this);
+    unitMap.set (this.id, this);
   }
 
 

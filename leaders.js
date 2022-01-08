@@ -14,52 +14,78 @@ class Leader
     this.name               = json_data.name;
     this.nationId           = json_data.nationId;
     this.playerId           = json_data.playerId;
-    this.armyName           = json_data.armyName;
+//    this.armyName           = json_data.armyName;
+    this.armyId             = json_data.armyId;
     this.initiative         = 1 * json_data.initiative;
     this.hasBonus           = (json_data.hasBonus == 1 ? true : false);
     this.commandCapacity    = 1 * json_data.commandCapacity;
     this.subordinationValue = 1 * json_data.subordinationValue;
     this.type               = json_data.type;
+
+    // Dynamic data
     this.orientation        = 1 * json_data.orientation;
     this.mode               = json_data.mode;
     this.x                  = 1 * json_data.X;
     this.y                  = 1 * json_data.Y;
     this.parentId           = json_data.parentId;
     this.parent             = null;
+    this.totalMC            = 0;   // Get from DB
+    this.expendedMC         = 0;
+    this.movementStatus     = 'idle';
+
+    // Hierarchy
+    this.player             = null;
+    this.nation             = null;
+    this.army               = null;
     this.units              = new Map ();
     this.subordinates       = new Map ();
-    this.player             = null;
 
-    this.marker = new LeaderMarker (this.leaderId, this.name, this.type, this.nationId);
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setOrientation (this.orientation);
-    this.marker.setMode (this.mode);
-    this.marker.setZOrder (this.zOrder);
+    // GUI objects
+    this.marker = new LeaderMarker (this);
 
     unitMap.set (this.leaderId, this);
     
     this.setZOrder (1 * json_data.zOrder);
     this.updateBalloonInfo();
   }
+
+  static movingLeader = null;
+  static movementStatuses = ['idle', 'hasMC', 'hasProvisionalMC', 'activationOK','isMoving', 'hasMoved', 'activationKO'];
     
-  setPlayer (player) {
+  setPlayer (player) 
+  {
     this.player = player;
   }
 
+
+  setNation (nation)
+  {
+    this.nation = nation;
+  }
+  
+  
+  setArmy (army)
+  {
+    this.army = army;  
+  }
+  
     
   static _possibleActions = [
-    { action: "Flip Line-Column",      filter: ['c', 'l'],   func: function(aLeader) { aLeader.flipMode(); }},
-    { action: "Rotate clockwise",      filter: ['l'],        func: function(aLeader) { aLeader.rotateCW(); }},
-    { action: "Rotate anti-clockwise", filter: ['l'],        func: function(aLeader) { aLeader.rotateCCW(); }},
-    { action: "Flip direction",        filter: ['c', 'l'],   func: function(aLeader) { aLeader.uTurn(); }},
-    { action: "Move forward-left",     filter: ['c', 'l'],   func: function(aLeader) { aLeader.moveFL(); }},
-    { action: "Move forward",          filter: ['c'],        func: function(aLeader) { aLeader.moveF(); }},
-    { action: "Move forward-right",    filter: ['c', 'l'],   func: function(aLeader) { aLeader.moveFR(); }},
-    { action: "To bottom of stack",    filter: ['c', 'l'],   func: function(aLeader) { aLeader.toBottomOfStack(); }},
-    { action: "To top of stack",       filter: ['c', 'l'],   func: function(aLeader) { aLeader.toTopOfStack(); }},
-    { action: "Push down",             filter: ['c', 'l'],   func: function(aLeader) { aLeader.pushDown(); }},
-    { action: "Push up",               filter: ['c', 'l'],   func: function(aLeader) { aLeader.pushUp(); }},
-    { action: "Manage units",          filter: ['c', 'l'],   func: function(aLeader) {  }}
+    { action: "Get MC",                modeFilter: ['c', 'l'],   segmentFilter: ["MC"],               movStatusFilter: ['idle'],                  func: function(aLeader) { aLeader.getMC(); }},
+    { action: "Get Provisional MC",    modeFilter: ['c', 'l'],   segmentFilter: ["MC"],               movStatusFilter: ['idle'],                  func: function(aLeader) { aLeader.getProvisionalMC(); }},
+    { action: "Try to move",           modeFilter: ['c', 'l'],   segmentFilter: ["IIS"],              movStatusFilter: ['idle'],                  func: function(aLeader) { aLeader.tryToActivate(); }},
+    { action: "Flip Line-Column",      modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.flipMode(); }},
+    { action: "Rotate clockwise",      modeFilter: ['l'],        segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.rotateCW(); }},
+    { action: "Rotate anti-clockwise", modeFilter: ['l'],        segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.rotateCCW(); }},
+    { action: "Flip direction",        modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.uTurn(); }},
+    { action: "Move forward-left",     modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.moveFL(); }},
+    { action: "Move forward",          modeFilter: ['c'],        segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.moveF(); }},
+    { action: "Move forward-right",    modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.moveFR(); }},
+    { action: "To bottom of stack",    modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.toBottomOfStack(); }},
+    { action: "To top of stack",       modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.toTopOfStack(); }},
+    { action: "Push down",             modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.pushDown(); }},
+    { action: "Push up",               modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.pushUp(); }},
+    { action: "Manage units",          modeFilter: ['c', 'l'],   segmentFilter: ["OS"],               movStatusFilter: ['any'],                   func: function(aLeader) {  }}
   ];
 
 
@@ -69,8 +95,9 @@ class Leader
     
     for (let a of Leader._possibleActions)
     {
-      if (a.filter.includes (this.mode))
+      if (a.modeFilter.includes (this.mode) && a.segmentFilter.includes (Game.sequenceOfPlay[theGame.currentSegment].id))
       {
+        // Movement phase = only units with Movement Commands can move
         result.push (a);      
       }    
     }  
@@ -88,7 +115,6 @@ class Leader
   setZOrder (z)
   {
     this.zOrder = z;
-    this.marker.setZOrder (this.zOrder);
   }
 
   //
@@ -146,13 +172,15 @@ class Leader
   addSubordinate (subordinate) 
   {
     // Sanity check #1: check that it is not referencing itself
-    if (this.leaderId == subordinate.leaderId) {
+    if (this.leaderId == subordinate.leaderId) 
+    {
       throw ("Unit.addSubordinate: trying to add leader to itself");
       return false;
     }
     
     // Sanity check #2: they must be of the same playerId
-    if (this.playerId != subordinate.playerId) {
+    if (this.playerId != subordinate.playerId) 
+    {
       throw ("Unit.addSubordinate: trying to add leader to other playerId");
       return false;
     }
@@ -223,9 +251,40 @@ class Leader
   }
 
   
+  resetTurnData ()
+  {
+    this.totalMC             = 0;   
+    this.expendedMC          = 0;
+    this.updateMovementStatus ('idle');
+  }
+
+
+  updateMovementStatus (newStatus)
+  {
+    this.movementStatus = newStatus;
+    this.marker.updateMovementStatus ();
+  }
+
+
+
+  changeMovingLeader ()
+  {
+    if (Leader.movingLeader !== null)
+    {
+      Leader.movingLeader.updateMovementStatus ('hasMoved');
+      Leader.movingLeader.draw ();
+    }
+
+    Leader.movingLeader = this;
+  }
+
+
+
+
   flipMode () 
   {
-    if (this.mode == "l") { 
+    if (this.mode == "l") 
+    { 
       this.mode = "c";
     }
     else if (this.mode == "c")
@@ -235,8 +294,7 @@ class Leader
     else 
       throw ("Invalid stack mode: " + this.mode);
       
-    this.marker.setMode (this.mode);
-    this.draw();
+    this.doPostMovementActions();
   }
   
 
@@ -440,8 +498,9 @@ class Leader
   
   doPostMovementActions ()
   {
-    this.marker.setPosition (this.x, this.y);
-    this.marker.setOrientation (this.orientation);
+    this.updateMovementStatus ("isMoving");
+    this.changeMovingLeader ();
+
     this.recalcZOrder ();
     
     this.draw();
@@ -631,7 +690,50 @@ class Leader
     this.marker.setZOrder (this.zOrder);
   }
   
+
+  getMC ()
+  {
+    if (this.totalMC >= 2)
+    {
+      alert ("General " + this.name + " has already received 2 Movement Commands\nCannot receive more MCs");
+      return;    
+    }
+    
+    this.numOfMovCommands = this.army.issueMovementCommand ();
+    this.updateMovementStatus ('hasMC');
+  }  
   
+  
+  getProvisionalMC ()
+  {
+    if (this.numOfProvisionalMC >= 0)
+    {
+      alert ("General " + this.name + " has already received a Provisional Movement Command\nCannot receive any more Provisional MC");
+      return;    
+    }
+    
+    this.provisionalMCs = this.army.issueMovementCommand ();
+    this.updateMovementStatus ("hasProvisionalMC");
+  }  
+
+
+  tryToActivate ()
+  {
+    const maxDieRoll = this.initiative + (this.numOfProvisionalMC > 0 ? 2 : 0);
+
+    const dieRoll = Controller.getDieRoll();
+
+    if (dieRoll < maxDieRoll)
+    {
+      this.updateMovementStatus ("activationOK");
+      alert ("Activation successful (die roll=" + dieRoll + ")");
+    }
+    else
+    {
+      this.updateMovementStatus ("activationKO");
+      alert ("Activation failed (die roll=" + dieRoll + ")");
+    }
+  }  
 } // End of Class
 
 

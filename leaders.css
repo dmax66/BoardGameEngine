@@ -14,6 +14,39 @@
   display: none;
 }
 
+
+.leader-hasMC
+{
+  box-shadow: 0 0 10px 5px lawngreen;
+}
+
+.leader-hasProvisionalMC
+{
+  box-shadow: 0 0 10px 5px darkgreen;
+}
+
+
+.leader-isMoving
+{
+  box-shadow: 0 0 10px 5px orange;
+}
+
+.leader-activationOK
+{
+  box-shadow: 0 0 10px 5px lightblue;
+}
+
+.leader-activationKO
+{
+  box-shadow: 0 0 10px 5px red;
+}
+
+.leader-hasMoved
+{
+  box-shadow: 0 0 10px 5px black;
+}
+
+
 .counter-widget:hover {
   border-top: 5px; 
   border-left: 5px; 

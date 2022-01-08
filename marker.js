@@ -4,34 +4,30 @@ let markerMap = new Map ();
 
 class Marker
 {
-  constructor (markerClass, id)
+  constructor (markerClass, markerId, ownerObj)
   {
-    this.id = id;
-    this.x = -1;
-    this.y = -1;
-    this.zOrder = 0;
+    this.ownerObj = ownerObj;
     this.balloonInfo = "";
     this.isEnabled = true;
 
 
     this.widget = document.createElement ("DIV");  
-    this.widget.id = id;
+    this.widget.id = markerId;
     this.widget.setAttribute ("class", markerClass);
-    this.widget.addEventListener ("mouseover", Marker.mouseOver);
-    this.widget.addEventListener ("mouseout" , Marker.mouseOut);
-    this.widget.addEventListener ("click"    , Marker.mouseClick);
-    this.widget.addEventListener ("dblclick" , Marker.mouseDoubleClick);
-    this.widget.setAttribute ("data-owner", id);
+    this.widget.addEventListener ("mouseover"  , Marker.mouseOver);
+    this.widget.addEventListener ("mouseout"   , Marker.mouseOut);
+    this.widget.addEventListener ("click"      , Marker.mouseLeftClick);
+    this.widget.addEventListener ("contextmenu", Marker.mouseRightClick);
+    this.widget.setAttribute ("data-owner", this.ownerObj.id);
     this.widget.display = "none";
     document.getElementById ("mapContainer").appendChild (this.widget);  
 
-    const att = document.createAttribute ("data-owner");
-
+    
     this.icon = document.createElement ("IMG");
     this.icon.setAttribute ("class", "counter-icon");
     this.widget.appendChild (this.icon);
 
-    markerMap.set (id, this);    
+    markerMap.set (markerId, this);    
   }
   
   static mouseOver (ev)
@@ -54,7 +50,7 @@ class Marker
   }
   
   
-  static mouseClick (ev)
+  static mouseLeftClick (ev)
   {
     // Get the unit that originated the event
     const u = unitMap.get (ev.currentTarget.id);
@@ -62,10 +58,27 @@ class Marker
     // Check if it belongs to the current player
     if (u.playerId == theGame.currentPlayerObj.playerId)
     {
-      // OK, get its marker object and show the Action Menu
-      const m = markerMap.get (ev.currentTarget.id);
+      // OK, get its marker object display the menu
+      const m = u.marker;
 
       m.showActionMenu ();
+    }
+  }  
+
+
+ static mouseRightClick (ev)
+  {
+    // Get the unit that originated the event
+    const u = unitMap.get (ev.currentTarget.id);
+    
+    // Check if it belongs to the current player
+    if (u.playerId == theGame.currentPlayerObj.playerId)
+    {
+      // OK, get its marker object
+      const m = u.marker;
+      
+      ev.preventDefault ();
+      m.showInfoMenu ();
     }
   }  
   
@@ -90,20 +103,7 @@ class Marker
   {
     this.balloonInfo = info;
   }
-  
-  
-  setPosition (x, y)
-  {
-    this.x = x;
-    this.y = y;
-  }
-
-  
-  setZOrder (zOrder)
-  {
-    this.zOrder = zOrder;
-  }
-
+   
   
   enable (flag)
   {
@@ -127,15 +127,15 @@ class Marker
       return;    
     }
 
-    if (this.x < 0 || this.y < 0) 
+    if (this.ownerObj.x < 0 || this.ownerObj.y < 0) 
     {
       this.hide();
       return;
     }
     
-    this.widget.style.left      = (lineDrawInfo[0].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";  
-    this.widget.style.top       = (lineDrawInfo[0].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 3*this.zOrder) + "px";
-    this.widget.style.zIndex    = this.zOrder;
+    this.widget.style.left      = (lineDrawInfo[0].xOffset + xMapCoordFromUnitCoord (this.ownerObj.x, this.ownerObj.y) + 3*this.ownerObj.zOrder) + "px";  
+    this.widget.style.top       = (lineDrawInfo[0].yOffset + yMapCoordFromUnitCoord (this.ownerObj.x, this.ownerObj.y) + 3*this.ownerObj.zOrder) + "px";
+    this.widget.style.zIndex    = this.ownerObj.zOrder;
     
     this.show ();
   }
@@ -155,6 +155,7 @@ class Marker
     this.widget.style.display = "none";
   }
  
+
   showHoverInfo ()
   {
     hoverBalloonWidget.innerHTML = this.balloonInfo;
@@ -162,6 +163,7 @@ class Marker
     hoverBalloonWidget.style.top  = this.widget.offsetTop + "px"; 
     hoverBalloonWidget.style.display = "block";
   }
+
 
   hideHoverInfo (info)
   {
@@ -171,7 +173,7 @@ class Marker
 
   showActionMenu ()
   {
-    const owner     = unitMap.get (this.id);
+    const owner     = this.ownerObj;
     let actionMenu  = document.getElementById ("actionMenu");
     let menuContent = null;
     let menuOwner   = null;
@@ -206,12 +208,12 @@ class Marker
     menuContent = document.createElement ("P");
     actionMenu.appendChild (menuContent);
 
-    menuOwner.innerHTML = "<strong>" + owner.name + "</strong>";
+    menuOwner.innerHTML = "<strong>" + this.ownerObj.name + "</strong>";
     
-    actionMenu.style.left = xMapCoordFromUnitCoord (this.x, this.y) + 51 + "px";
-    actionMenu.style.top  = yMapCoordFromUnitCoord (this.x, this.y) - 10 + "px";
+    actionMenu.style.left = xMapCoordFromUnitCoord (this.ownerObj.x, this.ownerObj.y) + 51 + "px";
+    actionMenu.style.top  = yMapCoordFromUnitCoord (this.ownerObj.x, this.ownerObj.y) - 10 + "px";
 
-    for (let a of owner.possibleActions()) 
+    for (let a of this.ownerObj.possibleActions()) 
     {
       menuContent = document.createElement ("INPUT");
       menuContent.setAttribute ("class", "action-menu-button");
@@ -230,19 +232,11 @@ class Marker
 
 class COPMarker extends Marker
 {
-  constructor (armyId)
+  constructor (cop)
   {
-    super ("map-counter", "COP-" + armyId);
-    this.armyId = armyId;    
-    this.icon.src = ("img/cop-" + armyId + ".png");
+    super ("map-counter", cop.id, cop);
+    this.icon.src = ("img/cop-" + cop.army.armyId + ".png");
   }
-
-  setOrientation (orientation)
-  {
-    this.orientation = orientation;
-//    this.draw ();  
-  }
-
 }
 
 
@@ -250,11 +244,10 @@ class COPMarker extends Marker
 
 class SSMarker extends Marker
 {
-  constructor (armyId, SSId)
+  constructor (supplySource)
   {
-    super ("map-counter", "SS-" + SSId);
-    this.armyId = armyId;    
-    this.icon.src = ("img/SS-" + armyId + ".png");
+    super ("map-counter", supplySource.id, supplySource);
+    this.icon.src = ("img/SS-" + supplySource.army.armyId + ".png");
   }
 }
 
@@ -265,83 +258,100 @@ class SSMarker extends Marker
 class LeaderMarker extends Marker 
 {
 
-  constructor (id, name, type, nation) 
+  constructor (leader) 
   {
-    super ("map-counter", id);
-    
-    this.id = id;
-    this.name = name;
-    this.type = type;
-    this.nation = nation;
-    this.orientation = 0; 
+    super ("map-counter", leader.leaderId, leader);
 
-    this.icon.setAttribute ("class", "counter-icon " + nation);
+    this.icon.setAttribute ("class", "counter-icon " + this.ownerObj.nationId);
     
     // Add the leader name
     this.leaderName = document.createElement ("P");
     this.leaderName.setAttribute ("class", "counter-name");
-    this.leaderName.innerHTML = this.name;
+    this.leaderName.innerHTML = this.ownerObj.name;
     this.widget.appendChild (this.leaderName);
 
     // Move somewhere else - this is not for the counter 
     this.leaderImg = document.createElement ("IMG");
-    this.leaderImg.id = "IMG:" + this.name;
-    this.leaderImg.src ="img/" + this.name + ".png";
+    this.leaderImg.id = "IMG:" + this.ownerObj.name;
+    this.leaderImg.src ="img/" + this.ownerObj.name + ".png";
     this.leaderImg.style.width = "50px";
     this.leaderImg.display = "none";
   }  
 
 
-  setOrientation (orientation)
+  updateMovementStatus ()
   {
-    this.orientation = orientation;
-  }
-
-
-  setMode (mode)
-  {
-    if (mode != "l" && mode != "c") 
+    // Update the border to reflect the moving status
+    switch (this.ownerObj.movementStatus)
     {
-       throw ("Mode invalid: " + mode);
-       return;
-    }  
-    
-    this.mode = mode;
+      case 'idle':
+        this.widget.classList.remove ("leader-hasMoved");
+        this.widget.classList.remove ("leader-activationKO");
+        break;
+
+      case 'hasMC':
+        this.widget.classList.remove ("leader-idle");
+        this.widget.classList.add    ("leader-hasMC");
+        break;
+
+      case 'hasProvisionalMC':
+        this.widget.classList.remove ("leader-idle");
+        this.widget.classList.add    ("leader-provisional-MC");
+        break;
+
+      case 'activationOK':
+        this.widget.classList.remove ("leader-hasProvisionalMC");
+        this.widget.classList.add    ("leader-activationOK");
+        break;
+
+      case 'isMoving':
+        this.widget.classList.remove ("leader-hasMC");
+        this.widget.classList.remove ("leader-activationOK");
+        this.widget.classList.add    ("leader-isMoving");
+        break;
+
+      case 'activationKO':
+        this.widget.classList.remove ("leader-provisional-MC");
+        this.widget.classList.add    ("leader-activation-KO");
+        break;
+
+      case 'hasMoved':
+        this.widget.classList.remove ("leader-isMoving");
+        this.widget.classList.add    ("leader-hasMoved");
+        break;
+    }
+
   }
 
 
-  setZOrder (zOrder)
-  {
-    this.zOrder = zOrder;
-  }
 
-  
+
   draw () 
   {
-    if (this.x < 0 || this.y < 0) 
+    if (this.ownerObj.x < 0 || this.ownerObj.y < 0) 
     {
       this.hide ();
       return;
     }
     
-    switch (this.mode) 
+    switch (this.ownerObj.mode) 
     {
       case "l":
-        this.icon.src = (this.type == "c" ? "img/cavalry-line.png" : "img/infantry-line.png");
+        this.icon.src = (this.ownerObj.type == "c" ? "img/cavalry-line.png" : "img/infantry-line.png");
         this.leaderName.style.visibility = "visible";
-        this.widget.style.transform = "rotate(" + lineDrawInfo[this.orientation].angle + "deg)";
-        this.widget.style.left      = (lineDrawInfo[this.orientation].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*(this.zOrder - 1 - mapZOrder)) + "px";  
-        this.widget.style.top       = (lineDrawInfo[this.orientation].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 3*(this.zOrder - 1 - mapZOrder)) + "px";
-        this.widget.style.zIndex    = this.zOrder;
+        this.widget.style.transform = "rotate(" + lineDrawInfo[this.ownerObj.orientation].angle + "deg)";
+        this.widget.style.left      = (lineDrawInfo[this.ownerObj.orientation].xOffset + xMapCoordFromUnitCoord (this.ownerObj.x, this.ownerObj.y) + 3*(this.ownerObj.zOrder - 1 - mapZOrder)) + "px";  
+        this.widget.style.top       = (lineDrawInfo[this.ownerObj.orientation].yOffset + yMapCoordFromUnitCoord (this.ownerObj.x, this.ownerObj.y) + 3*(this.ownerObj.zOrder - 1 - mapZOrder)) + "px";
+        this.widget.style.zIndex    = this.ownerObj.zOrder;
         break;
   
       case "c":
         this.icon.src = "img/column.png";
         this.leaderName.style.visibility = "hidden";
-        this.widget.style.transform = "rotate(" + columnDrawInfo[this.orientation].angle + "deg)";
-        this.widget.style.left      = (columnDrawInfo[this.orientation].xOffset + xMapCoordFromUnitCoord (this.x, this.y) + 3*(this.zOrder - 1 - mapZOrder)) + "px";  
-        this.widget.style.top       = (columnDrawInfo[this.orientation].yOffset + yMapCoordFromUnitCoord (this.x, this.y) + 3*(this.zOrder - 1 - mapZOrder)) + "px";
-        this.widget.style.zIndex    = this.zOrder;
+        this.widget.style.transform = "rotate(" + columnDrawInfo[this.ownerObj.orientation].angle + "deg)";
+        this.widget.style.left      = (columnDrawInfo[this.ownerObj.orientation].xOffset + xMapCoordFromUnitCoord (this.ownerObj.x, this.ownerObj.y) + 3*(this.ownerObj.zOrder - 1 - mapZOrder)) + "px";  
+        this.widget.style.top       = (columnDrawInfo[this.ownerObj.orientation].yOffset + yMapCoordFromUnitCoord (this.ownerObj.x, this.ownerObj.y) + 3*(this.ownerObj.zOrder - 1 - mapZOrder)) + "px";
+        this.widget.style.zIndex    = this.ownerObj.zOrder;
         break;
     }
 
@@ -352,7 +362,7 @@ class LeaderMarker extends Marker
   showInfoMenu ()
   {
     // Check if the menu is already displayed
-    let infoMenu    = document.getElementById ("LIW:" + this.id);
+    let infoMenu    = document.getElementById ("LIW:" + this.ownerObj.id);
     if (infoMenu != null)
     {
       // The menu already exists, return
@@ -362,7 +372,7 @@ class LeaderMarker extends Marker
     // OK, we need to create the menu
 
     // First of all, let's get the general's object
-    const general = unitMap.get (this.id);
+    const general = this.ownerObj;
     
     // The menu does not exist - create it!
     infoMenu = document.createElement ("DIV");
@@ -452,7 +462,9 @@ function hideLeaderInfo (leaderWidgetId)
   // Check if the info widget already exists - if so, remove it
   leaderInfoWindow = document.getElementById ("LIW:" + aLeader.leaderId);
   if (leaderInfoWindow != null)
+  {
     leaderInfoWindow.remove();
+  }
 }  
 
       
