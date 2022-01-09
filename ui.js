@@ -131,9 +131,11 @@ class UI_MoraleWidget {
 
 class UI_ArmyPanel 
 {
-  constructor (symbol, name, armyTable) 
+  constructor (army, armyTable) 
   {
-    const apWidgetId = symbol + "-at";
+    this.army = army;
+
+    const apWidgetId = this.army.symbol + "-at";
 
     // Add a row in the table 
     const tr = armyTable.insertRow (-1);
@@ -148,7 +150,7 @@ class UI_ArmyPanel
 
     // 2nd column: 
     const td1 = tr.insertCell (1);
-    td1.innerHTML = name + "&nbsp;&nbsp;";
+    td1.innerHTML = this.army.name + "&nbsp;&nbsp;";
 
     // 3rd column: Admin points, Supply sources
     const td2 = tr.insertCell (2); 
@@ -177,32 +179,17 @@ class UI_ArmyPanel
     this.depotCell = tr.insertCell (-1);
   }
 
-  
-  setAP (value) 
-  {
-    this.AP.innerHTML = "AP: " + value;
-  } 
-  
-  setAAP (value)
-  {
-    this.aAP.innerHTML = "Allocated: " + value;
-  } 
-  
-
-  
-  setCOPStatus (isActive) 
-  {
-    this.COPStatus.innerHTML = "COP: " + (isActive ? "active" : "inactive (disbanded on turn x)");
-  }
-  
-  
-  setSSStatus (name, isActive, turnToReactivate)
-  {
-    this.SSStatus.innerHTML = "Supply Source" + (isActive ? ": active (" + name + ")" : ": inactive");
     
-    if (!isActive)
+  draw () 
+  {
+    this.AP.innerHTML        = "AP:" + this.army.adminPoints;
+    this.aAP.innerHTML       = "Allocated: " + this.army.allocatedAP;
+    this.COPStatus.innerHTML = "COP: " + (this.army.COP.isActive ? "active" : "inactive (reactivatable from turn " + this.army.COP.turnToReactivate + ")");
+    this.SSStatus.innerHTML  = "Supply Source" + (this.army.isSSActive() ? ": active (" + this.army.activeSSName + ")" : ": inactive");
+    
+    if (!this.army.isSSActive ())
     {
-      this.SSStatus.innerHTML += "<br>Reactivation from turn " + turnToReactivate;
+      this.SSStatus.innerHTML += "<br>Reactivation from turn " + this.army.reactivateSSTurn;
     }
   }
   

@@ -30,6 +30,7 @@ class Leader
     this.parentId           = json_data.parentId;
     this.parent             = null;
     this.totalMC            = 0;   // Get from DB
+    this.provisionalMCs     = 0;
     this.expendedMC         = 0;
     this.movementStatus     = 'idle';
 
@@ -71,22 +72,112 @@ class Leader
   
     
   static _possibleActions = [
-    { action: "Get MC",                modeFilter: ['c', 'l'],   segmentFilter: ["MC"],               movStatusFilter: ['idle'],                  func: function(aLeader) { aLeader.getMC(); }},
-    { action: "Get Provisional MC",    modeFilter: ['c', 'l'],   segmentFilter: ["MC"],               movStatusFilter: ['idle'],                  func: function(aLeader) { aLeader.getProvisionalMC(); }},
-    { action: "Try to move",           modeFilter: ['c', 'l'],   segmentFilter: ["IIS"],              movStatusFilter: ['idle'],                  func: function(aLeader) { aLeader.tryToActivate(); }},
-    { action: "Flip Line-Column",      modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.flipMode(); }},
-    { action: "Rotate clockwise",      modeFilter: ['l'],        segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.rotateCW(); }},
-    { action: "Rotate anti-clockwise", modeFilter: ['l'],        segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.rotateCCW(); }},
-    { action: "Flip direction",        modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.uTurn(); }},
-    { action: "Move forward-left",     modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.moveFL(); }},
-    { action: "Move forward",          modeFilter: ['c'],        segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.moveF(); }},
-    { action: "Move forward-right",    modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.moveFR(); }},
-    { action: "To bottom of stack",    modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.toBottomOfStack(); }},
-    { action: "To top of stack",       modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.toTopOfStack(); }},
-    { action: "Push down",             modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.pushDown(); }},
-    { action: "Push up",               modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.pushUp(); }},
-    { action: "Manage units",          modeFilter: ['c', 'l'],   segmentFilter: ["OS"],               movStatusFilter: ['any'],                   func: function(aLeader) {  }}
+    { action: "Get MC",                modeFilter: ['c', 'l'],   segmentFilter: ["MC"],               inLOCFilter: true,  movStatusFilter: ['idle'],                  func: function(aLeader) { aLeader.getMC(); }},
+    { action: "Get Provisional MC",    modeFilter: ['c', 'l'],   segmentFilter: ["MC"],               inLOCFilter: true,  movStatusFilter: ['idle'],                  func: function(aLeader) { aLeader.getProvisionalMC(); }},
+    { action: "Try to activate",       modeFilter: ['c', 'l'],   segmentFilter: ["IIS"],              inLOCFilter: false, movStatusFilter: ['idle'],                  func: function(aLeader) { aLeader.tryToActivate(); }},
+    { action: "Flip Line-Column",      modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.flipMode(); }},
+    { action: "Rotate clockwise",      modeFilter: ['l'],        segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.rotateCW(); }},
+    { action: "Rotate anti-clockwise", modeFilter: ['l'],        segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.rotateCCW(); }},
+    { action: "Flip direction",        modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.uTurn(); }},
+    { action: "Move forward-left",     modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.moveFL(); }},
+    { action: "Move forward",          modeFilter: ['c'],        segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.moveF(); }},
+    { action: "Move forward-right",    modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['hasMC', 'activationOK'], func: function(aLeader) { aLeader.moveFR(); }},
+    { action: "To bottom of stack",    modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.toBottomOfStack(); }},
+    { action: "To top of stack",       modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.toTopOfStack(); }},
+    { action: "Push down",             modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.pushDown(); }},
+    { action: "Push up",               modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.pushUp(); }},
+    { action: "Manage units",          modeFilter: ['c', 'l'],   segmentFilter: ["OS"],               inLOCFilter: false, movStatusFilter: ['any'],                   func: function(aLeader) {  }}
   ];
+
+
+  isActionPossible (actionName)
+  {
+    let result = false;
+    const segm = Game.sequenceOfPlay[theGame.currentSegment].id;
+
+    switch (actionName)
+    {
+      case "Get MC":
+        if (segm != "MC") return false;           // Only during Issue Movement Command Segment
+        if (! this.army.COP.isActive || ! this.army.isSSActive()) return false;             // LOC broken
+        if (this.totalMC >= 2) return false;                                                // Already reached max number of MCs
+        if (this.movementStatus != "idle" && this.movementStatus != "hasMC") return false;  // Not in the right status
+        return true;
+
+      case "Get Provisional MC":
+        if (segm != "MC") return false;           // Only during Issue Movement Command Segment
+        if (! this.army.COP.isActive || ! this.army.isSSActive()) return false;             // LOC broken
+        if (this.totalMC >= 1) return false;                                                // Already reached max number of MCs (1 for Provisional MC - no forced March)
+        if (this.movementStatus != "idle") return false;                                    // Can get Provisional MC only if has not moved or got MC
+        return true;
+
+      case "Try to activate":
+        if (segm != "IIS") return false;          // Only during Independent Initiative Segment
+        if (this.totalMC > 0) return false;                                                 // If it has MCs, no need to try to move
+        if (this.movementStatus != "idle" 
+            && this.movementStatus != "hasProvisional") return false;                       // Not in the right status
+        return true;
+
+      case "Flip Line-Column":
+      case "Rotate clockwise":
+      case "Rotate anti-clockwise":
+      case "Flip direction":
+      case "Move forward-left":
+      case "Move forward":
+      case "Move forward-right":
+        if (segm != "MC"  && segm != "IIS" && segm != "FMS") return false;
+
+        if (segm == "MC"  && this.movementStatus != "hasMC" && this.movementStatus != "isMoving") return false;
+        if (segm == "IIS" && this.movementStatus != "activationOK") return false;
+        if (segm == "FMS" && this.movementStatus != "hasMC") return false;
+        if (this.mode == "c" && actionName == "Rotate clockwise" || actionName == "Rotate anti-clockwise") return false;
+        if (this.mode == "l" && actionName == "Move forward") return false;
+
+        return true;
+
+      case "To bottom of stack":
+      case "To top of stack":
+      case "Push down":
+      case "Push up":
+        if (segm != "MC"  && segm != "IIS" && segm != "FMS") return false;
+        return true;
+
+      case "Manage units":
+        if (segm != "OS") return false;
+        return true;
+
+      default:
+        throw ("Invalid action");
+        return false;
+    }
+/*    
+    for (let a of Leader._possibleActions)
+    {
+      if (actionName == a.action)
+      {
+        let result = a.modeFilter.includes (this.mode)
+          && a.segmentFilter.includes (Game.sequenceOfPlay[theGame.currentSegment].id) 
+          && (a.movStatusFilter == "any" || a.movStatusFilter.includes (this.movementStatus));
+
+          if (result == false) return false;
+
+          if (a.inLOCFilter)
+          {
+            result = this.army.COP.isActive && this.army.isSSActive();
+            if (result == false) return false;
+          }
+
+          if (actionName == "Get MC" && this.totalMC >= 2) return false;
+          if (actionName )
+
+        return result;
+      }
+    }
+
+    throw ("Unknown action");
+    return false;
+    */
+  }
 
 
   possibleActions ()
@@ -95,11 +186,10 @@ class Leader
     
     for (let a of Leader._possibleActions)
     {
-      if (a.modeFilter.includes (this.mode) && a.segmentFilter.includes (Game.sequenceOfPlay[theGame.currentSegment].id))
-      {
-        // Movement phase = only units with Movement Commands can move
-        result.push (a);      
-      }    
+      const active = this.isActionPossible (a.action);
+      const entry  = { action: a.action, enabled: active, func: a.func };
+
+      result.push (entry);
     }  
   
     return result;
@@ -271,8 +361,11 @@ class Leader
   {
     if (Leader.movingLeader !== null)
     {
-      Leader.movingLeader.updateMovementStatus ('hasMoved');
-      Leader.movingLeader.draw ();
+      if (Leader.movingLeader != this)
+      {
+        Leader.movingLeader.updateMovementStatus ('hasMoved');
+        Leader.movingLeader.draw ();
+      }
     }
 
     Leader.movingLeader = this;
@@ -499,6 +592,8 @@ class Leader
   doPostMovementActions ()
   {
     this.updateMovementStatus ("isMoving");
+    this.marker.updateActionMenu ();
+
     this.changeMovingLeader ();
 
     this.recalcZOrder ();
@@ -687,7 +782,6 @@ class Leader
     const n = this.numberOfFriendlyUnitsInHex (this.x, this.y)
     
     this.zOrder = mapZOrder + n + 1;
-    this.marker.setZOrder (this.zOrder);
   }
   
 
@@ -700,7 +794,9 @@ class Leader
     }
     
     this.numOfMovCommands = this.army.issueMovementCommand ();
+    this.army.draw ();
     this.updateMovementStatus ('hasMC');
+    this.marker.updateActionMenu ();
   }  
   
   
@@ -713,7 +809,9 @@ class Leader
     }
     
     this.provisionalMCs = this.army.issueMovementCommand ();
+    this.army.draw ();
     this.updateMovementStatus ("hasProvisionalMC");
+    this.marker.updateActionMenu ();
   }  
 
 
@@ -733,6 +831,8 @@ class Leader
       this.updateMovementStatus ("activationKO");
       alert ("Activation failed (die roll=" + dieRoll + ")");
     }
+
+    this.marker.updateActionMenu ();
   }  
 } // End of Class
 

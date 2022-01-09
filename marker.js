@@ -61,7 +61,7 @@ class Marker
       // OK, get its marker object display the menu
       const m = u.marker;
 
-      m.showActionMenu ();
+      m.showInfoMenu ();
     }
   }  
 
@@ -78,28 +78,12 @@ class Marker
       const m = u.marker;
       
       ev.preventDefault ();
-      m.showInfoMenu ();
+      m.showActionMenu ();
     }
   }  
   
 
-  static mouseDoubleClick (ev)
-  {
-    // Get the unit that originated the event
-    const u = unitMap.get (ev.currentTarget.id);
-    
-    // Check if it belongs to the current player
-    if (u.playerId == theGame.currentPlayerObj.playerId)
-    {
-      // OK, get its marker object and show the Action Menu
-      const m = markerMap.get (ev.currentTarget.id);
-
-      m.showInfoMenu ();
-    }
-  }  
-  
-
-  updateBalloonInfo (info)
+    updateBalloonInfo (info)
   {
     this.balloonInfo = info;
   }
@@ -153,6 +137,9 @@ class Marker
   hide () 
   {
     this.widget.style.display = "none";
+
+    // Hide also the action menu
+    this.hideActionMenu ();
   }
  
 
@@ -171,11 +158,22 @@ class Marker
   }
 
 
+  hideActionMenu ()
+  {
+    const actionMenu  = document.getElementById ("actionMenu");
+
+    if (actionMenu != null)
+    {
+      actionMenu.remove();
+    }
+  }
+
+
   showActionMenu ()
   {
     const owner     = this.ownerObj;
     let actionMenu  = document.getElementById ("actionMenu");
-    let menuContent = null;
+    let menuActions = null;
     let menuOwner   = null;
 
     // Check if the Action menu already exists
@@ -205,22 +203,51 @@ class Marker
     actionMenu.appendChild (menuOwner);
   
     // The menu itself
-    menuContent = document.createElement ("P");
-    actionMenu.appendChild (menuContent);
+    menuActions = document.createElement ("P");
+    menuActions.id = "AM-MC";
+    actionMenu.appendChild (menuActions);
 
     menuOwner.innerHTML = "<strong>" + this.ownerObj.name + "</strong>";
     
     actionMenu.style.left = xMapCoordFromUnitCoord (this.ownerObj.x, this.ownerObj.y) + 51 + "px";
     actionMenu.style.top  = yMapCoordFromUnitCoord (this.ownerObj.x, this.ownerObj.y) - 10 + "px";
 
-    for (let a of this.ownerObj.possibleActions()) 
+    for (let entry of this.ownerObj.possibleActions()) 
     {
-      menuContent = document.createElement ("INPUT");
-      menuContent.setAttribute ("class", "action-menu-button");
-      menuContent.type = "BUTTON";
-      menuContent.value = a.action;
-      menuContent.onclick = function () { if (a.func (owner)) actionMenu.remove(); }
-      actionMenu.appendChild (menuContent);
+      const button = document.createElement ("INPUT");
+      button.type     = "BUTTON";
+      button.setAttribute ("class", "action-menu-button");
+      button.value    = entry.action;
+      button.onclick  = function () { entry.func (owner) };
+      button.disabled = ! entry.enabled;
+      menuActions.appendChild (button);
+    }
+  }
+
+
+  updateActionMenu ()
+  {
+    const owner       = this.ownerObj;
+    const menuActions = document.getElementById ("AM-MC");
+
+    // Check if the Action menu already exists
+    if (menuActions == null)
+    {
+      return;
+    } 
+    
+    // Iterate over the buttons to enable/disable them
+    // The order of buttons and possible actions has remained the same
+    const buttons = menuActions.childNodes;
+    const actions = this.ownerObj.possibleActions();
+
+    for (let i = 0; i < buttons.length; i++) 
+    {
+      if (buttons[i] == null)
+      {
+        throw ("Internal error");
+      }
+      buttons[i].disabled = !actions[i].enabled;
     }
   }
 

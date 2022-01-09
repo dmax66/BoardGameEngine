@@ -31,16 +31,33 @@ class COP
   ];
 
 
+  isActionPossible (actionName)
+  {
+    for (let a of COP._possibleActions)
+    {
+      if (actionName == a.action)
+      {
+        const result = a.segmentFilter.includes (Game.sequenceOfPlay[theGame.currentSegment].id) && this.isActive;
+
+        return result;
+      }
+    }
+
+    throw ("Unknown action");
+    return false;
+  }
+
+
   possibleActions ()
   {
     let result = [];
     
     for (let a of COP._possibleActions)
     {
-      if (a.segmentFilter.includes (Game.sequenceOfPlay[theGame.currentSegment].id))
-      {
-        result.push (a);      
-      }    
+      const active = this.isActionPossible (a.action);
+      const entry = { action: a.action, enabled: active, func: a.func };
+
+      result.push (entry);
     }  
   
     return result;
@@ -62,6 +79,7 @@ class COP
       alert ("Center of Operations disbanded");
     }
     
+    this.army.draw ();
     return true;
   }
   
@@ -72,6 +90,7 @@ class COP
     this.turnToReactivate = -1; 
     this.updateBalloonInfo ();
     this.marker.enable (true);
+    this.army.draw ();
   }
 
 
@@ -173,6 +192,7 @@ class SupplySource
     this.x        = 1 * x;
     this.y        = 1 * y;
     this.zOrder   = 1;
+    this.isActive = true;   // Get from caller
     
     this.marker = new SSMarker (this);
     
@@ -188,21 +208,38 @@ class SupplySource
   ];
 
 
+  isActionPossible (actionName)
+  {
+    for (let a of SupplySource._possibleActions)
+    {
+      if (actionName == a.action)
+      {
+        const result = a.segmentFilter.includes (Game.sequenceOfPlay[theGame.currentSegment].id) && this.isActive;
+
+        return result;
+      }
+    }
+
+    throw ("Unknown action");
+    return false;
+  }
+
+
   possibleActions ()
   {
     let result = [];
     
     for (let a of SupplySource._possibleActions)
     {
-      if (a.segmentFilter.includes (Game.sequenceOfPlay[theGame.currentSegment].id))
-      {
-        result.push (a);      
-      }    
+      const active = this.isActionPossible (a.action);
+      const entry = { action: a.action, enabled: active, func: a.func };
+
+      result.push (entry);
     }  
   
     return result;
   }
-  
+
   
   updateBalloonInfo ()
   {
@@ -218,6 +255,7 @@ class SupplySource
 
   activate ()
   {
+    this.isActive = true;
     this.marker.enable (true);
     this.draw ();
   }
@@ -227,6 +265,7 @@ class SupplySource
   {
     if (confirm ("Are you sure you want to switch to another Supply source?"))
     {
+      this.isActive = false;
       this.army.deactivateSS (this.name);
       this.army.draw ();
       this.marker.enable (false);
@@ -286,17 +325,18 @@ class Army
   create_UI_widgets (parentWidget) 
   {
     // Creates the UI elements
-    this.armyPanel = new UI_ArmyPanel (this.symbol, this.name, parentWidget);
+    this.armyPanel = new UI_ArmyPanel (this, parentWidget);
   }
 
 
   deactivateSS (ssName)
   {
-    this.activeSSName = null;  
-    
+    this.activeSSName = null;
+
     /* to be parameterised */
     /* French Supply Sources can be reactivated 1 turn later */
     this.reactivateSSTurn = theGame.currentTurn + (this.armyId == "FA" ? 1 : 0);
+    this.armyPanel.draw ();
   }
 
 
@@ -306,6 +346,8 @@ class Army
     
     const newSS = this.supplySources.get (ssName);
     newSS.activate ();
+
+    this.armyPanel.draw ();
   }
   
   
@@ -349,16 +391,14 @@ class Army
     
     // All checks OK
     this.adminPoints--;
+
     return 1;    
   }
 
 
   draw () 
   {
-    this.armyPanel.setAP        (this.adminPoints);
-    this.armyPanel.setAAP       (this.allocatedAP);
-    this.armyPanel.setCOPStatus (this.COP.isActive);
-    this.armyPanel.setSSStatus  (this.activeSSName, this.activeSSName != null);
+    this.armyPanel.draw ();
   }
 
 }      
