@@ -215,10 +215,8 @@ class Game {
     this.players[this.currentPlayer].draw ();
     
     // Draw own the units
-    for (let entry of this.currentPlayerObj.leaders.entries()) 
+    for (let l of this.currentPlayerObj.leaders.values()) 
     { 
-      const l = entry[1];
-      
       if (l.parentId == null) 
       {
         l.draw();
@@ -235,10 +233,8 @@ class Game {
 
       const p = this.players[i];
       
-      for (let entry of p.leaders.entries())
+      for (let l of p.leaders.values())
       {
-        const l = entry[1];
-        
         if (l.parentId == null && l.nearEnemy ()) 
         {
             l.draw();
@@ -247,10 +243,8 @@ class Game {
     }
     
     // Draw the COP (if active) and SS fpr each army
-    for (let entry of this.currentPlayerObj.armies.entries())
+    for (let a of this.currentPlayerObj.armies.values())
     {
-      const a = entry[1]; 
-      
       if (a.COP.isActive)
       {
         a.COP.draw ();      
@@ -341,24 +335,14 @@ class Game {
   
   static activateSS ()
   {
-    let allSSActive = true;
-    
-    for (let entry of theGame.currentPlayerObj.armies.entries())
+    for (let a of theGame.currentPlayerObj.armies.values())
     {
-      const a = entry[1];
-      
-      if (a.activeSSName == null && a.reactivateSSTurn >= theGame.currentTurn)
+      if (a.activeSSName == null && theGame.currentTurn >= a.reactivateSSTurn)
       {
         const dlgBox = new ActivateSSDialogBox ("activate_SS", theGame.currentPlayerObj);
         dlgBox.open ();
         allSSActive = false;
       }    
-    }
-    
-    if (allSSActive)
-    {
-      // No armies need to reactivatre their supply source
-      alert ("All your armies have active Supply Sources");
     }
   }
   

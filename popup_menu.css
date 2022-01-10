@@ -1,7 +1,7 @@
 .popup-menu {
   position: absolute;
   color: black;
-  background-color: #efdf88;
+  background-color: burlywood;
   min-width: 2px;
   min-height: 2px;
   font-size: 14px;
@@ -11,7 +11,7 @@
   border-left: 1px; 
   border-right: 1px; 
   border-bottom: 1px;   
-  border-color: rgba(0, 0, 0, 1.0); 
+  border-color: darkgray; 
   border-style: double; 
   border-radius: 8px; 
   cursor: pointer;
@@ -21,9 +21,16 @@
   border-radius: 5px;
   z-index: 1;
   width: 200px;
+  text-align: center;
 }
   
 .popup-menu :hover {
   background-color: Grey;
  }
+
+
+.action-menu-button
+{
+  width: 160px;
+}
 

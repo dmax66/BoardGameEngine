@@ -114,10 +114,12 @@
   font-weight: normal;
 }
 
+
 .leader-table tr {
     border-bottom: 1px solid #aaa;
 }
   
+
 .leader-table tr:hover {
     background-color: #A0A0A0;
 }
