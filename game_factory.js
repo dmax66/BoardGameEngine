@@ -1,13 +1,7 @@
 'use strict';
 
-class GameFactory {
-  static Players = [];
-  static Nations = [];
-  static Armies = [];
-  static leaders = [];
-  static units = [];
-  // static gameData = null;
-  
+class GameFactory 
+{
   static players_data = null;
   static nations_data = null;
   static armies_data  = null;
@@ -19,7 +13,8 @@ class GameFactory {
   constructor () {}
   
   
-  static LoadGame (id) {
+  static LoadGame (id) 
+  {
     call_server_api_get ("app/load_table_for_game.php?table=Games&gameId="         + id, GameFactory.Game_callback);
     call_server_api_get ("app/load_table_for_game.php?table=Players&gameId="       + id, GameFactory.Players_callback); 
     call_server_api_get ("app/load_table_for_game.php?table=Nations&gameId="       + id, GameFactory.Nations_callback);
@@ -42,31 +37,31 @@ class GameFactory {
     for (let d of GameFactory.players_data) 
     {
       const newPlayer = new Player (d);
-      newGame.players.push (newPlayer);    
+      newGame.addPlayer (newPlayer);    
     }
 
     for (let d of GameFactory.nations_data) 
     {
       const newNation = new Nation (d);
-      newGame.nations.push (newNation);    
+      newGame.addNation (newNation);    
     }
 
     for (let d of GameFactory.armies_data) 
     {
       const newArmy = new Army (d);
-      newGame.armies.push (newArmy);    
+      newGame.addArmy (newArmy);    
     }
     
     for (let d of GameFactory.leaders_data) 
     {
       const newLeader = new Leader (d);
-      newGame.leaders.set (newLeader.leaderId, newLeader);    
+      newGame.addLeader (newLeader);    
     }
 
     for (let d of GameFactory.units_data) 
     {
       const newUnit = new Unit (d);
-      newGame.units.set (newUnit.unitId, newUnit);    
+      newGame.addUnit (newUnit);    
     }
 
 
@@ -75,7 +70,7 @@ class GameFactory {
     for (let thePlayer of newGame.players) 
     {
       // Add Nations 
-      for (let n of newGame.nations) 
+      for (let n of newGame.nations.values ()) 
       {
         if (thePlayer.playerId == n.playerId) 
         {
@@ -84,7 +79,7 @@ class GameFactory {
       }
     
       // Add Armies 
-      for (let a of newGame.armies) 
+      for (let a of newGame.armies.values ()) 
       {
         if (thePlayer.playerId == a.playerId) 
         {
@@ -93,48 +88,48 @@ class GameFactory {
       }
 
       // Add leaders
-      for (let l of newGame.leaders.entries())
+      for (let l of newGame.leaders.values ())
       {
-        if (thePlayer.playerId == l[1].playerId) 
+        if (thePlayer.playerId == l.playerId) 
         {
-          thePlayer.addLeader (l[1]);
+          thePlayer.addLeader (l);
         }
       }
 
       // Add units
-      for (let u of newGame.units.entries ()) 
+      for (let u of newGame.units.values ()) 
       {
-        if (thePlayer.playerId == u[1].playerId) 
+        if (thePlayer.playerId == u.playerId) 
         {
-          thePlayer.addUnit (u[1]);
+          thePlayer.addUnit (u);
         }
       }
     }
     
     // Add objects to leaders
-    for (let l of newGame.leaders.entries ()) 
+    for (let l of newGame.leaders.values ()) 
     {
       // Add units
-      for (let u of newGame.units.entries ()) 
+      for (let u of newGame.units.values ()) 
       {
-        if (u[1].commandedBy == l[1].leaderId) 
+        if (u.commandedBy == l.leaderId) 
         {
-          l[1].addUnit (u[1]);
+          l.addUnit (u);
         }
       }      
 
       // Assign subordinates to their leaders  
-      for (let sl of newGame.leaders.entries ()) 
+      for (let sl of newGame.leaders.values ()) 
       {
-        if (sl[1].parentId == l[1].leaderId) 
+        if (sl.parentId == l.leaderId) 
         {
-          l[1].addSubordinate (sl[1]);
+          l.addSubordinate (sl);
         }
       }      
     }
 
     // Add Supply Sources to Armies
-    for (let a of newGame.armies) 
+    for (let a of newGame.armies.values ()) 
     {
       for (let ss of this.ss_data) 
       {
@@ -143,6 +138,30 @@ class GameFactory {
           a.addSS (ss)        
         }      
       }    
+    }
+
+    // Add leaders to nations
+    for (let n of newGame.nations.values ())
+    {
+      for (let l of newGame.leaders.values ())
+      {
+        if (l.nationId == n.nationId)
+        {
+          n.addLeader (l);        
+        }      
+      }
+    }
+
+    // Add leaders to armies
+    for (let a of newGame.armies.values ())
+    {
+      for (let l of newGame.leaders.values ())
+      {
+        if (l.armyId == a.armyId)
+        {
+          a.addLeader (l);        
+        }      
+      }
     }
 
     return newGame;

@@ -34,6 +34,10 @@ class Leader
     this.expendedMC         = 0;
     this.movementStatus     = 'idle';
 
+    // Non persistent data
+    this.x2 = Leader.calcX2 (this.x, this.y, this.orientation);
+    this.y2 = Leader.calcY2 (this.x, this.y, this.orientation);
+
     // Hierarchy
     this.player             = null;
     this.nation             = null;
@@ -150,33 +154,6 @@ class Leader
         throw ("Invalid action");
         return false;
     }
-/*    
-    for (let a of Leader._possibleActions)
-    {
-      if (actionName == a.action)
-      {
-        let result = a.modeFilter.includes (this.mode)
-          && a.segmentFilter.includes (Game.sequenceOfPlay[theGame.currentSegment].id) 
-          && (a.movStatusFilter == "any" || a.movStatusFilter.includes (this.movementStatus));
-
-          if (result == false) return false;
-
-          if (a.inLOCFilter)
-          {
-            result = this.army.COP.isActive && this.army.isSSActive();
-            if (result == false) return false;
-          }
-
-          if (actionName == "Get MC" && this.totalMC >= 2) return false;
-          if (actionName )
-
-        return result;
-      }
-    }
-
-    throw ("Unknown action");
-    return false;
-    */
   }
 
 
@@ -372,6 +349,20 @@ class Leader
   }
 
 
+  static calcX2 (x, y, orientation)
+  {
+    const isOddRow = y % 2;
+
+    return x - xOffset (orientation, isOddRow);
+  }
+
+
+  static calcY2 (x, y, orientation)
+  {
+    const isOddRow = y % 2;
+
+    return y - yOffset (orientation, isOddRow);
+  }
 
 
   flipMode () 
@@ -394,8 +385,10 @@ class Leader
   moveFL () {
     const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
-    let newX = 0;
-    let newY = 0;
+    let newX1 = 0;
+    let newY1 = 0;
+    let newX2 = 0;
+    let newY2 = 0;
     let newOrientation = 0;
     
     
@@ -403,25 +396,31 @@ class Leader
       case "l": 
         // Orientation remains the same
         // The correct offsets are those corresponding to ( current orientation - 2)
-        newOrientation = orientationPrev (orientationPrev (curOrientation)); 
-        newX = this.x + xOffset (newOrientation, isOddRow);
-        newY = this.y + yOffset (newOrientation, isOddRow);
+        newOrientation = curOrientation; 
+        const tempOrientation = orientationPrev (orientationPrev (curOrientation));
+        newX1 = this.x + xOffset (tempOrientation, isOddRow);
+        newY1 = this.y + yOffset (tempOrientation, isOddRow);
         break;
          
       case "c":
         newOrientation = orientationPrev (curOrientation);
-        newX = this.x + xOffset (newOrientation, isOddRow);
-        newY = this.y + yOffset (newOrientation, isOddRow);
+        newX1 = this.x + xOffset (newOrientation, isOddRow);
+        newY1 = this.y + yOffset (newOrientation, isOddRow);
         break;
          
         default:
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
 
-    if (this.canEnterHex (newX, newY))
+
+    newX2 = Leader.calcX2 (newX1, newY1, newOrientation);
+    newY2 = Leader.calcY2 (newX1, newY1, newOrientation);
+    if (this.canEnterHex (newX1, newY1, newX2, newY2))
     {
-      this.x = newX;
-      this.y = newY;        
+      this.x = newX1;
+      this.y = newY1;   
+      this.x2 = newX2;
+      this.y2 = newY2;     
       this.orientation = newOrientation;
       this.doPostMovementActions ()  
     }
@@ -430,40 +429,50 @@ class Leader
 
   moveF () {
     const isOddRow = this.y % 2;
-    let newX = 0;
-    let newY = 0;
+    let newX1 = 0;
+    let newY1 = 0;
+    let newX2 = 0;
+    let newY2 = 0;
     let newOrientation = 0;
     
-    switch (this.mode) {
+    switch (this.mode) 
+    {
       case "l":
         // Not applicable to line mode 
         break;
          
       case "c":
         newOrientation = this.orientation;
-        newX = this.x + xOffset (this.orientation, isOddRow);
-        newY = this.y + yOffset (this.orientation, isOddRow);
+        newX1 = this.x + xOffset (this.orientation, isOddRow);
+        newY1 = this.y + yOffset (this.orientation, isOddRow);
         break;
          
         default:
           throw ("Invalid orientation in moveFL:" + this.mode);
     }
 
-    if (this.canEnterHex (newX, newY))
+    newX2 = Leader.calcX2 (newX1, newY1, newOrientation);
+    newY2 = Leader.calcY2 (newX1, newY1, newOrientation);
+  
+    if (this.canEnterHex (newX1, newY1, newX2, newY2))
     {
-      this.x = newX;
-      this.y = newY;        
+      this.x  = newX1;
+      this.y  = newY1;        
+      this.x2 = newX2;
+      this.y2 = newY2;     
       this.orientation = newOrientation;
       this.doPostMovementActions ()  
     }
   }
   
 
-  moveFR () {
-    const curOrientation = this.orientation;
+  moveFR () 
+  {
     const isOddRow = this.y % 2;
-    let newX = 0;
-    let newY = 0;
+    let newX1 = 0;
+    let newY1 = 0;
+    let newX2 = 0;
+    let newY2 = 0;
     let newOrientation = 0;
     
     switch (this.mode) {
@@ -471,31 +480,37 @@ class Leader
         // Orientation remains the same
         // The correct offsets are those corresponding to (current orientation - 1)
         newOrientation = this.orientation;
-        newX = this.x + xOffset (newOrientation, isOddRow);
-        newY = this.y + yOffset (newOrientation, isOddRow);
+        newX1 = this.x + xOffset (orientationPrev (newOrientation), isOddRow);
+        newY1 = this.y + yOffset (orientationPrev (newOrientation), isOddRow);
         break;
          
       case "c":
-        newOrientation = orientationNext (curOrientation);
-        newX = this.x + xOffset (newOrientation, isOddRow);
-        newY = this.y + yOffset (newOrientation, isOddRow);
+        newOrientation = orientationNext (this.orientation);
+        newX1 = this.x + xOffset (newOrientation, isOddRow);
+        newY1 = this.y + yOffset (newOrientation, isOddRow);
         break;
          
       default:
         throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
-    if (this.canEnterHex (newX, newY))
+    newX2 = Leader.calcX2 (newX1, newY1, newOrientation);
+    newY2 = Leader.calcY2 (newX1, newY1, newOrientation);
+
+    if (this.canEnterHex (newX1, newY1, newX2, newY2))
     {
-      this.x = newX;
-      this.y = newY;        
+      this.x  = newX1;
+      this.y  = newY1;        
+      this.x2 = newX2;
+      this.y2 = newY2;     
       this.orientation = newOrientation;
       this.doPostMovementActions ()  
     }
   }
   
 
-  uTurn () {
+  uTurn () 
+  {
     const curOrientation = this.orientation;
     const isOddRow = this.y % 2;
     
@@ -518,68 +533,90 @@ class Leader
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
-    this.doPostMovementActions ()  
-  }
-  
-  
-  rotateCW () {
-    const curOrientation = this.orientation;
-    const isOddRow = this.y % 2;
-    
-
-    switch (this.mode)
-    {
-      case "l":
-        this.orientation = orientationNext (curOrientation);
-        break;
-        
-      case "c":
-        break;
-        
-      default:
-          throw ("Invalid stack mode in moveFL:" + this.mode);
-    }
+    this.x2 = Leader.calcX2 (this.x, this.y, this.orientation);
+    this.y2 = Leader.calcY2 (this.x, this.y, this.orientation);
 
     this.doPostMovementActions ()  
   }
   
   
-  rotateCCW () {
-    const curOrientation = this.orientation;
+  rotateCW () 
+  {
     const isOddRow = this.y % 2;
-    let newX = 0;
-    let newY = 0;
     let newOrientation = 0;
+    let newX1 = this.x;
+    let newY1 = this.y;
+    let newX2 = 0;
+    let newY2 = 0;
     
 
     switch (this.mode)
     {
       case "l":
-        newOrientation = orientationPrev (curOrientation);
-        newX = this.x + xOffset (this.orientation, isOddRow);
-        newY = this.y + yOffset (this.orientation, isOddRow);
+        newOrientation = orientationNext (this.orientation);
         break;
         
       case "c":
-        break;
-        
       default:
           throw ("Invalid stack mode in moveFL:" + this.mode);
     }
 
-    if (this.canEnterHex (newX, newY))
-    {  
-      this.x = newX;
-      this.y = newY;
+    newX2 = Leader.calcX2 (newX1, newY1, newOrientation);
+    newY2 = Leader.calcY2 (newX1, newY1, newOrientation);
+
+    if (this.canEnterHex (newX1, newY1, newX2, newY2))
+    {
+      this.x  = newX1;
+      this.y  = newY1;        
+      this.x2 = newX2;
+      this.y2 = newY2;     
+      this.orientation = newOrientation;
+      this.doPostMovementActions ()  
+    }
+  }
+  
+  
+  rotateCCW () 
+  {
+    const isOddRow = this.y % 2;
+    let newOrientation = 0;
+    let newX1 = 0;
+    let newY1 = 0;
+    let newX2 = 0;
+    let newY2 = 0;
+
+    switch (this.mode)
+    {
+      case "l":
+        newOrientation = orientationPrev (this.orientation);
+        newX1 = this.x + xOffset (this.orientation, isOddRow);
+        newY1 = this.y + yOffset (this.orientation, isOddRow);
+        break;
+        
+      case "c":
+      default:
+          throw ("Invalid stack mode in moveFL:" + this.mode);
+    }
+
+    newX2 = Leader.calcX2 (newX1, newY1, newOrientation);
+    newY2 = Leader.calcY2 (newX1, newY1, newOrientation);
+
+    if (this.canEnterHex (newX1, newY1, newX2, newY2))
+    {
+      this.x  = newX1;
+      this.y  = newY1;        
+      this.x2 = newX2;
+      this.y2 = newY2;     
       this.orientation = newOrientation;
       this.moveFL();
       this.doPostMovementActions ()  
     }
   }  
   
-  canEnterHex (x, y)
+
+  canEnterHex (x1, y1, x2, y2)
   {
-    if (this.enemyUnitsInHex (x ,y))
+    if (this.enemyUnitsInHex (x1 ,y1) || this.enemyUnitsInHex (x2, y2))
     {
       return false;    
     }  
@@ -589,6 +626,7 @@ class Leader
     }
   }
   
+
   doPostMovementActions ()
   {
     this.updateMovementStatus ("isMoving");
@@ -707,23 +745,61 @@ class Leader
   {
     let result = [];
 
-    for (let l of theGame.leaders.entries ()) 
+    for (let l of theGame.leaders.values ()) 
     {
-      if (l[1].playerId == this.playerId)
+      if (l.playerId == this.playerId)
       {
         continue;      
       }
       
-      const distanceSquared = distanceSquareInUnitCoords (
-        xMapCoordFromUnitCoord (l[1].x, l[1].y),
-        yMapCoordFromUnitCoord (l[1].x, l[1].y),
+      let d = [];
+
+      d[0] = distanceSquareInUnitCoords 
+      (
+        xMapCoordFromUnitCoord (l.x, l.y),
+        yMapCoordFromUnitCoord (l.x, l.y),
         xMapCoordFromUnitCoord (this.x, this.y), 
         yMapCoordFromUnitCoord (this.x, this.y)
       );
-        
-      if (distanceSquared < visibilityRadiusSquared) 
+
+      d[1] = distanceSquareInUnitCoords 
+      (
+        xMapCoordFromUnitCoord (l.x2, l.y2),
+        yMapCoordFromUnitCoord (l.x2, l.y2),
+        xMapCoordFromUnitCoord (this.x, this.y), 
+        yMapCoordFromUnitCoord (this.x, this.y)
+      );
+
+      d[2] = distanceSquareInUnitCoords 
+      (
+        xMapCoordFromUnitCoord (l.x, l.y),
+        yMapCoordFromUnitCoord (l.x, l.y),
+        xMapCoordFromUnitCoord (this.x2, this.y2), 
+        yMapCoordFromUnitCoord (this.x2, this.y2)
+      );
+
+      d[3] = distanceSquareInUnitCoords 
+      (
+        xMapCoordFromUnitCoord (l.x2, l.y2),
+        yMapCoordFromUnitCoord (l.x2, l.y2),
+        xMapCoordFromUnitCoord (this.x2, this.y2), 
+        yMapCoordFromUnitCoord (this.x2, this.y2)
+      );
+
+
+      // Find the minimum distance
+      let minDistance = 10000;
+      for (let i = 0; i < d.length; i++)
       {
-        result.push (l[1]);
+        if (d[i] < minDistance)
+        {
+          minDistance = d[i];
+        }
+      }
+        
+      if (minDistance < visibilityRadiusSquared) 
+      {
+        result.push (l);
       }
     }
     
@@ -747,9 +823,9 @@ class Leader
   {
     let result = 0;
     
-    for (let l of unitMap.entries ())
+    for (let l of unitMap.values ())
     {
-      if (l[1].x == x && l[1].y == y && this.playerId == l[1].playerId) 
+      if (l.x == x && l.y == y && this.playerId == l.playerId) 
       {
         result++;      
       }   
@@ -763,9 +839,9 @@ class Leader
   {
     let result = false;
     
-    for (let l of unitMap.entries ())
+    for (let l of unitMap.values ())
     {
-      if (l[1].x == x && l[1].y == y && this.playerId != l[1].playerId) 
+      if (this.playerId != l.playerId && ((l.x == x && l.y == y) || (l.x2 == x && l.y2 == y)))
       {
         result = true;
         break;      

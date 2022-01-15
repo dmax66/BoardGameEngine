@@ -432,7 +432,7 @@ class LeaderMarker extends Marker
     leaderData.innerHTML = "<b>"
     leaderData.innerHTML += general.name + "&nbsp;"
     leaderData.innerHTML += general.initiative;
-    leaderData.innerHTML += (general.bonus == 1 ? "-*-" : "-" );
+    leaderData.innerHTML += (general.hasBonus == 1 ? "-*-" : "-");
     leaderData.innerHTML += general.commandCapacity + "-"
     leaderData.innerHTML += general.subordinationValue;
     leaderData.innerHTML += "</b>";

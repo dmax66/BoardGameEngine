@@ -334,9 +334,9 @@ class AllocateAPDialogBox extends ModalDialogBox
     
   static checkInputValues ()
   {
-    for (let a of theGame.players[theGame.currentPlayer].armies.entries())
+    for (let a of theGame.currentPlayerObj.armies.values())
     {
-      const d = allocateAPDialogBox.allocatedAPwidgets.get (a[1].armyId);  
+      const d = allocateAPDialogBox.allocatedAPwidgets.get (a.armyId);  
       if (d.inputWidget.value == "")
       {
         // Not all input fields filled
@@ -372,9 +372,9 @@ class AllocateAPDialogBox extends ModalDialogBox
   
   close ()
   {
-    for (let a of theGame.currentPlayerObj.armies.entries())
+    for (let a of theGame.currentPlayerObj.armies.values())
     {
-      const d = this.allocatedAPwidgets.get (a[1].armyId);
+      const d = this.allocatedAPwidgets.get (a.armyId);
       d.rowWidget.style.display = "none";
       d.inputWidget.onchange = null;
     }
@@ -412,7 +412,7 @@ class GetAPDialogBox extends ModalDialogBox
   {
     const t = document.getElementById ("getAPtable");
     
-    for (let a of theGame.armies.entries())     // Horrible!
+    for (let a of theGame.armies.values())     // Horrible!
     {
       const r = t.insertRow (-1);
       r.style.display = "none";
@@ -422,10 +422,10 @@ class GetAPDialogBox extends ModalDialogBox
       
       
       // The form
-      const formName = "A:" + a[1].armyId;
+      const formName = "A:" + a.armyId;
       const f = document.createElement ("FORM");
       f.name = formName;
-      f.setAttribute ("data-owner", a[1].armyId);
+      f.setAttribute ("data-owner", a.armyId);
       f.onsubmit = function (ev) {
         GetAPDialogBox.rollDie (ev);
       }
@@ -433,7 +433,7 @@ class GetAPDialogBox extends ModalDialogBox
 
       // Army name
       const c1 = document.createElement ("SPAN")
-      c1.innerHTML = a[1].name;
+      c1.innerHTML = a.name;
       c1.style.margin = "10px";
       f.appendChild (c1);
       
@@ -479,7 +479,7 @@ class GetAPDialogBox extends ModalDialogBox
       button.style.margin = "10px";
       button.value = "Roll die";
       button.setAttribute ("class", "get-ap-button");
-//      button.setAttribute ("data-owner", a[1].armyId);
+//      button.setAttribute ("data-owner", a.armyId);
       f.appendChild (button);
       
       // Die roll result
@@ -494,7 +494,7 @@ class GetAPDialogBox extends ModalDialogBox
       c5.style.margin = "10px";
       f.appendChild (c5);
       
-      this.getAPwidgets.set (a[1].armyId, { rowWidget: r,  distanceSS_COP: distance, rollDieButton:button, dieRollResult: c4, receivedAP: c5 } );
+      this.getAPwidgets.set (a.armyId, { rowWidget: r,  distanceSS_COP: distance, rollDieButton:button, dieRollResult: c4, receivedAP: c5 } );
     }
     
     this.isInitialised = true;
