@@ -1,19 +1,19 @@
 CREATE VIEW Units AS 
 SELECT 
-    SD.id AS id,
-    SD.name AS name,
-    SD.commander AS commander,
-    SD.nation AS nation,
-    SD.size AS size,
-    SD.type AS type,
-    DD.game_ID AS gameId,
-    DD.id AS unitId,
-    DD.commandedBy AS commandedBy,
-    DD.strength AS strength,
-    N.playerId AS playerId 
+    DD.gameId,
+    SD.unitId,
+    N.playerId,
+    N.nationId,
+    SD.name,
+    SD.commander,
+    SD.size,
+    SD.type,
+    DD.strength,
+    DD.commandedBy,
+    DD.isActive
 FROM
     Units_Static_Data SD, Units_Dynamic_Data DD, Nations_Static_Data N
 WHERE 
-    SD.id = DD.id 
+    SD.unitId = DD.unitId 
     AND 
-    SD.nation = N.id;
+    SD.nationId = N.nationId
