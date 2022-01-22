@@ -26,12 +26,19 @@
 }
 
 
-.ap-dialogbox {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  z-index: 100;
+.close-icon
+{
+  position: relative;
+  float: right;
+  right: -15px;
+  top: -30px;
+  width: 25px;
+  height: 25px; 
 }
 
 
-
-
+.close-icon:hover
+{
+  box-shadow: 0 0 10px 5px orange;
+  cursor: pointer;
+}

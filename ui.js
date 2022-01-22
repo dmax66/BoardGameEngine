@@ -16,14 +16,26 @@ function UIDrawPointAtCenterOfHex (hex) {
 }
 
 
-function UIShadeHex (hex) {
-  const theShade = document.createElement ("IMG");
-  theShade.setAttribute ("class", "hex-shade");
-  theShade.src = "img/hex.png";
-  theShade.style.left    = (xMapCoordFromUnitCoord (hex.x, hex.y) - hexWidth/2 - 1) + "px";  // -1 to account for the hex border (1 px)  
-  theShade.style.top     = (yMapCoordFromUnitCoord (hex.x, hex.y) + 1 ) + "px";              // +1 to account for the hex border (1 px)
-  theShade.style.visibility = "visible";
-  document.getElementById ("mapContainer").appendChild (theShade);  
+const markerTarget = document.createElement ("IMG");
+markerTarget.setAttribute ("class", "hex-shade");
+markerTarget.src = "img/infantry-line.png";
+markerTarget.style.backgroundColor = "red";
+markerTarget.style.display = "none";
+markerTarget.style.left    = "-20px"; 
+markerTarget.style.top     = "-20px";
+
+
+const hexShade = document.createElement ("IMG");
+hexShade.setAttribute ("class", "hex-shade");
+hexShade.src = "img/hex.png";
+hexShade.style.display = "none";
+hexShade.style.left    = "-20px"; 
+hexShade.style.top     = "-20px";
+
+function UIShadeHex (pointer, hex) 
+{
+  pointer.style.left    = (xMapCoordFromUnitCoord (hex.x, hex.y) - hexWidth/2 - 1) + "px";  // -1 to account for the hex border (1 px)  
+  pointer.style.top     = (yMapCoordFromUnitCoord (hex.x, hex.y) + 1 ) + "px";              // +1 to account for the hex border (1 px)
 }
 
 

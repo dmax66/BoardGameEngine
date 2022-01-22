@@ -30,3 +30,40 @@ class APPTable
   
   
 }
+
+
+class AQMTable
+{
+  static StrengthRanges = new Map (); 
+
+  constructor (json_strengthRanges, )
+  {
+    for (let i of json_strengthRanges)
+    {
+       AQMTable.StrengthRanges   
+    }
+  }
+
+  getAttrition (totalAP, strength, marchLength, isForcedMarch)
+  {
+    let strengthRange = "";
+    
+    // Find the strength range
+    for (let elem of AQMTable.StrengthRanges.entries ())
+    {
+      const key = elem[0];
+      const lowerBound = elem[1].minStrength;
+      const upperBound = elem[1].maxStrength;
+      
+      if (lowerBound <= strength && strength < upperBound)
+      {
+        strengthRange = key;
+        break;      
+      }
+    }
+        
+    // Find the MP column
+        
+    
+  }
+}

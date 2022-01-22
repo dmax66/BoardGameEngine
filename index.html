@@ -74,11 +74,11 @@ const mapZOrder = 1;
 <script src="player.js"></script>
 <script src="leaders.js"></script>
 <script src="units.js"></script>
-<script src="unit_ui.js"></script>
+<script src="popup_menu.js"></script>
 <script src="game.js"></script>
 <script src="game_factory.js"></script>
 <script src="game_tables.js"></script>
-<script src="wargame_ui.js"></script>
+<!-- <script src="wargame_ui.js"></script> -->
 <script src="modal.js"></script>
 
 <script type="text/javascript">
@@ -197,7 +197,20 @@ function processMouseMove (ev) {
 }
 
 
-// let theStatusBar = null;
+function processMouseMove2 (ev) {
+  const x = xUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);   // So that we enter a new hex when crossing the hex side, not its middle axis
+  const y = yUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
+  
+//  UIShadeHex (markerTarget, {x:x, y:y} );
+  if (positionPicker.isActive)
+  {
+    positionPicker.moveTo (x, y);
+  }
+  
+  showMousePosition (ev.offsetX, ev.offsetY, x, y);
+}
+
+
 
 function loadGame (id) 
 {
@@ -210,7 +223,7 @@ function loadGame (id)
 
 <body onload = "
   theStatusBar = new UI_RenderStatusBar (document.getElementById('game_status_bar')); 
-  show_menu (false);" > 
+  show_menu (false);" onkeydown="xxx(event)"> 
 
 
 <font color="Silver">
@@ -233,11 +246,11 @@ function loadGame (id)
 <!-- Load game modal box -->
 <div id="loadgame_box" class="modal">
   <div class="modal-content">
-    <span class="close">&times;</span>
+    <img class="close-icon" src="img/close.png" onclick="this.parentNode.parentNode.style.display='none'">
     <label for="game_list"><h3>Select a game</h3></label>
     <select id="game_list" name="games">
     </select> 
-    <br><input type="button" value="Load" onclick="loadGame(document.getElementById('game_list').value); this.parentNode.parentNode.style.display='none'">
+    <br><input type="button" value="Load" onclick="this.parentNode.parentNode.style.display='none'; loadGame(document.getElementById('game_list').value);">
   </div>
 </div>
 
@@ -392,6 +405,29 @@ function loadGame (id)
 </div>
 
 
+<!-- Transfer unit menu -->
+<div id="xfer-unit-dialog" class="modal" style="z-index: 42">
+  <div class="modal-content">
+    <img class="close-icon" src="img/close.png" onclick="this.parentNode.parentNode.style.display='none'">
+    <p style="text-align: center;"><strong>Transfer Unit</strong></p>
+    <form id="select-target">
+      <select id="target-general" name="general">
+      </select>
+      <input type="SUBMIT" id="xfer-ok" name="" disabled>
+    </form>
+  </div>
+</div>
+
+
+<!-- List of units to place at beginning of game -->
+<div id="units-to-place" class="popup-menu" style="position:fixed; left:100px; top:200px; width:200px; height:400px; z-index:5; display:none;" >
+  <img class="close-icon" src="img/close.png" onclick="unitPicker.close ()">
+  Units to place:<br>
+  <table id="list-of-units" style = "width:100%; height:fit-content">
+  </table>
+</div>
+
+
 <!-- Status bar -->
 <div id="StatusBar" class="status_bar" >
 
@@ -412,12 +448,51 @@ function loadGame (id)
 
 
 
+<!--
 //
 // GAME MAP
 //
-<div id="mapContainer" class="map_container">
-  <img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove(event)">
-  <div id="counter-balloon" class="stack_info" style="display:none; z-index: 50"></div>
+-->
+
+<script>
+function xxx (ev)
+{
+	console.log ("Key:" + ev.key)
+
+	switch (ev.key)
+	{
+		case "ArrowRight":
+			positionPicker.rotateCW ();
+			break;
+			
+		case "ArrowLeft":
+			positionPicker.rotateCCW ();
+			break;
+
+		case "ArrowUp":
+			positionPicker.flipToColumn ();
+			break;
+			
+		case "ArrowDown":
+			positionPicker.flipToLine ();
+			break;
+			
+		case "Enter":
+		  unitPicker.confirmSelection ();
+		  break;
+			
+		case "Escape":
+		  positionPicker.hide ();
+		  unitPicker.cancelSelection ();
+	}
+}
+
+</script>
+
+<div id="mapContainer" class="map_container" >
+  <img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove2(event)"  >
+  <div id="counter-balloon" class="stack_info" style="display:none; z-index: 50" ></div>
+  
 </div>
  
 
@@ -425,23 +500,20 @@ function loadGame (id)
 
 const att = document.createAttribute ("data-owner");
 
-// Get the <span> element that closes the modal
-const close_button = document.getElementsByClassName("close")[0];
-
-// When the user clicks on <span> (x), close the modal
-close_button.onclick = function() {
-  document.getElementById("newgame_box").style.display = "none";
-}  
-  
-const newgame_box = document.getElementById ("newgame_box");
-const hoverBalloonWidget = document.getElementById ("counter-balloon");
+const newgame_box         = document.getElementById ("newgame_box");
+const hoverBalloonWidget  = document.getElementById ("counter-balloon");
 
 const weatherDialogBox    = new WeatherDialogBox ();
 const dieRollDialogBox    = new DieRollDialogBox ();
 const yesNoDialogBox      = new YesNoDialogBox ();
 const allocateAPDialogBox = new AllocateAPDialogBox ();
 const getAPDialogBox      = new GetAPDialogBox ();
+const selectFriendlyLeaderDialogBox = new SelectFriendlyLeaderInSameHex ();
 
+const positionPicker      = new PositionPicker ();
+positionPicker.hide();
+
+const unitPicker          = new UnitPicker ();
 
 </script>
 

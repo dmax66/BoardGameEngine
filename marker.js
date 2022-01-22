@@ -66,7 +66,7 @@ class Marker
   }  
 
 
- static mouseRightClick (ev)
+  static mouseRightClick (ev)
   {
     // Get the unit that originated the event
     const u = unitMap.get (ev.currentTarget.id);
@@ -83,7 +83,7 @@ class Marker
   }  
   
 
-    updateBalloonInfo (info)
+  updateBalloonInfo (info)
   {
     this.balloonInfo = info;
   }
@@ -389,7 +389,7 @@ class LeaderMarker extends Marker
   showInfoMenu ()
   {
     // Check if the menu is already displayed
-    let infoMenu    = document.getElementById ("LIW:" + this.ownerObj.id);
+    let infoMenu    = document.getElementById ("LIW:" + this.ownerObj.leaderId);
     if (infoMenu != null)
     {
       // The menu already exists, return
@@ -429,17 +429,21 @@ class LeaderMarker extends Marker
 
     // The leader data
     const leaderData = document.createElement ("P");
-    leaderData.innerHTML = "<b>"
-    leaderData.innerHTML += general.name + "&nbsp;"
+    leaderData.style.textAlign = "center";
+    leaderData.innerHTML = "<strong>";
+    leaderData.innerHTML += general.name + "&nbsp;(";
     leaderData.innerHTML += general.initiative;
-    leaderData.innerHTML += (general.hasBonus == 1 ? "-*-" : "-");
-    leaderData.innerHTML += general.commandCapacity + "-"
+    leaderData.innerHTML += (general.hasBonus == 1 ? "*" : "-");
+    leaderData.innerHTML += general.commandCapacity + "-";
     leaderData.innerHTML += general.subordinationValue;
-    leaderData.innerHTML += "</b>";
+    leaderData.innerHTML += ")</strong><br>";
+    leaderData.innerHTML += general.army.name + "<br>";
+    leaderData.innerHTML += general.unitName;
     infoMenu.appendChild (leaderData);
   
     // Total Strength
     const corpStrengthWidget = document.createElement ("P");
+    corpStrengthWidget.style.fontWeight = "normal";
     corpStrengthWidget.innerHTML = 
       "Infantry: "  + general.strength("i")*1000 + "<br>" +
       "Cavalry: "   + general.strength("c")*1000 + "<br>" +
@@ -452,31 +456,56 @@ class LeaderMarker extends Marker
     unitTable.setAttribute ("class", "unit-table");
     infoMenu.appendChild (unitTable);    
     
-    for (let entry of general.units.entries()) 
+    for (let u of general.units.values()) 
     {
-        const u = entry[1];
-        
-        let tableCell = null;
+      if (! u.isActive)
+      {
+        continue;      
+      }
+      
+      let tableCell = null;
+
+      const tableRow = unitTable.insertRow (-1);
+      tableRow.id = "UIdxW:" + u.unitId;
+      tableRow.onclick =  function (event) { LeaderMarker.onUnitClicked (event) } 
+      tableRow.setAttribute ("data-owner", u.unitId);
   
-        const tableRow = unitTable.insertRow (-1);
-        tableRow.id = "UIdxW:" + u.unitId;
-        tableRow.onclick =  function (event) { createUnitMenu (event) } 
-    
-        tableCell = tableRow.insertCell (-1);
+      tableCell = tableRow.insertCell (-1);
+
+      const unitIcon = document.createElement("IMG");
+      tableCell.appendChild (unitIcon);
+      unitIcon.src = "img/" + u.iconFileName();        
+      unitIcon.setAttribute ("class", u.nationId); 
   
-        const unitIcon = document.createElement("IMG");
-        tableCell.appendChild (unitIcon);
-        unitIcon.src = "img/" + u.iconFileName();        
-        unitIcon.setAttribute ("class", u.nation); 
-    
-        tableCell = tableRow.insertCell (-1);
-        tableCell.innerHTML = u.name + " (" + u.commander + ")";
-  
-        tableCell = tableRow.insertCell (-1);
-        tableCell.innerHTML = u.strength * 1000;
+      tableCell = tableRow.insertCell (-1);
+      tableCell.innerHTML = u.name + " (" + u.commander + ")";
+
+      tableCell = tableRow.insertCell (-1);
+      tableCell.innerHTML = u.strength * 1000;
     }
   }
-  
+
+
+  updateInfoMenu ()
+  {
+    let infoMenu = document.getElementById ("LIW:" + this.ownerObj.leaderId);
+    if (infoMenu != null)
+    {
+      // The menu already exists, remove it and redraw it (can be optimised to avoid destroying it)
+      infoMenu.remove ();    
+      this.showInfoMenu ();
+    }
+  }
+
+
+  static onUnitClicked (ev)
+  {
+    const evSource = theGame.getUnit (ev.target);
+    const unitId = ev.currentTarget.getAttribute ("data-owner");
+    const unit = theGame.getUnit (unitId);
+    
+    unit.openActionMenu (ev.x, ev.y);
+  }  
 
 }
 
@@ -497,3 +526,196 @@ function hideLeaderInfo (leaderWidgetId)
       
 
 
+class PositionPicker 
+{
+  constructor ()
+  {
+    this.mode = "l";
+    this.orientation = 0;
+    this.type = "i";
+    this.className = "";
+    this.x = 0;
+    this.y = 0;
+    this.isActive = false;
+    this.id = null;
+    
+    this.widget = document.createElement ("DIV");  
+    this.widget.setAttribute ("class", "counter-icon");
+    this.widget.id           = "PositionPicker";
+    this.widget.display      = "none";
+    this.widget.style.zIndex = 39;
+    this.widget.onclick = function () { unitPicker.confirmSelection (); }
+    document.getElementById ("mapContainer").appendChild (this.widget);  
+
+    this.icon = document.createElement ("IMG");
+    this.icon.setAttribute ("class", "counter-icon");
+ 	  this.icon.src = "";
+    this.icon.style.opacity = 0.5;
+    this.widget.appendChild (this.icon);
+
+    this.label = document.createElement ("SPAN");
+    this.label.setAttribute ("class", "counter-name");
+    this.label.style.position = "absolute";
+    this.label.style.width    = "60px";
+    this.label.style.height   = "10px";
+    this.label.style.left     = "0px";
+    this.label.style.top      = "8px";
+    this.widget.appendChild (this.label);
+  }
+
+  moveTo (x, y)
+  {
+    this.x = x;
+    this.y = y;
+	
+    this.draw ();
+  }
+
+  
+  flipToLine ()
+  {
+    if (this.className == "Leader")
+    {
+      this.mode = "l";
+      this.icon.src = (this.type == "c" ? "img/cavalry-line.png" : "img/infantry-line.png");
+      this.label.style.display = "initial";
+    }
+  }
+  
+  
+  flipToColumn ()
+  {
+    if (this.className == "Leader")
+    {
+      this.mode = "c";
+      this.icon.src = "img/column.png";
+      this.label.style.display = "none";
+    }
+  }
+  
+  
+  rotateCW ()
+  {
+    if (this.className == "Leader")
+    {
+      this.orientation = orientationNext (this.orientation);
+      this.draw ();
+    }
+  }
+  
+  
+  rotateCCW ()
+  {
+    if (this.className == "Leader")
+    {
+      this.orientation = orientationPrev (this.orientation);
+      this.draw ();
+    }
+  }
+  
+
+  draw ()
+  {
+    this.widget.style.transform = "rotate(" + lineDrawInfo[this.orientation].angle + "deg)";
+
+    this.widget.style.left      = (this.xOffset() + xMapCoordFromUnitCoord (this.x, this.y)) + "px";  
+    this.widget.style.top       = (this.yOffset() + yMapCoordFromUnitCoord (this.x, this.y)) + "px";
+  }
+  
+  
+  xOffset ()
+  {
+	switch (this.orientation)
+	{
+	  case 0:
+		  return -47;
+		  
+	  case 1:
+		  return -47 + 34;
+		  
+	  case 2:
+		  return -48 + 32 + 32 + 20;
+		  
+	  case 3:
+		  return -48 + 32 + 32 + 32;
+		  
+	  case 4:
+		  return -48 + 32 + 28;
+		  
+	  case 5:
+		  return -48 + 14;
+	}
+	
+	return -48;
+  }
+  
+  
+  yOffset ()
+  {
+	  switch (this.orientation)
+	  {
+	  	case 0:
+	  		return 8;
+	  		
+	  	case 1:
+	  		return 8 - 37;
+	  		
+	  	case 2:
+	  		return 8 - 22;
+	  		
+	  	case 3:
+	  		return 8+26;
+	  		
+	  	case 4:
+	  		return 8 + 32 + 26;
+	  		
+	  	case 5:
+	  		return 8 + 47;
+	  }
+	  return 8;
+  }
+  
+  
+  show (className, id, name, otherId) 
+  {
+    this.id = id;
+    this.className = className;
+    
+    this.widget.setAttribute ("class", "counter-icon");
+
+    switch (className)
+    {
+      case "Leader":
+        this.icon.src = "img/infantry-line.png";
+        this.icon.classList.add (otherId);
+        this.label.innerHTML = name;
+
+        break;
+        
+      case "COP":
+        this.icon.src = "img/cop-" + otherId + ".png";
+        this.label.innerHTML = "";
+        break;
+        
+      default:
+        throw ("Unknown class name");
+        return;
+    }
+    
+    this.widget.style.display = "block";
+    this.isActive = true;
+  }
+  
+
+  hide () 
+  {
+    this.widget.style.display = "none";
+    this.isActive = false;
+    this.mode = "l";
+    this.orientation = 0;
+    this.type = "i";
+    this.x = 0;
+    this.y = 0;
+  }
+  
+}

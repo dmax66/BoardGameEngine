@@ -22,7 +22,8 @@ class Game {
     { id: "DRS",  phase:"Combat Phase",   segment:"Disorganization and Rally Segment", action: Game.doNothing        }
   ];
 
-  constructor (id,  name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather) {
+  constructor (id,  name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather) 
+  {
     this.id               = id;
     this.name             = "";
     this.scenarioId       = "";
@@ -55,25 +56,30 @@ class Game {
     responseFromDB = xhttp_obj.responseText;
   }
   
+  
   addPlayer (p)
   {
     this.players.push (p);  
   }
 
+  
   addLeader (l)
   {
     this.leaders.set (l.leaderId, l);
   }
 
+  
   addNation (n)
   {
     this.nations.set (n.nationId, n);
   }
   
+  
   addArmy (a)
   {
     this.armies.set (a.armyId, a);
   }
+  
   
   addUnit (u)
   {
@@ -81,10 +87,11 @@ class Game {
   }
 
 
-  initFromScenario (scenario_id) {
+  initFromScenario (scenario_id) 
+  {
     // Get scenario data from DB and populate internal structures
-    //  const url = "app/get_scenario_data.php?scenario_id=" + scenario_id;
-    //  call_server_api_get (url, get_scenario_data);
+    // const url = "app/get_scenario_data.php?scenario_id=" + scenario_id;
+    // call_server_api_get (url, get_scenario_data);
     
     // Create the new game in the database, get the new game ID
     call_server_api_get ("app/create_game_from_scenario.php?scenario_id=" + scenario_id + "&game_name=" + this.name, Game.getid_callback);
@@ -102,35 +109,14 @@ class Game {
   }
 
 
-  // Returns the index of the units array whose id == unitId
-/*  findUnit (unitId) 
-  {
-
-    for (let i = 0; i < this.units.length; i++)
-      if (this.units[i].unitId == unitId)
-        return i;
-  
-    return (-1);
-  }
-  */
 
   // Returns an instance of class Unit whose id == unitId
   getUnit (unitId) 
   {
-    return units.get (unitId);
+    return this.units.get (unitId);
   }
   
 
-  // Returns the index of the leaders array whose Id == leadertId
-/*
-  findLeader (leaderId) {
-    for (let i = 0; i < this.leaders.length; i++)
-      if (this.leaders[i].leaderId == leaderId)
-        return i;
-  
-    return (-1);
-  }
-*/  
 
   // Returns an instance of class Leader whose id == unitId
   getLeader (leaderId) 
@@ -144,21 +130,6 @@ class Game {
     return this.armies.get (armyId);
   }
   
-  
-/*
-  numOfLeadersInHex (x, y)
-  {
-    let n = 0;
-    
-    for (let i = 0; i < this.leaders.length; i++) {
-      if (this.leaders[i].x == x && this.leaders[i].y == y) { 
-        n++;
-      }
-    }
-        
-    return n;
-  }
-*/  
   
   // Move to the controller?
 
@@ -203,13 +174,6 @@ class Game {
     
     this.currentPlayerObj = this.players[this.currentPlayer];    
     
-    if (this.currentSegment == -1)
-    {
-      // Begin of a scenario
-      // Start with currentSegment == -1
-      // Move to state 0, triggering all actions
-      this.advanceGame ();
-    }
     // Draw the player status
     this.players[this.currentPlayer].show ();
     this.players[this.currentPlayer].draw ();
@@ -242,6 +206,16 @@ class Game {
       }
     }
     
+    if (this.currentSegment == -1)
+    {
+      // Begin of a scenario
+      // Start with currentSegment == -1
+      // Move to state 0, triggering all actions
+      
+      this.positionFloatingUnits ();
+//      this.chooseSS ();
+    }
+    
     // Draw the COP (if active) and SS fpr each army
     for (let a of this.currentPlayerObj.armies.values())
     {
@@ -259,7 +233,32 @@ class Game {
   }
 
 
-  advanceGame () {
+  positionFloatingUnits ()
+  {
+    let floatingUnits = [];
+    
+    // Get list of floating units
+	  for (let l of theGame.currentPlayerObj.leaders.values())
+		{
+	    if (l.x == "" || l.y == "")
+	    {
+	      // Add leader to list of units to be placed
+	      floatingUnits.push (l);
+	    }
+		}
+
+	  // COP
+	  for (let a of theGame.currentPlayerObj.armies.values())
+	  {
+	    floatingUnits.push (a.COP);
+	  }
+	  
+	  Controller.openPositionUnitPopup (floatingUnits);
+  }
+  
+  
+  advanceGame () 
+  {
     this.currentSegment++;
 
     if (this.currentSegment >= Game.sequenceOfPlay.length) 
@@ -273,7 +272,8 @@ class Game {
         this.currenTurn++;
       }
 
-      if (this.currenTurn > this.endTurn ) {
+      if (this.currenTurn > this.endTurn ) 
+      {
         // Game ended
       }
     }
@@ -325,12 +325,10 @@ class Game {
 
   static moveSS ()
   {
-    alert ("You can move your supply source now. Rules apply");
   }
   
   static disbandCOP ()
   {
-    alert ("You can disband your Center of Operations now. Rules apply");
   }
   
   static activateSS ()
@@ -341,9 +339,10 @@ class Game {
       {
         const dlgBox = new ActivateSSDialogBox ("activate_SS", theGame.currentPlayerObj);
         dlgBox.open ();
-        allSSActive = false;
       }    
     }
+
+    theGame.advanceGame ();
   }
   
   
@@ -366,7 +365,7 @@ class Game {
       }
       
       // Assert: both COP and SS active
-      Controller.openReceiveAPDialog (theGame.players[theGame.currentPlayer].armies, theGame.calendar[theGame.currentSegment].season); 
+      Controller.openReceiveAPDialog (theGame.currentPlayerObj.armies, theGame.calendar[theGame.currentSegment].season); 
     }
   }
   
@@ -374,6 +373,7 @@ class Game {
   static doNothing ()
   {
   }
+  
   
   numberOfMarkersInHex (x, y)
   {

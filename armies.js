@@ -2,7 +2,7 @@ class COP
 {
   constructor (playerId, army, json_data)
   {
-    this.id               = "COP" + army.armyId;
+    this.id               = "COP:" + army.armyId;
     this.playerId         = playerId;
     this.army             = army;
     this.name             = "Center of Ops";

@@ -21,6 +21,7 @@ class Leader
     this.commandCapacity    = 1 * json_data.commandCapacity;
     this.subordinationValue = 1 * json_data.subordinationValue;
     this.type               = json_data.type;
+    this.unitName           = json_data.unitName;
 
     // Dynamic data
     this.orientation        = 1 * json_data.orientation;
@@ -28,7 +29,6 @@ class Leader
     this.x                  = 1 * json_data.X;
     this.y                  = 1 * json_data.Y;
     this.parentId           = json_data.parentId;
-    this.parent             = null;
     this.totalMC            = 0;   // Get from DB
     this.provisionalMCs     = 0;
     this.expendedMC         = 0;
@@ -42,6 +42,7 @@ class Leader
     this.player             = null;
     this.nation             = null;
     this.army               = null;
+    this.parent             = null;
     this.units              = new Map ();
     this.subordinates       = new Map ();
 
@@ -89,8 +90,7 @@ class Leader
     { action: "To bottom of stack",    modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.toBottomOfStack(); }},
     { action: "To top of stack",       modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.toTopOfStack(); }},
     { action: "Push down",             modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.pushDown(); }},
-    { action: "Push up",               modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.pushUp(); }},
-    { action: "Manage units",          modeFilter: ['c', 'l'],   segmentFilter: ["OS"],               inLOCFilter: false, movStatusFilter: ['any'],                   func: function(aLeader) {  }}
+    { action: "Push up",               modeFilter: ['c', 'l'],   segmentFilter: ["MC", "IIS", "FMS"], inLOCFilter: false, movStatusFilter: ['any'],                   func: function(aLeader) { aLeader.pushUp(); }}
   ];
 
 
@@ -200,35 +200,21 @@ class Leader
   }
 
   
-  // Returns the index of the units array whose id == unitId
-/*
-  findUnit (unitId) 
-  {
-    for (let i = 0; i < this.units.length; i++)
-      if (this.units[i].unitId == unitId)
-        return i;
-  
-    return (-1);
-  }
-*/  
-  
   // aUnit is an instance of class Unit
   addUnit (aUnit) 
   {
-    aUnit.setParent (this);
+    aUnit.setLeader (this);
     this.units.set (aUnit.unitId, aUnit);
     
     this.updateBalloonInfo ();
   }
 
 
-  // Remove the unit identified by unitId. 
-  removeUnit (unitId) 
+  // Remove the unit from the units he controls 
+  removeUnit (unit) 
   {
-    const unit = this.units.get (unitId);
-    
-    this.units.delete (unitId);
-    unit.unsetParent ();
+    this.units.delete (unit.unitId);
+    unit.unsetLeader ();
  
     this.updateBalloonInfo ();
   }
@@ -422,7 +408,7 @@ class Leader
       this.x2 = newX2;
       this.y2 = newY2;     
       this.orientation = newOrientation;
-      this.doPostMovementActions ()  
+      this.doPostMovementActions ();
     }
   }
   
@@ -652,11 +638,11 @@ class Leader
     const z = this.zOrder;
     
     // Find the leader l with l.zOrder == this.zOrder - 1;
-    for (let l of unitMap.entries ())
+    for (let l of theGame.currentPlayerObj.leaders.values ())
     {
-      if (l[1].x == this.x && l[1].y == this.y && this.playerId == l[1].playerId && this.leaderId != l[1].leaderId && l[1].zOrder == (this.zOrder - 1)) 
+      if (l.x == this.x && l.y == this.y && this.leaderId != l.leaderId && l.zOrder == (this.zOrder - 1)) 
       {
-        l[1].setZOrder (z);
+        l.setZOrder (z);
         this.setZOrder (z - 1);
         
         return;
@@ -670,11 +656,11 @@ class Leader
     const z = this.zOrder;
     
     // Find the leader l with l.zOrder == this.zOrder + 1;
-    for (let l of unitMap.entries ())
+    for (let l of theGame.currentPlayerObj.leaders.values ())
     {
-      if (l[1].x == this.x && l[1].y == this.y && this.playerId == l[1].playerId && this.leaderId != l[1].leaderId && l[1].zOrder == (this.zOrder + 1)) 
+      if (l.x == this.x && l.y == this.y && this.leaderId != l.leaderId && l.zOrder == (this.zOrder + 1)) 
       {
-        l[1].setZOrder (z);
+        l.setZOrder (z);
         this.setZOrder (z + 1);
         
         return;
@@ -690,11 +676,13 @@ class Leader
     this.setZOrder (z);
     z++;    
     
-    for (let l of unitMap.entries ())
+    // Move all the friendly generals up
+    // TODO: they must be sorted by growing z, otherwise the new order is random
+    for (let l of theGame.currentPlayerObj.leaders.values ())
     {
-      if (l[1].x == this.x && l[1].y == this.y && this.playerId == l[1].playerId && this.leaderId != l[1].leaderId) 
+      if (l.x == this.x && l.y == this.y && this.leaderId != l.leaderId) 
       {
-        l[1].setZOrder (z);
+        l.setZOrder (z);
         z++;           
       }   
     }
@@ -705,11 +693,13 @@ class Leader
   {
     let z = mapZOrder + 1;
     
-    for (let l of unitMap.entries ())
+    // TODO: they must be sorted by growing z, otherwise the new order is random
+    for (let l of theGame.currentPlayerObj.leaders.values ())
     {
-      if (l[1].x == this.x && l[1].y == this.y && this.playerId == l[1].playerId && this.leaderId != l[1].leaderId) 
+      if (l.x == this.x && l.y == this.y && this.leaderId != l.leaderId) 
       {
-        l[1].setZOrder (z);
+        l.setZOrder (z);
+        l.draw ();
         z++;           
       }   
     }
@@ -718,18 +708,69 @@ class Leader
   }
  
 
-  // Returns true if this leader is near an enemy unit
+  distanceSquareFromLeader (l)
+  {
+    let d = [];
+
+    d[0] = distanceSquareInUnitCoords 
+    (
+      xMapCoordFromUnitCoord (l.x, l.y),
+      yMapCoordFromUnitCoord (l.x, l.y),
+      xMapCoordFromUnitCoord (this.x, this.y), 
+      yMapCoordFromUnitCoord (this.x, this.y)
+    );
+
+    d[1] = distanceSquareInUnitCoords 
+    (
+      xMapCoordFromUnitCoord (l.x2, l.y2),
+      yMapCoordFromUnitCoord (l.x2, l.y2),
+      xMapCoordFromUnitCoord (this.x, this.y), 
+      yMapCoordFromUnitCoord (this.x, this.y)
+    );
+
+    d[2] = distanceSquareInUnitCoords 
+    (
+      xMapCoordFromUnitCoord (l.x, l.y),
+      yMapCoordFromUnitCoord (l.x, l.y),
+      xMapCoordFromUnitCoord (this.x2, this.y2), 
+      yMapCoordFromUnitCoord (this.x2, this.y2)
+    );
+
+    d[3] = distanceSquareInUnitCoords 
+    (
+      xMapCoordFromUnitCoord (l.x2, l.y2),
+      yMapCoordFromUnitCoord (l.x2, l.y2),
+      xMapCoordFromUnitCoord (this.x2, this.y2), 
+      yMapCoordFromUnitCoord (this.x2, this.y2)
+    );
+
+
+    // Find the minimum distance
+    let minDistance = 10000;
+    for (let i = 0; i < d.length; i++)
+    {
+      if (d[i] < minDistance)
+      {
+        minDistance = d[i];
+      }
+    }
+    
+    return minDistance;
+  }
+
+
+  // Returns true if this leader (enemy) is near an enemy unit
   nearEnemy () 
   {
-    for (let l of theGame.players[theGame.currentPlayer].leaders.entries ()) 
+    for (let l of theGame.leaders.values ()) 
     {
-      const distanceSquared = distanceSquareInUnitCoords (
-        xMapCoordFromUnitCoord (l[1].x, l[1].y),
-        yMapCoordFromUnitCoord (l[1].x, l[1].y),
-        yMapCoordFromUnitCoord (this.x, this.y), 
-        xMapCoordFromUnitCoord (this.x, this.y)
-      );
-        
+      // Skip if leader is friendly
+      if (l.player.playerId == this.player.playerId)
+      {
+        continue;      
+      }      
+      
+      const distanceSquared = this.distanceSquareFromLeader (l);
       if (distanceSquared < visibilityRadiusSquared) 
       {
         return true;
@@ -752,52 +793,8 @@ class Leader
         continue;      
       }
       
-      let d = [];
-
-      d[0] = distanceSquareInUnitCoords 
-      (
-        xMapCoordFromUnitCoord (l.x, l.y),
-        yMapCoordFromUnitCoord (l.x, l.y),
-        xMapCoordFromUnitCoord (this.x, this.y), 
-        yMapCoordFromUnitCoord (this.x, this.y)
-      );
-
-      d[1] = distanceSquareInUnitCoords 
-      (
-        xMapCoordFromUnitCoord (l.x2, l.y2),
-        yMapCoordFromUnitCoord (l.x2, l.y2),
-        xMapCoordFromUnitCoord (this.x, this.y), 
-        yMapCoordFromUnitCoord (this.x, this.y)
-      );
-
-      d[2] = distanceSquareInUnitCoords 
-      (
-        xMapCoordFromUnitCoord (l.x, l.y),
-        yMapCoordFromUnitCoord (l.x, l.y),
-        xMapCoordFromUnitCoord (this.x2, this.y2), 
-        yMapCoordFromUnitCoord (this.x2, this.y2)
-      );
-
-      d[3] = distanceSquareInUnitCoords 
-      (
-        xMapCoordFromUnitCoord (l.x2, l.y2),
-        yMapCoordFromUnitCoord (l.x2, l.y2),
-        xMapCoordFromUnitCoord (this.x2, this.y2), 
-        yMapCoordFromUnitCoord (this.x2, this.y2)
-      );
-
-
-      // Find the minimum distance
-      let minDistance = 10000;
-      for (let i = 0; i < d.length; i++)
-      {
-        if (d[i] < minDistance)
-        {
-          minDistance = d[i];
-        }
-      }
-        
-      if (minDistance < visibilityRadiusSquared) 
+      const distanceSquared = this.distanceSquareFromLeader (l);
+      if (distanceSquared < visibilityRadiusSquared) 
       {
         result.push (l);
       }
@@ -818,21 +815,52 @@ class Leader
   }
 
 
-
-  numberOfFriendlyUnitsInHex (x, y)
+  // Returns an array of friendly units occupying the same hex (including COPs, SSs, etc.)
+  getFriendlyUnitsInHex (x, y, x2, y2)
   {
-    let result = 0;
+    let result = [];
     
     for (let l of unitMap.values ())
     {
-      if (l.x == x && l.y == y && this.playerId == l.playerId) 
+      if (this.playerId == l.playerId && ((l.x == this.x && l.y == this.y && l.x2 == this.x2 && l.y2 == this.y2 ) || (l.x2 == this.x && l.y2 == this.y && l.x == this.x2 && l.y == this.y2 )))
       {
-        result++;      
+        result.push (l);      
       }   
     }    
     
     return result;
   }
+    
+  
+  numberOfFriendlyUnitsInHex (x1, y1, x2, y2)
+  {
+    const result = this.getFriendlyUnitsInHex (x1, y1, x2, y2);
+    return result.length;
+  }
+
+
+  // Returns an array of friendly leaders occupying the same couple of hexes - excluding self
+  getFriendlyLeadersInSameHex ()
+  {
+    let result = [];
+    
+    for (let l of theGame.currentPlayerObj.leaders)
+    {
+      if (l.leaderId == this.leaderId)
+      {
+        continue;
+      }
+
+      if ((l.x == this.x && l.y == this.y && l.x2 == this.x2 && l.y2 == this.y2 ) || (l.x2 == this.x && l.y2 == this.y && l.x == this.x2 && l.y == this.y2 ))
+      {
+        result.push (l);      
+      }   
+    }    
+    
+    return result;
+  }
+    
+  
 
 
   enemyUnitsInHex (x, y)
