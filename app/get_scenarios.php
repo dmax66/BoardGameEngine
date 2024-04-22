@@ -23,7 +23,7 @@ $sql = "USE " . $schemaname;;
 $result = mysqli_query($conn, $sql);
 
 
-$sql = "SELECT id, name FROM Scenarios";
+$sql = "SELECT scenarioId, Name FROM Scenarios";
 if ($loglevel > 1) fprintf ($logfile, "SQL=%s\n", $sql);
 
 
