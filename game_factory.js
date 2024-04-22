@@ -9,10 +9,36 @@ class GameFactory
   static units_data   = null;
   static gameData     = null;
   static ss_data      = null;
+  static responseFromDB = "";
 
   constructor () {}
   
+  static getid_callback (xhttp_obj) {
+    GameFactory.responseFromDB = xhttp_obj.responseText;
+  }
   
+
+  static initFromScenario (scenario_id, name) 
+  {
+    // Get scenario data from DB and populate internal structures
+    // const url = "app/get_scenario_data.php?scenario_id=" + scenario_id;
+    // call_server_api_get (url, get_scenario_data);
+    
+    // Create the new game in the database, get the new game ID
+    call_server_api_get ("app/create_game_from_scenario.php?scenario_id=" + scenario_id + "&game_name=" + name, GameFactory.getid_callback);
+//    this.id = responseFromDB;
+    GameFactory.LoadGame (name);
+  
+    // Close the create game modal box
+    // @TODO: move to the UI modules
+    document.getElementById("newgame_box").style.display="none";
+
+    // Players must choose position of COPs and supply sources
+    
+    // And get the game begin
+    this.play();
+  }
+
   static LoadGame (id) 
   {
     call_server_api_get ("app/load_table_for_game.php?table=Games&gameId="         + id, GameFactory.Game_callback);

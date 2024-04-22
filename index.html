@@ -59,10 +59,10 @@ body {
 </style>
 
 <script>
-const unitMap = new Map ();
-const mapZOrder = 1;
-
+  const unitMap = new Map ();
+  const mapZOrder = 1;
 </script>
+
 <script src="map_geometry_funcs.js"></script>
 <script src="ajax.js"></script>
 <script src="statusbar_ui.js"></script>
@@ -82,14 +82,13 @@ const mapZOrder = 1;
 <script src="modal.js"></script>
 
 <script type="text/javascript">
+  let new_game_id = '';
+  let theGame = null;
 
-let new_game_id = '';
-let theGame = null;
+  const hexWidth = 34;
+  const hexHeight = 30;  
 
-const hexWidth = 34;
-const hexHeight = 30;  
-
-const visibilityRadiusSquared = 25;
+  const visibilityRadiusSquared = 25;
 
 
 // 
@@ -110,7 +109,8 @@ function createNewGameDialog ()
 }
 
 
-function populate_scenario_list(xhttp_obj) {
+function populate_scenario_list(xhttp_obj) 
+{
   const scenarios = JSON.parse(xhttp_obj.responseText); 
 
   const scenario_list = document.getElementById("scenario_list");
@@ -118,8 +118,8 @@ function populate_scenario_list(xhttp_obj) {
   for (let i=0; i < scenarios.length; i++)
   {
     let new_elem = document.createElement ("option");
-    new_elem.value = scenarios[i].id;
-    new_elem.innerHTML = scenarios[i].name;
+    new_elem.value = scenarios[i].scenarioId;
+    new_elem.innerHTML = scenarios[i].Name;
 
     scenario_list.appendChild (new_elem);
   }
@@ -141,7 +141,8 @@ function createLoadGameDialog ()
 }
 
 
-function populate_game_list(xhttp_obj) {
+function populate_game_list(xhttp_obj) 
+{
   const games = JSON.parse(xhttp_obj.responseText); 
 
   const game_list = document.getElementById("game_list");
@@ -236,8 +237,10 @@ function loadGame (id)
     <select id="scenario_list" name="scenarios">
         <option value=""></option>
     </select> 
-    <br>Enter the game name: <input type="text" id="game_name" onblur="theGame.name = this.value">
-    <br><input type="button" value="Create Game" onclick="theGame.initFromScenario (document.getElementById ('scenario_list').value">
+    <br>Enter the game name: <input type="text" id="game_name">
+    <br><input type="button" value="Create Game" onclick="GameFactory.initFromScenario (
+        document.getElementById ('scenario_list').value,
+        document.getElementById ('game_name').value)">
   </div>
 
 </div>
@@ -490,7 +493,7 @@ function xxx (ev)
 </script>
 
 <div id="mapContainer" class="map_container" >
-  <img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove2(event)"  >
+  <img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove(event)"  >
   <div id="counter-balloon" class="stack_info" style="display:none; z-index: 50" ></div>
   
 </div>

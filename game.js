@@ -22,7 +22,7 @@ class Game {
     { id: "DRS",  phase:"Combat Phase",   segment:"Disorganization and Rally Segment", action: Game.doNothing        }
   ];
 
-  constructor (id,  name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather) 
+  constructor (id, name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather) 
   {
     this.id               = id;
     this.name             = "";
@@ -50,13 +50,7 @@ class Game {
     this.gameWidget = null;
   }
 
-  static responseFromDB = "";
 
-  static getid_callback (xhttp_obj) {
-    responseFromDB = xhttp_obj.responseText;
-  }
-  
-  
   addPlayer (p)
   {
     this.players.push (p);  
@@ -85,29 +79,6 @@ class Game {
   {
     this.units.set (u.unitId, u);
   }
-
-
-  initFromScenario (scenario_id) 
-  {
-    // Get scenario data from DB and populate internal structures
-    // const url = "app/get_scenario_data.php?scenario_id=" + scenario_id;
-    // call_server_api_get (url, get_scenario_data);
-    
-    // Create the new game in the database, get the new game ID
-    call_server_api_get ("app/create_game_from_scenario.php?scenario_id=" + scenario_id + "&game_name=" + this.name, Game.getid_callback);
-    this.id = responseFromDB;
-    loadDataFromDB (this.id);
-  
-    // Close the create game modal box
-    // @TODO: move to the UI modules
-    document.getElementById("newgame_box").style.display="none";
-
-    // Players must choose position of COPs and supply sources
-    
-    // And get the game begin
-    this.play();
-  }
-
 
 
   // Returns an instance of class Unit whose id == unitId
