@@ -59,10 +59,10 @@ body {
 </style>
 
 <script>
-  const unitMap = new Map ();
-  const mapZOrder = 1;
-</script>
+const unitMap = new Map ();
+const mapZOrder = 1;
 
+</script>
 <script src="map_geometry_funcs.js"></script>
 <script src="ajax.js"></script>
 <script src="statusbar_ui.js"></script>
@@ -82,13 +82,18 @@ body {
 <script src="modal.js"></script>
 
 <script type="text/javascript">
-  let new_game_id = '';
-  let theGame = null;
 
-  const hexWidth = 34;
-  const hexHeight = 30;  
+let new_game_id = '';
+let theGame = null;
 
-  const visibilityRadiusSquared = 25;
+const hexWidth = 34;
+const hexHeight = 30;  
+
+const visibilityRadiusSquared = 25;
+
+
+
+const unitPicker          = new UnitPicker ();
 
 
 // 
@@ -105,12 +110,11 @@ function createNewGameDialog ()
   document.getElementById("newgame_box").style.display = "block";   
   
   // Load the list of scenarios
-  call_server_api_get ("app/get_scenarios.php", populate_scenario_list);
+  call_server_api_get ("http://localhost/app/get_scenarios.php", populate_scenario_list);
 }
 
 
-function populate_scenario_list(xhttp_obj) 
-{
+function populate_scenario_list(xhttp_obj) {
   const scenarios = JSON.parse(xhttp_obj.responseText); 
 
   const scenario_list = document.getElementById("scenario_list");
@@ -118,8 +122,8 @@ function populate_scenario_list(xhttp_obj)
   for (let i=0; i < scenarios.length; i++)
   {
     let new_elem = document.createElement ("option");
-    new_elem.value = scenarios[i].scenarioId;
-    new_elem.innerHTML = scenarios[i].Name;
+    new_elem.value = scenarios[i].id;
+    new_elem.innerHTML = scenarios[i].name;
 
     scenario_list.appendChild (new_elem);
   }
@@ -141,11 +145,10 @@ function createLoadGameDialog ()
 }
 
 
-function populate_game_list(xhttp_obj) 
-{
+function populate_game_list(xhttp_obj) {
   const games = JSON.parse(xhttp_obj.responseText); 
 
-  const game_list = document.getElementById("game_list");
+  const gameList_widget = document.getElementById("game_list");
 
   for (let i=0; i < games.length; i++)
   {
@@ -153,7 +156,7 @@ function populate_game_list(xhttp_obj)
     new_elem.value = games[i].ID;
     new_elem.innerHTML = games[i].Name + " (Scenario: " + games[i].Description + ")";
 
-    game_list.appendChild (new_elem);
+    gameList_widget.appendChild (new_elem);
   }
 }
 
@@ -173,9 +176,9 @@ function do_nothing()
 
 
 function show_menu (flag) {
-  const menu_obj = document.getElementById("menu_items_id");
+  const menu_widget = document.getElementById("menu_items_id");
   
-  menu_obj.style.display = (flag == true) ? "block" : "none";
+  menu_widget.style.display = (flag == true) ? "block" : "none";
 }
 
 function toggle_menu () {
@@ -189,28 +192,6 @@ function showMousePosition (evx, evy, x, y) {
 }
 
 
-function processMouseMove (ev) {
-  const x = xUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);   // So that we enter a new hex when crossing the hex side, not its middle axis
-  const y = yUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
-
-  showMousePosition (ev.offsetX, ev.offsetY, x, y);
-//  showStackContent (x, y);
-}
-
-
-function processMouseMove2 (ev) {
-  const x = xUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);   // So that we enter a new hex when crossing the hex side, not its middle axis
-  const y = yUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
-  
-//  UIShadeHex (markerTarget, {x:x, y:y} );
-  if (positionPicker.isActive)
-  {
-    positionPicker.moveTo (x, y);
-  }
-  
-  showMousePosition (ev.offsetX, ev.offsetY, x, y);
-}
-
 
 
 function loadGame (id) 
@@ -220,11 +201,12 @@ function loadGame (id)
   theGame.resume ();
 }
 
+
+
+
 </script>
 
-<body onload = "
-  theStatusBar = new UI_RenderStatusBar (document.getElementById('game_status_bar')); 
-  show_menu (false);" onkeydown="xxx(event)"> 
+<body onload = "theStatusBar = new UI_RenderStatusBar (document.getElementById('game_status_bar')); show_menu (false);"> 
 
 
 <font color="Silver">
@@ -237,10 +219,8 @@ function loadGame (id)
     <select id="scenario_list" name="scenarios">
         <option value=""></option>
     </select> 
-    <br>Enter the game name: <input type="text" id="game_name">
-    <br><input type="button" value="Create Game" onclick="GameFactory.initFromScenario (
-        document.getElementById ('scenario_list').value,
-        document.getElementById ('game_name').value)">
+    <br>Enter the game name: <input type="text" id="game_name" onblur="theGame.name = this.value">
+    <br><input type="button" value="Create Game" onclick="GameFactory.createGameFromScenario (scenarioId, gameName); document.getElementById('newgame_box').style.display='none'; theGame.play()">
   </div>
 
 </div>
@@ -458,6 +438,32 @@ function loadGame (id)
 -->
 
 <script>
+
+function processMouseMove (ev) {
+  const x = xUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);   // So that we enter a new hex when crossing the hex side, not its middle axis
+  const y = yUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
+
+  showMousePosition (ev.offsetX, ev.offsetY, x, y);
+//  showStackContent (x, y);
+}
+
+
+function processMouseMove2 (ev) {
+  const x = xUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);   // So that we enter a new hex when crossing the hex side, not its middle axis
+  const y = yUnitCoordFromMapCoord (ev.offsetX, ev.offsetY);
+  
+//  UIShadeHex (markerTarget, {x:x, y:y} );
+  if (positionPicker.isActive)
+  {
+    positionPicker.moveTo (x, y);
+  }
+  
+  showMousePosition (ev.offsetX, ev.offsetY, x, y);
+}
+
+
+
+
 function xxx (ev)
 {
 	console.log ("Key:" + ev.key)
@@ -493,13 +499,15 @@ function xxx (ev)
 </script>
 
 <div id="mapContainer" class="map_container" >
-  <img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove(event)"  >
+  <img id="game_map_id" class="game_map" src="img/SoN_Map_New-2011_0521.png" onclick="show_menu(false)" onmousemove="processMouseMove2(event)"  >
   <div id="counter-balloon" class="stack_info" style="display:none; z-index: 50" ></div>
   
 </div>
  
-
 <script>
+
+const positionPicker      = new PositionPicker ();
+positionPicker.hide();
 
 const att = document.createAttribute ("data-owner");
 
@@ -511,15 +519,9 @@ const dieRollDialogBox    = new DieRollDialogBox ();
 const yesNoDialogBox      = new YesNoDialogBox ();
 const allocateAPDialogBox = new AllocateAPDialogBox ();
 const getAPDialogBox      = new GetAPDialogBox ();
-const selectFriendlyLeaderDialogBox = new SelectFriendlyLeaderInSameHex ();
-
-const positionPicker      = new PositionPicker ();
-positionPicker.hide();
-
-const unitPicker          = new UnitPicker ();
+// const selectFriendlyLeaderDialogBox = new SelectFriendlyLeaderInSameHex ();
 
 </script>
-
 
 </body>
 

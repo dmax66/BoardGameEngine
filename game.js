@@ -22,7 +22,13 @@ class Game {
     { id: "DRS",  phase:"Combat Phase",   segment:"Disorganization and Rally Segment", action: Game.doNothing        }
   ];
 
-  constructor (id, name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather) 
+  constructor ()
+  {
+    this.name             = "";
+    this.scenarioId       = "";
+  }
+  
+  init (id,  name, scenarioId, currentTurn, endTurn, currentPlayer, currentSegment, weather) 
   {
     this.id               = id;
     this.name             = "";
@@ -50,7 +56,13 @@ class Game {
     this.gameWidget = null;
   }
 
+  static responseFromDB = "";
 
+  static getId_callback (xhttp_obj) {
+    responseFromDB = xhttp_obj.responseText;
+  }
+  
+  
   addPlayer (p)
   {
     this.players.push (p);  
